@@ -1,0 +1,5 @@
+foreachMapF :: (k × v -> k × v -> Ordering)            -- Sort function
+            -> (k × v -> Boolean)                      -- Filter function
+            -> Lens s (Map k v)
+            -> (Lens s v -> (s -> s) -> Component s)   -- (s -> s) deletes the current element
+            -> Component s

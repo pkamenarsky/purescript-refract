@@ -1,0 +1,10 @@
+.DS_Store
+.#.
+.psc-package
+.psci_modules
+reactive-query/.stack-work
+reactive-query/test
+node_modules
+output
+static/dist
+README.html

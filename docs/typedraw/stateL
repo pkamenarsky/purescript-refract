@@ -1,0 +1,1 @@
+stateL :: Lens st s -> (s -> Component st) -> Component st

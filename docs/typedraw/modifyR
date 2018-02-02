@@ -1,0 +1,5 @@
+           {
+             x :: Lens su a
+modifyR :: , y :: Lens su b -> ( { x :: a, y :: b, z :: c } -> { x :: a, y :: b, z :: c }) -> Effect su
+           , z :: Lens su c
+           }

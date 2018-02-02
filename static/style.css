@@ -1,0 +1,196 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Dosis';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Dosis Medium'), local('Dosis-Medium'), url(/fonts/Dosis-Medium.ttf) format('woff2');
+}
+/* latin */
+@font-face {
+  font-family: 'Dosis';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Dosis Medium'), local('Dosis-Bold'), url(/fonts/Dosis-Bold.ttf) format('woff2');
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+
+  color: #333;
+
+  font-weight: 500;
+  font-family: 'Dosis';
+  font-size: 24px;
+  text-transform: uppercase;
+}
+
+.container {
+  position: relative;
+
+  left: 50%;
+  top: 160px;
+  width: 480px;
+
+  margin-left: -240px;
+}
+
+.container .todo {
+  position: relative;
+}
+
+.container .todo-input {
+  width: 100%;
+  border: 0px;
+  outline: 0px;
+
+  font-size: 24px;
+  font-family: 'Dosis';
+  text-transform: uppercase;
+
+  padding-left: 32px;
+  margin-bottom: 32px;
+}
+
+.container .todo-input::placeholder {
+  color: #ccc;
+}
+
+.container .todo .todo-checkbox {
+  position: absolute;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  border: 2px solid #ccc;
+
+  width: 17px;
+  height: 17px;
+
+  outline: none;
+  line-height: 24px;
+  margin: auto 0;
+  box-sizing: border-box;
+  top: 0px;
+  bottom: 0px;
+  display: block;
+}
+
+.container .todo .todo-checkbox:checked {
+  border: 2px solid #333;
+}
+
+.container .todo .todo-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  background-color: #333;
+  width: 9px;
+  height: 9px;
+  top: 2px;
+  left: 2px;
+}
+
+.container .todo .todo-edit {
+  padding: 0px 32px;
+  line-height: 42px;
+  display: block;
+
+  color: #000;
+
+  width: 100%;
+  border: 0px;
+  outline: 0px;
+
+  font-size: 24px;
+  font-family: 'Dosis';
+  text-transform: uppercase;
+
+  padding-left: 32px;
+}
+
+.container .todo .todo-description {
+  padding: 0px 32px;
+  line-height: 42px;
+  display: block;
+}
+
+.container .todo .todo-delete {
+  position: absolute;
+
+  display: none;
+
+  cursor: pointer;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+
+  width: 16px;
+  height: 36px;
+  font-size: 36px;
+  line-height: 31px;
+  vertical-align: center;
+
+  margin: auto 0px;
+}
+
+.container .todo .todo-delete::after {
+  content: '×';
+}
+
+.container .todo .todo-delete:hover {
+  display: block;
+}
+
+.container .todo:hover .todo-delete {
+  display: block;
+}
+
+.container .footer {
+  margin-top: 32px;
+  padding-left: 32px;
+}
+
+.container .footer .todo-count {
+  font-size: 12px;
+  font-weight: 700;
+
+  float: left;
+  text-align: left;
+}
+
+.container .footer .todo-filters {
+  font-size: 12px;
+  font-weight: 700;
+
+  position: absolute;
+
+  right: 0px;
+  left: 0px;
+
+  margin: 0px;
+  padding: 0px;
+
+  text-align: center;
+}
+
+.container .footer .todo-filters span {
+  cursor: pointer;
+}
+
+.container .footer .todo-filters span:hover {
+  color: #777;
+}
+
+.container .footer .todo-clear {
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  position: relative;
+  float: right;
+}
+
+.container .footer .todo-clear:hover {
+  color: #777;
+}
