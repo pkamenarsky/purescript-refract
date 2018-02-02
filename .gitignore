@@ -2,6 +2,7 @@
 .#.
 .psc-package
 .psci_modules
+bower_components
 reactive-query/.stack-work
 reactive-query/test
 node_modules
