@@ -1,6 +1,7 @@
 module Refract
   ( Component
   , ComponentClass
+  , EffectEF
   , EffectF
   , Effect
   , Handler
@@ -39,15 +40,14 @@ module Refract
   , zoomRUn
   ) where
 
-import Control.Monad.Aff (Aff, launchAff_, makeAff, nonCanceler)
-import Control.Monad.Free (Free, hoistFree, liftF, runFreeM)
-import Data.Either (Either(..))
-import Prelude (class Functor, class Ord, Ordering, Unit, bind, compose, const, discard, flip, id, map, pure, unit, void, ($), (>>=))
-import Undefined
+import Prelude
 
+import Control.Monad.Aff (Aff, launchAff_, makeAff, nonCanceler)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
+import Control.Monad.Eff.Unsafe (unsafeCoerceEff)
+import Control.Monad.Free (Free, hoistFree, liftF, runFreeM)
 import DOM (DOM)
 import DOM.HTML (window)
 import DOM.HTML.Types (htmlDocumentToDocument)
@@ -55,6 +55,9 @@ import DOM.HTML.Window (document)
 import DOM.Node.NonElementParentNode (getElementById)
 import DOM.Node.Types (Element, ElementId(..), documentToNonElementParentNode)
 import Data.Array (catMaybes, filter, index, length, sortBy, updateAt)
+import Data.Either (Either(..))
+import Data.Exists (Exists, mkExists, runExists)
+import Data.Functor.Invariant (class Invariant)
 import Data.Lens (ALens', Lens', cloneLens, lens, over, set, (^.))
 import Data.Map (Map)
 import Data.Map as M
@@ -68,6 +71,7 @@ import React.DOM as RD
 import React.DOM.Props as P
 import ReactDOM (render)
 import Refract.Lens (class RecordToLens, recordToLens)
+import Undefined (undefined)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | A synonym for `<<<`.
@@ -86,27 +90,64 @@ _id = lens id (const id)
 -- Effects ---------------------------------------------------------------------
 
 -- | The base functor of the `Effect` free monad.
-data EffectF eff st next
-  = Modify (st -> st × Unit) (Unit -> next)    -- ~ ∀ a. Modify (st -> st × a) (a -> next)
-  | Effect (st -> Aff eff Unit) (Unit -> next) -- ~ ∀ a. Effect (st -> Aff eff a) (a -> next)
+newtype EffectF eff st next = EffectF (Exists (EffectEF eff st next))
 
-derive instance functorEffectF :: Functor (EffectF eff st)
+-- | A functor for the existential.
+data EffectEF eff st next r
+  = Modify (st -> st × r) (r -> next)
+  | Effect (st -> Aff eff r) (r -> next)
+
+-- | Slightly safer coerce to change effect types on the base functor
+unsafeCoerceEffectF :: ∀ eff eff' st next. EffectF eff st next -> EffectF eff' st next
+unsafeCoerceEffectF = unsafeCoerce
+
+-- | Slightly safe coerce to change effect types on the free monad
+unsafeCoerceEffect :: ∀ eff eff' st a. Effect eff st a -> Effect eff' st a
+unsafeCoerceEffect = unsafeCoerce
+
+instance invariantEffectEF :: Invariant (EffectEF eff st next) where
+  imap f g = case _ of
+    Modify m n -> Modify (map f <<< m) (n <<< g)
+    Effect e n -> Effect (map f <<< e) (n <<< g)
+
+instance functorEffectF :: Functor (EffectF eff st) where
+  map f = overEffectF \eef -> mkExists case eef of
+    Modify m n -> Modify m (f <<< n)
+    Effect e n -> Effect e (f <<< n)
+
+unEffectF :: ∀ eff st next. EffectF eff st next -> Exists (EffectEF eff st next)
+unEffectF (EffectF ef) = ef
+
+overEffectF
+  :: ∀ eff st st' next next'
+   . (∀ a. EffectEF eff st next a -> Exists (EffectEF eff st' next'))
+  -> EffectF eff st next
+  -> EffectF eff st' next'
+overEffectF f = EffectF <<< runExists f <<< unEffectF
 
 -- | An `Effect` with base type `st`.
 type Effect eff st = Free (EffectF eff st)
 
 type ReactEff eff = (state :: R.ReactState R.ReadWrite, console :: CONSOLE | eff)
 
+mapEffectEF :: ∀ eff st stt next a. Lens' st stt -> EffectEF eff stt next a -> EffectEF eff st next a
+mapEffectEF lns (Modify f next) = Modify (\st -> let st' × a = f (st ^. lns) in set lns st' st × a) next
+mapEffectEF lns (Effect f next) = Effect (\st -> f (st ^. lns)) next
+
 mapEffectF :: ∀ eff st stt next. Lens' st stt -> EffectF eff stt next -> EffectF eff st next
-mapEffectF lns (Modify f next) = Modify (\st -> let st' × a = f (st ^. lns) in set lns st' st × a) next
-mapEffectF lns (Effect f next) = Effect (\st -> f (st ^. lns)) next
+mapEffectF lns = overEffectF (mkExists <<< mapEffectEF lns)
 
 mapEffect :: ∀ eff st stt a. Lens' st stt -> Effect eff stt a -> Effect eff st a
 mapEffect lns m = hoistFree (mapEffectF lns) m
 
 interpretEffect :: ∀ eff st a. R.ReactThis Unit st -> Effect (ReactEff eff) st a -> Aff (ReactEff eff) a
-interpretEffect this m = runFreeM go m
+interpretEffect this m = runFreeM (runExists go <<< unEffectF) m
   where
+    -- Since we don't know what the particular type of `b` is (it is hidden away
+    -- in the existential), we need to make sure that `go` works for any `b`.
+    -- Which means that we take the second component of `Modify`/`Effect` and
+    -- apply it to the result of the first.
+    go :: ∀ next b. EffectEF (ReactEff eff) st next b -> Aff (ReactEff eff) next
     go (Modify f next) = do
       st <- liftEff $ R.readState this
       let st' × a = f st
@@ -124,11 +165,12 @@ modify f = modify' \st -> f st × unit
 
 -- | Modify the current `Component` state and return a result.
 modify' :: ∀ eff st a. (st -> st × a) -> Effect eff st a
-modify' f = unsafeCoerce $ liftF $ Modify (unsafeCoerce f) id
+modify' f = liftF $ EffectF $ mkExists $ Modify f id
 
 -- | Perform a `Control.Monad.Aff` action and return a result.
 effectfully :: ∀ a eff st. (st -> Aff eff a) -> Effect eff st a
-effectfully f = liftF $ Effect (map unsafeCoerce f) unsafeCoerce
+-- Use `id` here to get the hidden existential to match up with the result type
+effectfully f = liftF $ EffectF $ mkExists $ Effect f id
 
 -- Zoom, state, effects --------------------------------------------------------
 
@@ -270,7 +312,7 @@ type Handler st = R.EventHandlerContext R.ReadWrite Unit st Unit
 type Props eff st = (Effect eff st Unit -> Handler st) -> P.Props
 
 -- Components ------------------------------------------------------------------
-  
+
 
 -- | A `Component eff st` is parameterized over an effect type `eff` and a
 -- | state type `st` over which it operates.
@@ -366,8 +408,10 @@ run elemId cmp st updateState = void $ element >>= render ui
     spec :: R.ReactSpec Unit st (ReactEff eff)
     spec = R.spec st \this -> do
       st' <- R.readState this
-      _   <- unsafeCoerce updateState $ st'
-      pure $ cmp (\effect -> unsafeCoerce $ launchAff_ $ interpretEffect this (unsafeCoerce effect)) st'
+      unsafeCoerceEff $ updateState $ st'
+      pure $ st # cmp \effect ->
+        unsafeCoerceEff $ launchAff_ $
+          interpretEffect this (unsafeCoerceEffect effect)
 
     element :: Eff (dom :: DOM | eff) Element
     element = do
