@@ -2,7 +2,7 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, _id, foreachZ, modify, state, run, zoom)
+import Refract (Component, foreachZ, modify, state, run, zoom)
 import Refract.DOM (div, text)
 
 import Control.Monad.Eff (Eff)
@@ -28,7 +28,7 @@ twoCounters = div [] [ zoom _1 counter, zoom _2 counter ]
 manyCounters :: ∀ eff. Component eff (Array Int)
 manyCounters = div []
   [ div [ onClick \_ -> modify (cons 0) ] [ text "Add counter" ]
-  , foreachZ _id counter
+  , foreachZ id counter
   ]
 
 main :: ∀ eff. Array Int -> (Array Int -> Eff eff Unit) -> Eff (dom :: DOM | eff) Unit

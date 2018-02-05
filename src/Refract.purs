@@ -10,7 +10,6 @@ module Refract
   , (○)
   , type (×)
   , (×)
-  , _id
   , componentClass
   , component
   , defaultSpec
@@ -78,10 +77,6 @@ infixr 6 Tuple as ×
 
 -- | A type synonym for `Tuple`.
 infixr 6 type Tuple as ×
-
--- | The identity `Lens`.
-_id :: ∀ a. Lens' a a
-_id = lens id (const id)
 
 -- Effects ---------------------------------------------------------------------
 
