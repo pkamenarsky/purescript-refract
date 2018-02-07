@@ -404,7 +404,7 @@ run elemId cmp st updateState = void $ element >>= render ui
     spec = R.spec st \this -> do
       st' <- R.readState this
       unsafeCoerceEff $ updateState $ st'
-      pure $ st # cmp \effect ->
+      pure $ st' # cmp \effect ->
         unsafeCoerceEff $ launchAff_ $
           interpretEffect this (unsafeCoerceEffect effect)
 
