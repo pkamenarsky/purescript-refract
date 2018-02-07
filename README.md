@@ -12,7 +12,7 @@ The Elm architecture is conceptually extremely simple:
 
 Unfortunately, while straightforward, composition is verbose. Something as mundane as displaying the same component twice would force one to at least define a new `Event` constructor and adjust the fold function appropriately, forwarding sub events to the second component where needed. 
 
-While other libraries solve that problem in various ways (e.g. [purescript-specular](https://github.com/restaumatic/purescript-specular)), they give up the conceptual simplicity of Elm's central `View -> Model` idea. `purescript-refract` tries to further explore the design space by retaining that simplicity while throwing away the boilerplate.
+While other libraries solve that problem in various ways (e.g. [purescript-specular](https://github.com/restaumatic/purescript-specular)), they give up the conceptual simplicity of Elm's central `Model -> View` idea. `purescript-refract` tries to further explore the design space by retaining that simplicity while throwing away the boilerplate.
 
 ## Quick start
 

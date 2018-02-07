@@ -14,7 +14,7 @@ import Data.Map (Map)
 import Data.Map as M
 import Data.String as S
 import Data.Tuple (fst, snd)
-import Prelude (class Ord, Unit, compare, not, show, when, ($), (+), (<>), (==), (>))
+import Prelude (class Ord, Unit, compare, id, not, show, when, ($), (+), (<>), (==), (>))
 import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, unsafeEventConvert, value)
 import React (Event)
 import Refract.DOM (div, input, label, span, text)
@@ -200,9 +200,9 @@ todoMVC lns = zoom lns $ state \st -> div [ className "container" ]
 
       , div
           [ className "todo-filters" ]
-          [ spanButton _id (set _filter All) [ text "All" ], text "/"
-          , spanButton _id (set _filter Active) [ text "Active" ], text "/"
-          , spanButton _id (set _filter Completed) [ text "Completed" ]
+          [ spanButton id (set _filter All) [ text "All" ], text "/"
+          , spanButton id (set _filter Active) [ text "Active" ], text "/"
+          , spanButton id (set _filter Completed) [ text "Completed" ]
           ]
 
       , if (length $ filter (_.completed) $ M.values st.todos) > 0
@@ -223,4 +223,4 @@ todoMVC lns = zoom lns $ state \st -> div [ className "container" ]
 -- Main ------------------------------------------------------------------------
 
 main :: ∀ eff. AppState -> (AppState -> Eff eff Unit) -> Eff (dom :: DOM | eff) Unit
-main = run "main" (todoMVC _id)
+main = run "main" (todoMVC id)
