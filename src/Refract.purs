@@ -57,7 +57,7 @@ import Data.Array (catMaybes, filter, index, length, sortBy, updateAt)
 import Data.Either (Either(..))
 import Data.Exists (Exists, mkExists, runExists)
 import Data.Functor.Invariant (class Invariant)
-import Data.Lens (ALens', Lens', cloneLens, lens, over, set, (^.))
+import Data.Lens (ALens', Lens', Setter', cloneLens, lens, over, set, (^.))
 import Data.Map (Map)
 import Data.Map as M
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
@@ -209,6 +209,13 @@ modifyL
   -> (stt -> stt)
   -> Effect eff st Unit
 modifyL lns f = modify (over (cloneLens lns) f)
+
+-- | Modify `Component` substate with any kind of `Setter`.
+modifyS
+  :: ∀ eff st stt. Setter' st stt
+  -> (stt -> stt)
+  -> Effect eff st Unit
+modifyS lns f = modify (over lns f)
 
 -- | Modify `Component` substate specified by a `Lens` and return a result.
 modifyL'
