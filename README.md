@@ -1,4 +1,4 @@
-![zoomR](docs/refract-logo.png)
+![Refract](docs/refract-logo.png)
 
 `purescript-refract` is an optical Purescript UI library based on React and the [Elm architecture](https://guide.elm-lang.org/architecture/), but without the boilerplate.
 
@@ -19,7 +19,7 @@ While other libraries solve that problem in various ways (e.g. [purescript-specu
 The canonical example of a counter in `purescript-refract`:
 
 ```purescript
-counter :: ∀ eff. Component eff Int
+counter :: Component Int
 counter = state \st -> div []
   [ div [ onClick \_ -> modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
@@ -30,14 +30,14 @@ counter = state \st -> div []
 In short, skip the need to define an `Event` type and provide direct access to a component's state in its DOM event handlers. Composition happens through [lenses](https://github.com/purescript-contrib/purescript-profunctor-lenses); to focus on a specific sub-state, use [`zoom`](#zooming): 
 
 ```purescript
-twoCounters :: ∀ eff. Component eff (Tuple Int Int)
+twoCounters :: Component (Tuple Int Int)
 twoCounters = div [] [ zoom _1 counter, zoom _2 counter ]
 ```
 
 To render a list of components, each one focused on a single element, use one of the [`foreach*` combinators](#traversals):
 
 ```purescript
-counters :: ∀ eff. Component eff (Array Int)
+counters :: Component (Array Int)
 counters = div []
   [ div [ onClick \_ -> modify (cons 0) ] [ text "Add counter" ]
   , foreachZ _id counter
@@ -54,12 +54,12 @@ To get a better idea of how `purescript-refract` code looks in the wild, check o
 
 ## Components
 
-A `Component eff st` is parameterized over an effect type `eff` and a state type `st` over which it operates.
+A `Component st` is parameterized over an a state type `st` over which it operates.
 
 All basic HTML building blocks are `Components`. For example, to construct a `span` within a `div`:
 
 ```purescript
-spanWithinDiv :: ∀ eff st. Component eff st 
+spanWithinDiv :: ∀ st. Component st 
 spanWithinDiv = div [] [ span [] [ text "Nested!" ] ]
 ```
 
@@ -68,19 +68,19 @@ spanWithinDiv = div [] [ span [] [ text "Nested!" ] ]
 Having a `Component` with a state of type `Int`:
 
 ```purescript
-intComponent :: ∀ eff. Component eff Int 
+intComponent :: Component Int 
 intComponent = div [] [ text "State: " ]
 ```
 
 To access the `Component`'s state, use the `state` combinator:
 
 ```purescript
-state :: ∀ eff st. (st -> Component eff st) -> Component eff st
+state :: ∀ st. (st -> Component st) -> Component st
 ```
 In other words, `state` "reifies" the current `Component`'s state, e.g:
 
 ```purescript
-intComponent :: ∀ eff. Component eff Int 
+intComponent :: Component Int 
 intComponent = state \st -> div [] [ text ("State: " <> show st) ]
 ```
 
@@ -89,23 +89,23 @@ intComponent = state \st -> div [] [ text ("State: " <> show st) ]
 Every HTML `Component` takes an array of `Props`, such as `onClick`:
 
 ```purescript
-onClick :: ∀ eff st. (Event -> Effect eff st Unit) -> Props eff st
+onClick :: ∀ st. (Event -> Effect st Unit) -> Props st
 ```
 
-In turn, the following basic actions run in the `Effect eff st` monad:
+In turn, the following basic actions run in the `Effect st` monad:
 
 ```purescript
-modify :: ∀ eff st. (st -> st) -> Effect eff st Unit
-modify' :: ∀ eff st a. (st -> st × a) -> Effect eff st a
+modify :: ∀ st. (st -> st) -> Effect st Unit
+modify' :: ∀ st a. (st -> st × a) -> Effect st a
 ```
 
 which modify the current `Component`'s state (and return a result in `modify'`'s case), and
 
 ```purescript
-effectfully :: ∀ a eff st. (st -> Aff eff a) -> Effect eff st a
+effectfully :: ∀ a st. (st -> Aff a) -> Effect st a
 ```
 
-which embeds random `Aff eff` actions in `Effect eff st`. For example:
+which embeds random `Aff` actions in `Effect st`. For example:
 
 ```purescript
 div [ onClick \e -> do
@@ -123,16 +123,16 @@ There are two ways to define and reuse that `Component`:
 
 * By concretely defining its state and zooming into it:
 ```purescript
-inputComponent :: ∀ eff. Component eff { current :: String, input :: String }
+inputComponent :: Component { current :: String, input :: String }
 ```
 * By keeping it polymorphic in its state and providing lenses to the different substates:
 ```purescript
 inputComponent
-  :: ∀ eff st.
+  :: ∀ st.
      { current :: ALens' st String
      , input :: ALens' st String
      }
-  -> Component eff st
+  -> Component st
 ```
 
 ### Zooming
@@ -140,8 +140,7 @@ inputComponent
 Zooming may be a better choice if `{ current :: String, input :: String }` is a literal substate of the parent `Component`'s state:
 
 ```purescript
-parentComponent
-  :: ∀ eff. Component eff
+parentComponent :: Component
   { inputState :: { current :: String, input :: String }
   , loggedIn :: Boolean
   }
@@ -161,8 +160,7 @@ The new `RowToList` goodness allows for a `zoomR` combinator that works with gen
 Polymorphic components are more flexible and allow for easier [children-parent communication](#children-to-parent-communication) (though not impossible otherwise!)
 
 ```purescript
-parentComponent
-  :: ∀ eff. Component
+parentComponent :: Component
   { current :: String
   , input :: String
   , loggedIn :: Boolean
@@ -208,12 +206,12 @@ Sometimes a `Component` needs to alter its parent's state in some way (for examp
 
 ```purescript
 inputComponent
-  :: ∀ eff st.
+  :: ∀ st.
       { current :: ALens' st String
       , input :: ALens' st String
       }
    -> (st -> st)
-   -> Component eff st
+   -> Component st
 inputComponent focus delete = div []
   [ div [ onClick \_ -> modifyR focus \st -> st { current = "" } ] [ text "Clear text" ]
   , div [ onClick \_ -> modify delete ] [ text "Delete" ]
@@ -222,19 +220,19 @@ inputComponent focus delete = div []
 parent = div [] [ inputComponent { current, input }  ]
 ```
 
-(Note that one could pass `Effect eff st Unit` instead of `st -> st` for an effectful action.)
+(Note that one could pass `Effect st Unit` instead of `st -> st` for an effectful action.)
 
 Another approach is to specify the parent's state as part of the `Component`'s state and `zoomR` into the child `Component` from the parent `Component`:
 
 ```purescript
 inputComponent
-  :: ∀ eff st.
+  :: ∀ st.
   -> (st -> st)
-  -> Component eff
-     { parent :: st
-     , current :: String
-     , input :: String
-     }
+  -> Component
+       { parent :: st
+       , current :: String
+       , input :: String
+       }
 inputComponent focus delete = div []
   [ div [ onClick \_ -> modify \st -> st { current = "" } ] [ text "Clear text" ]
   , div [ onClick \_ -> modify \st -> st { parent = delete st.parent } ] [ text "Delete" ]
@@ -253,12 +251,12 @@ For example:
 
 ```purescript
 inputComponent
-  :: ∀ eff st.
+  :: ∀ st.
       { current :: ALens' st String
       , input :: ALens' st String
       }
   -> (st -> st)
-  -> Component eff st
+  -> Component st
 inputComponent focus delete = zoomR focus \unzoom -> div []
   [ div [ onClick \_ -> modify \st -> st { current = "" } ] [ text "Clear text" ]
   , unzoom $ div [ onClick \_ -> modify delete ] [ text "Delete" ]
@@ -306,22 +304,22 @@ which would first delete the focused element and _only then_ attempt to modify i
 `purescript-refract` is a thin wrapper over React and thus presents direct access to the lifetime methods API:
 
 ``` purescript
-type Spec eff st =
+type Spec st =
   { displayName :: String
 
-  , componentWillMount :: Effect eff st Unit
-  , componentDidMount :: Effect eff st Unit
-  , componentWillUnmount :: Effect eff st Unit
+  , componentWillMount :: Effect st Unit
+  , componentDidMount :: Effect st Unit
+  , componentWillUnmount :: Effect st Unit
 
-  , componentWillUpdate :: st -> Effect eff st Unit
-  , componentDidUpdate :: st -> Effect eff st Unit
+  , componentWillUpdate :: st -> Effect st Unit
+  , componentDidUpdate :: st -> Effect st Unit
 
   , shouldComponentUpdate :: st -> Boolean
   }
 
-componentClass :: ∀ eff st. Spec eff st -> Component eff st -> ComponentClass eff st
+componentClass :: ∀ st. Spec st -> Component st -> ComponentClass st
 
-component :: ∀ eff st. ComponentClass eff st -> Component eff st
+component :: ∀ st. ComponentClass st -> Component st
 ```
 
 Note that `ComponentClass`es should be defined at the top level, otherwise every rerender will create a new `ComponentClass` and consequently force React to immediately and repeatedly call `componentWillMount`, `componentDidMount`, etc.

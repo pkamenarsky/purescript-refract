@@ -13,12 +13,11 @@ import Type.Row (Cons, Nil, kind RowList, class RowToList, class ListToRow)
 class ListToLens st (l :: RowList) (r :: RowList) | l st -> r, r st -> l
 
 instance listToLensNil :: ListToLens st Nil Nil
-
 -- | This is just an expansion of the `ALens' o st` type synonym.
 -- In particular, the JS implementation relies on the concrete Shop type,
 -- because if there were just a `Strong p` constraint on any type `p`, that
 -- constraint would not be passed along to the JS.
-instance listToLensCons :: (ListToLens st ls rs) => ListToLens st (Cons k (Shop o o o o -> Shop o o st st) ls) (Cons k o rs)
+else instance listToLensCons :: (ListToLens st ls rs) => ListToLens st (Cons k (Shop o o o o -> Shop o o st st) ls) (Cons k o rs)
 
 class RecordToLens st (r :: # Type) (rs :: # Type) | r st -> rs, rs st -> r
 

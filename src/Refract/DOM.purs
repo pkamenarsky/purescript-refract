@@ -4,677 +4,677 @@ import Refract
 
 import Unsafe.Coerce (unsafeCoerce)
   
-text :: ∀ eff st. String -> Component eff st
+text :: ∀ st. String -> Component st
 text str _ _ = unsafeCoerce str
 
-a :: ∀ eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+a :: ∀ st. Array (Props st) -> Array (Component st) -> Component st
 a = mkComponent "a"
 
-a' :: ∀ eff st. Array (Component eff st) -> Component eff st
+a' :: ∀ st. Array (Component st) -> Component st
 a' = a []
 
-abbr :: ∀ eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+abbr :: ∀ st. Array (Props st) -> Array (Component st) -> Component st
 abbr = mkComponent "abbr"
 
-abbr' :: ∀ eff st. Array (Component eff st) -> Component eff st
+abbr' :: ∀ st. Array (Component st) -> Component st
 abbr' = abbr []
 
-address :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+address :: forall st. Array (Props st) -> Array (Component st) -> Component st
 address = mkComponent "address"
 
-address' :: forall eff st. Array (Component eff st) -> Component eff st
+address' :: forall st. Array (Component st) -> Component st
 address' = address []
 
-area :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+area :: forall st. Array (Props st) -> Array (Component st) -> Component st
 area = mkComponent "area"
 
-area' :: forall eff st. Array (Component eff st) -> Component eff st
+area' :: forall st. Array (Component st) -> Component st
 area' = area []
 
-article :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+article :: forall st. Array (Props st) -> Array (Component st) -> Component st
 article = mkComponent "article"
 
-article' :: forall eff st. Array (Component eff st) -> Component eff st
+article' :: forall st. Array (Component st) -> Component st
 article' = article []
 
-aside :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+aside :: forall st. Array (Props st) -> Array (Component st) -> Component st
 aside = mkComponent "aside"
 
-aside' :: forall eff st. Array (Component eff st) -> Component eff st
+aside' :: forall st. Array (Component st) -> Component st
 aside' = aside []
 
-audio :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+audio :: forall st. Array (Props st) -> Array (Component st) -> Component st
 audio = mkComponent "audio"
 
-audio' :: forall eff st. Array (Component eff st) -> Component eff st
+audio' :: forall st. Array (Component st) -> Component st
 audio' = audio []
 
-b :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+b :: forall st. Array (Props st) -> Array (Component st) -> Component st
 b = mkComponent "b"
 
-b' :: forall eff st. Array (Component eff st) -> Component eff st
+b' :: forall st. Array (Component st) -> Component st
 b' = b []
 
-base :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+base :: forall st. Array (Props st) -> Array (Component st) -> Component st
 base = mkComponent "base"
 
-base' :: forall eff st. Array (Component eff st) -> Component eff st
+base' :: forall st. Array (Component st) -> Component st
 base' = base []
 
-bdi :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+bdi :: forall st. Array (Props st) -> Array (Component st) -> Component st
 bdi = mkComponent "bdi"
 
-bdi' :: forall eff st. Array (Component eff st) -> Component eff st
+bdi' :: forall st. Array (Component st) -> Component st
 bdi' = bdi []
 
-bdo :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+bdo :: forall st. Array (Props st) -> Array (Component st) -> Component st
 bdo = mkComponent "bdo"
 
-bdo' :: forall eff st. Array (Component eff st) -> Component eff st
+bdo' :: forall st. Array (Component st) -> Component st
 bdo' = bdo []
 
-big :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+big :: forall st. Array (Props st) -> Array (Component st) -> Component st
 big = mkComponent "big"
 
-big' :: forall eff st. Array (Component eff st) -> Component eff st
+big' :: forall st. Array (Component st) -> Component st
 big' = big []
 
-blockquote :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+blockquote :: forall st. Array (Props st) -> Array (Component st) -> Component st
 blockquote = mkComponent "blockquote"
 
-blockquote' :: forall eff st. Array (Component eff st) -> Component eff st
+blockquote' :: forall st. Array (Component st) -> Component st
 blockquote' = blockquote []
 
-body :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+body :: forall st. Array (Props st) -> Array (Component st) -> Component st
 body = mkComponent "body"
 
-body' :: forall eff st. Array (Component eff st) -> Component eff st
+body' :: forall st. Array (Component st) -> Component st
 body' = body []
 
-br :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+br :: forall st. Array (Props st) -> Array (Component st) -> Component st
 br = mkComponent "br"
 
-br' :: forall eff st. Array (Component eff st) -> Component eff st
+br' :: forall st. Array (Component st) -> Component st
 br' = br []
 
-button :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+button :: forall st. Array (Props st) -> Array (Component st) -> Component st
 button = mkComponent "button"
 
-button' :: forall eff st. Array (Component eff st) -> Component eff st
+button' :: forall st. Array (Component st) -> Component st
 button' = button []
 
-canvas :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+canvas :: forall st. Array (Props st) -> Array (Component st) -> Component st
 canvas = mkComponent "canvas"
 
-canvas' :: forall eff st. Array (Component eff st) -> Component eff st
+canvas' :: forall st. Array (Component st) -> Component st
 canvas' = canvas []
 
-caption :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+caption :: forall st. Array (Props st) -> Array (Component st) -> Component st
 caption = mkComponent "caption"
 
-caption' :: forall eff st. Array (Component eff st) -> Component eff st
+caption' :: forall st. Array (Component st) -> Component st
 caption' = caption []
 
-cite :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+cite :: forall st. Array (Props st) -> Array (Component st) -> Component st
 cite = mkComponent "cite"
 
-cite' :: forall eff st. Array (Component eff st) -> Component eff st
+cite' :: forall st. Array (Component st) -> Component st
 cite' = cite []
 
-code :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+code :: forall st. Array (Props st) -> Array (Component st) -> Component st
 code = mkComponent "code"
 
-code' :: forall eff st. Array (Component eff st) -> Component eff st
+code' :: forall st. Array (Component st) -> Component st
 code' = code []
 
-col :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+col :: forall st. Array (Props st) -> Array (Component st) -> Component st
 col = mkComponent "col"
 
-col' :: forall eff st. Array (Component eff st) -> Component eff st
+col' :: forall st. Array (Component st) -> Component st
 col' = col []
 
-colgroup :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+colgroup :: forall st. Array (Props st) -> Array (Component st) -> Component st
 colgroup = mkComponent "colgroup"
 
-colgroup' :: forall eff st. Array (Component eff st) -> Component eff st
+colgroup' :: forall st. Array (Component st) -> Component st
 colgroup' = colgroup []
 
-_data :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+_data :: forall st. Array (Props st) -> Array (Component st) -> Component st
 _data = mkComponent "data"
 
-_data' :: forall eff st. Array (Component eff st) -> Component eff st
+_data' :: forall st. Array (Component st) -> Component st
 _data' = _data []
 
-datalist :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+datalist :: forall st. Array (Props st) -> Array (Component st) -> Component st
 datalist = mkComponent "datalist"
 
-datalist' :: forall eff st. Array (Component eff st) -> Component eff st
+datalist' :: forall st. Array (Component st) -> Component st
 datalist' = datalist []
 
-dd :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+dd :: forall st. Array (Props st) -> Array (Component st) -> Component st
 dd = mkComponent "dd"
 
-dd' :: forall eff st. Array (Component eff st) -> Component eff st
+dd' :: forall st. Array (Component st) -> Component st
 dd' = dd []
 
-del :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+del :: forall st. Array (Props st) -> Array (Component st) -> Component st
 del = mkComponent "del"
 
-del' :: forall eff st. Array (Component eff st) -> Component eff st
+del' :: forall st. Array (Component st) -> Component st
 del' = del []
 
-details :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+details :: forall st. Array (Props st) -> Array (Component st) -> Component st
 details = mkComponent "details"
 
-details' :: forall eff st. Array (Component eff st) -> Component eff st
+details' :: forall st. Array (Component st) -> Component st
 details' = details []
 
-dfn :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+dfn :: forall st. Array (Props st) -> Array (Component st) -> Component st
 dfn = mkComponent "dfn"
 
-dfn' :: forall eff st. Array (Component eff st) -> Component eff st
+dfn' :: forall st. Array (Component st) -> Component st
 dfn' = dfn []
 
-dialog :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+dialog :: forall st. Array (Props st) -> Array (Component st) -> Component st
 dialog = mkComponent "dialog"
 
-dialog' :: forall eff st. Array (Component eff st) -> Component eff st
+dialog' :: forall st. Array (Component st) -> Component st
 dialog' = dialog []
 
-div :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+div :: forall st. Array (Props st) -> Array (Component st) -> Component st
 div = mkComponent "div"
 
-div' :: forall eff st. Array (Component eff st) -> Component eff st
+div' :: forall st. Array (Component st) -> Component st
 div' = div []
 
-dl :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+dl :: forall st. Array (Props st) -> Array (Component st) -> Component st
 dl = mkComponent "dl"
 
-dl' :: forall eff st. Array (Component eff st) -> Component eff st
+dl' :: forall st. Array (Component st) -> Component st
 dl' = dl []
 
-dt :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+dt :: forall st. Array (Props st) -> Array (Component st) -> Component st
 dt = mkComponent "dt"
 
-dt' :: forall eff st. Array (Component eff st) -> Component eff st
+dt' :: forall st. Array (Component st) -> Component st
 dt' = dt []
 
-em :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+em :: forall st. Array (Props st) -> Array (Component st) -> Component st
 em = mkComponent "em"
 
-em' :: forall eff st. Array (Component eff st) -> Component eff st
+em' :: forall st. Array (Component st) -> Component st
 em' = em []
 
-embed :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+embed :: forall st. Array (Props st) -> Array (Component st) -> Component st
 embed = mkComponent "embed"
 
-embed' :: forall eff st. Array (Component eff st) -> Component eff st
+embed' :: forall st. Array (Component st) -> Component st
 embed' = embed []
 
-fieldset :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+fieldset :: forall st. Array (Props st) -> Array (Component st) -> Component st
 fieldset = mkComponent "fieldset"
 
-fieldset' :: forall eff st. Array (Component eff st) -> Component eff st
+fieldset' :: forall st. Array (Component st) -> Component st
 fieldset' = fieldset []
 
-figcaption :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+figcaption :: forall st. Array (Props st) -> Array (Component st) -> Component st
 figcaption = mkComponent "figcaption"
 
-figcaption' :: forall eff st. Array (Component eff st) -> Component eff st
+figcaption' :: forall st. Array (Component st) -> Component st
 figcaption' = figcaption []
 
-figure :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+figure :: forall st. Array (Props st) -> Array (Component st) -> Component st
 figure = mkComponent "figure"
 
-figure' :: forall eff st. Array (Component eff st) -> Component eff st
+figure' :: forall st. Array (Component st) -> Component st
 figure' = figure []
 
-footer :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+footer :: forall st. Array (Props st) -> Array (Component st) -> Component st
 footer = mkComponent "footer"
 
-footer' :: forall eff st. Array (Component eff st) -> Component eff st
+footer' :: forall st. Array (Component st) -> Component st
 footer' = footer []
 
-form :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+form :: forall st. Array (Props st) -> Array (Component st) -> Component st
 form = mkComponent "form"
 
-form' :: forall eff st. Array (Component eff st) -> Component eff st
+form' :: forall st. Array (Component st) -> Component st
 form' = form []
 
-h1 :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+h1 :: forall st. Array (Props st) -> Array (Component st) -> Component st
 h1 = mkComponent "h1"
 
-h1' :: forall eff st. Array (Component eff st) -> Component eff st
+h1' :: forall st. Array (Component st) -> Component st
 h1' = h1 []
 
-h2 :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+h2 :: forall st. Array (Props st) -> Array (Component st) -> Component st
 h2 = mkComponent "h2"
 
-h2' :: forall eff st. Array (Component eff st) -> Component eff st
+h2' :: forall st. Array (Component st) -> Component st
 h2' = h2 []
 
-h3 :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+h3 :: forall st. Array (Props st) -> Array (Component st) -> Component st
 h3 = mkComponent "h3"
 
-h3' :: forall eff st. Array (Component eff st) -> Component eff st
+h3' :: forall st. Array (Component st) -> Component st
 h3' = h3 []
 
-h4 :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+h4 :: forall st. Array (Props st) -> Array (Component st) -> Component st
 h4 = mkComponent "h4"
 
-h4' :: forall eff st. Array (Component eff st) -> Component eff st
+h4' :: forall st. Array (Component st) -> Component st
 h4' = h4 []
 
-h5 :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+h5 :: forall st. Array (Props st) -> Array (Component st) -> Component st
 h5 = mkComponent "h5"
 
-h5' :: forall eff st. Array (Component eff st) -> Component eff st
+h5' :: forall st. Array (Component st) -> Component st
 h5' = h5 []
 
-h6 :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+h6 :: forall st. Array (Props st) -> Array (Component st) -> Component st
 h6 = mkComponent "h6"
 
-h6' :: forall eff st. Array (Component eff st) -> Component eff st
+h6' :: forall st. Array (Component st) -> Component st
 h6' = h6 []
 
-head :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+head :: forall st. Array (Props st) -> Array (Component st) -> Component st
 head = mkComponent "head"
 
-head' :: forall eff st. Array (Component eff st) -> Component eff st
+head' :: forall st. Array (Component st) -> Component st
 head' = head []
 
-header :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+header :: forall st. Array (Props st) -> Array (Component st) -> Component st
 header = mkComponent "header"
 
-header' :: forall eff st. Array (Component eff st) -> Component eff st
+header' :: forall st. Array (Component st) -> Component st
 header' = header []
 
-hr :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+hr :: forall st. Array (Props st) -> Array (Component st) -> Component st
 hr = mkComponent "hr"
 
-hr' :: forall eff st. Array (Component eff st) -> Component eff st
+hr' :: forall st. Array (Component st) -> Component st
 hr' = hr []
 
-html :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+html :: forall st. Array (Props st) -> Array (Component st) -> Component st
 html = mkComponent "html"
 
-html' :: forall eff st. Array (Component eff st) -> Component eff st
+html' :: forall st. Array (Component st) -> Component st
 html' = html []
 
-i :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+i :: forall st. Array (Props st) -> Array (Component st) -> Component st
 i = mkComponent "i"
 
-i' :: forall eff st. Array (Component eff st) -> Component eff st
+i' :: forall st. Array (Component st) -> Component st
 i' = i []
 
-iframe :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+iframe :: forall st. Array (Props st) -> Array (Component st) -> Component st
 iframe = mkComponent "iframe"
 
-iframe' :: forall eff st. Array (Component eff st) -> Component eff st
+iframe' :: forall st. Array (Component st) -> Component st
 iframe' = iframe []
 
-img :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+img :: forall st. Array (Props st) -> Array (Component st) -> Component st
 img = mkComponent "img"
 
-img' :: forall eff st. Array (Component eff st) -> Component eff st
+img' :: forall st. Array (Component st) -> Component st
 img' = img []
 
-input :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+input :: forall st. Array (Props st) -> Array (Component st) -> Component st
 input = mkComponent "input"
 
-input' :: forall eff st. Array (Component eff st) -> Component eff st
+input' :: forall st. Array (Component st) -> Component st
 input' = input []
 
-ins :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+ins :: forall st. Array (Props st) -> Array (Component st) -> Component st
 ins = mkComponent "ins"
 
-ins' :: forall eff st. Array (Component eff st) -> Component eff st
+ins' :: forall st. Array (Component st) -> Component st
 ins' = ins []
 
-kbd :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+kbd :: forall st. Array (Props st) -> Array (Component st) -> Component st
 kbd = mkComponent "kbd"
 
-kbd' :: forall eff st. Array (Component eff st) -> Component eff st
+kbd' :: forall st. Array (Component st) -> Component st
 kbd' = kbd []
 
-keygen :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+keygen :: forall st. Array (Props st) -> Array (Component st) -> Component st
 keygen = mkComponent "keygen"
 
-keygen' :: forall eff st. Array (Component eff st) -> Component eff st
+keygen' :: forall st. Array (Component st) -> Component st
 keygen' = keygen []
 
-label :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+label :: forall st. Array (Props st) -> Array (Component st) -> Component st
 label = mkComponent "label"
 
-label' :: forall eff st. Array (Component eff st) -> Component eff st
+label' :: forall st. Array (Component st) -> Component st
 label' = label []
 
-legend :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+legend :: forall st. Array (Props st) -> Array (Component st) -> Component st
 legend = mkComponent "legend"
 
-legend' :: forall eff st. Array (Component eff st) -> Component eff st
+legend' :: forall st. Array (Component st) -> Component st
 legend' = legend []
 
-li :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+li :: forall st. Array (Props st) -> Array (Component st) -> Component st
 li = mkComponent "li"
 
-li' :: forall eff st. Array (Component eff st) -> Component eff st
+li' :: forall st. Array (Component st) -> Component st
 li' = li []
 
-link :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+link :: forall st. Array (Props st) -> Array (Component st) -> Component st
 link = mkComponent "link"
 
-link' :: forall eff st. Array (Component eff st) -> Component eff st
+link' :: forall st. Array (Component st) -> Component st
 link' = body []
 
-main :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+main :: forall st. Array (Props st) -> Array (Component st) -> Component st
 main = mkComponent "main"
 
-main' :: forall eff st. Array (Component eff st) -> Component eff st
+main' :: forall st. Array (Component st) -> Component st
 main' = main []
 
-map :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+map :: forall st. Array (Props st) -> Array (Component st) -> Component st
 map = mkComponent "map"
 
-map' :: forall eff st. Array (Component eff st) -> Component eff st
+map' :: forall st. Array (Component st) -> Component st
 map' = map []
 
-mark :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+mark :: forall st. Array (Props st) -> Array (Component st) -> Component st
 mark = mkComponent "mark"
 
-mark' :: forall eff st. Array (Component eff st) -> Component eff st
+mark' :: forall st. Array (Component st) -> Component st
 mark' = mark []
 
-menu :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+menu :: forall st. Array (Props st) -> Array (Component st) -> Component st
 menu = mkComponent "menu"
 
-menu' :: forall eff st. Array (Component eff st) -> Component eff st
+menu' :: forall st. Array (Component st) -> Component st
 menu' = menu []
 
-menuitem :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+menuitem :: forall st. Array (Props st) -> Array (Component st) -> Component st
 menuitem = mkComponent "menuitem"
 
-menuitem' :: forall eff st. Array (Component eff st) -> Component eff st
+menuitem' :: forall st. Array (Component st) -> Component st
 menuitem' = menuitem []
 
-meta :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+meta :: forall st. Array (Props st) -> Array (Component st) -> Component st
 meta = mkComponent "meta"
 
-meta' :: forall eff st. Array (Component eff st) -> Component eff st
+meta' :: forall st. Array (Component st) -> Component st
 meta' = meta []
 
-meter :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+meter :: forall st. Array (Props st) -> Array (Component st) -> Component st
 meter = mkComponent "meter"
 
-meter' :: forall eff st. Array (Component eff st) -> Component eff st
+meter' :: forall st. Array (Component st) -> Component st
 meter' = meter []
 
-nav :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+nav :: forall st. Array (Props st) -> Array (Component st) -> Component st
 nav = mkComponent "nav"
 
-nav' :: forall eff st. Array (Component eff st) -> Component eff st
+nav' :: forall st. Array (Component st) -> Component st
 nav' = nav []
 
-noscript :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+noscript :: forall st. Array (Props st) -> Array (Component st) -> Component st
 noscript = mkComponent "noscript"
 
-noscript' :: forall eff st. Array (Component eff st) -> Component eff st
+noscript' :: forall st. Array (Component st) -> Component st
 noscript' = noscript []
 
-object :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+object :: forall st. Array (Props st) -> Array (Component st) -> Component st
 object = mkComponent "object"
 
-object' :: forall eff st. Array (Component eff st) -> Component eff st
+object' :: forall st. Array (Component st) -> Component st
 object' = object []
 
-ol :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+ol :: forall st. Array (Props st) -> Array (Component st) -> Component st
 ol = mkComponent "ol"
 
-ol' :: forall eff st. Array (Component eff st) -> Component eff st
+ol' :: forall st. Array (Component st) -> Component st
 ol' = ol []
 
-optgroup :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+optgroup :: forall st. Array (Props st) -> Array (Component st) -> Component st
 optgroup = mkComponent "optgroup"
 
-optgroup' :: forall eff st. Array (Component eff st) -> Component eff st
+optgroup' :: forall st. Array (Component st) -> Component st
 optgroup' = optgroup []
 
-option :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+option :: forall st. Array (Props st) -> Array (Component st) -> Component st
 option = mkComponent "option"
 
-option' :: forall eff st. Array (Component eff st) -> Component eff st
+option' :: forall st. Array (Component st) -> Component st
 option' = option []
 
-output :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+output :: forall st. Array (Props st) -> Array (Component st) -> Component st
 output = mkComponent "output"
 
-output' :: forall eff st. Array (Component eff st) -> Component eff st
+output' :: forall st. Array (Component st) -> Component st
 output' = output []
 
-p :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+p :: forall st. Array (Props st) -> Array (Component st) -> Component st
 p = mkComponent "p"
 
-p' :: forall eff st. Array (Component eff st) -> Component eff st
+p' :: forall st. Array (Component st) -> Component st
 p' = p []
 
-param :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+param :: forall st. Array (Props st) -> Array (Component st) -> Component st
 param = mkComponent "param"
 
-param' :: forall eff st. Array (Component eff st) -> Component eff st
+param' :: forall st. Array (Component st) -> Component st
 param' = param []
 
-picture :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+picture :: forall st. Array (Props st) -> Array (Component st) -> Component st
 picture = mkComponent "picture"
 
-picture' :: forall eff st. Array (Component eff st) -> Component eff st
+picture' :: forall st. Array (Component st) -> Component st
 picture' = picture []
 
-pre :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+pre :: forall st. Array (Props st) -> Array (Component st) -> Component st
 pre = mkComponent "pre"
 
-pre' :: forall eff st. Array (Component eff st) -> Component eff st
+pre' :: forall st. Array (Component st) -> Component st
 pre' = pre []
 
-progress :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+progress :: forall st. Array (Props st) -> Array (Component st) -> Component st
 progress = mkComponent "progress"
 
-progress' :: forall eff st. Array (Component eff st) -> Component eff st
+progress' :: forall st. Array (Component st) -> Component st
 progress' = progress []
 
-q :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+q :: forall st. Array (Props st) -> Array (Component st) -> Component st
 q = mkComponent "q"
 
-q' :: forall eff st. Array (Component eff st) -> Component eff st
+q' :: forall st. Array (Component st) -> Component st
 q' = q []
 
-rp :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+rp :: forall st. Array (Props st) -> Array (Component st) -> Component st
 rp = mkComponent "rp"
 
-rp' :: forall eff st. Array (Component eff st) -> Component eff st
+rp' :: forall st. Array (Component st) -> Component st
 rp' = rp []
 
-rt :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+rt :: forall st. Array (Props st) -> Array (Component st) -> Component st
 rt = mkComponent "rt"
 
-rt' :: forall eff st. Array (Component eff st) -> Component eff st
+rt' :: forall st. Array (Component st) -> Component st
 rt' = rt []
 
-ruby :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+ruby :: forall st. Array (Props st) -> Array (Component st) -> Component st
 ruby = mkComponent "ruby"
 
-ruby' :: forall eff st. Array (Component eff st) -> Component eff st
+ruby' :: forall st. Array (Component st) -> Component st
 ruby' = ruby []
 
-s :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+s :: forall st. Array (Props st) -> Array (Component st) -> Component st
 s = mkComponent "s"
 
-s' :: forall eff st. Array (Component eff st) -> Component eff st
+s' :: forall st. Array (Component st) -> Component st
 s' = s []
 
-samp :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+samp :: forall st. Array (Props st) -> Array (Component st) -> Component st
 samp = mkComponent "samp"
 
-samp' :: forall eff st. Array (Component eff st) -> Component eff st
+samp' :: forall st. Array (Component st) -> Component st
 samp' = samp []
 
-script :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+script :: forall st. Array (Props st) -> Array (Component st) -> Component st
 script = mkComponent "script"
 
-script' :: forall eff st. Array (Component eff st) -> Component eff st
+script' :: forall st. Array (Component st) -> Component st
 script' = script []
 
-section :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+section :: forall st. Array (Props st) -> Array (Component st) -> Component st
 section = mkComponent "section"
 
-section' :: forall eff st. Array (Component eff st) -> Component eff st
+section' :: forall st. Array (Component st) -> Component st
 section' = section []
 
-select :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+select :: forall st. Array (Props st) -> Array (Component st) -> Component st
 select = mkComponent "select"
 
-select' :: forall eff st. Array (Component eff st) -> Component eff st
+select' :: forall st. Array (Component st) -> Component st
 select' = select []
 
-small :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+small :: forall st. Array (Props st) -> Array (Component st) -> Component st
 small = mkComponent "small"
 
-small' :: forall eff st. Array (Component eff st) -> Component eff st
+small' :: forall st. Array (Component st) -> Component st
 small' = small []
 
-source :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+source :: forall st. Array (Props st) -> Array (Component st) -> Component st
 source = mkComponent "source"
 
-source' :: forall eff st. Array (Component eff st) -> Component eff st
+source' :: forall st. Array (Component st) -> Component st
 source' = source []
 
-span :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+span :: forall st. Array (Props st) -> Array (Component st) -> Component st
 span = mkComponent "span"
 
-span' :: forall eff st. Array (Component eff st) -> Component eff st
+span' :: forall st. Array (Component st) -> Component st
 span' = span []
 
-strong :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+strong :: forall st. Array (Props st) -> Array (Component st) -> Component st
 strong = mkComponent "strong"
 
-strong' :: forall eff st. Array (Component eff st) -> Component eff st
+strong' :: forall st. Array (Component st) -> Component st
 strong' = strong []
 
-style :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+style :: forall st. Array (Props st) -> Array (Component st) -> Component st
 style = mkComponent "style"
 
-style' :: forall eff st. Array (Component eff st) -> Component eff st
+style' :: forall st. Array (Component st) -> Component st
 style' = style []
 
-sub :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+sub :: forall st. Array (Props st) -> Array (Component st) -> Component st
 sub = mkComponent "sub"
 
-sub' :: forall eff st. Array (Component eff st) -> Component eff st
+sub' :: forall st. Array (Component st) -> Component st
 sub' = sub []
 
-summary :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+summary :: forall st. Array (Props st) -> Array (Component st) -> Component st
 summary = mkComponent "summary"
 
-summary' :: forall eff st. Array (Component eff st) -> Component eff st
+summary' :: forall st. Array (Component st) -> Component st
 summary' = summary []
 
-sup :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+sup :: forall st. Array (Props st) -> Array (Component st) -> Component st
 sup = mkComponent "sup"
 
-sup' :: forall eff st. Array (Component eff st) -> Component eff st
+sup' :: forall st. Array (Component st) -> Component st
 sup' = sup []
 
-table :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+table :: forall st. Array (Props st) -> Array (Component st) -> Component st
 table = mkComponent "table"
 
-table' :: forall eff st. Array (Component eff st) -> Component eff st
+table' :: forall st. Array (Component st) -> Component st
 table' = table []
 
-tbody :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+tbody :: forall st. Array (Props st) -> Array (Component st) -> Component st
 tbody = mkComponent "tbody"
 
-tbody' :: forall eff st. Array (Component eff st) -> Component eff st
+tbody' :: forall st. Array (Component st) -> Component st
 tbody' = tbody []
 
-td :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+td :: forall st. Array (Props st) -> Array (Component st) -> Component st
 td = mkComponent "td"
 
-td' :: forall eff st. Array (Component eff st) -> Component eff st
+td' :: forall st. Array (Component st) -> Component st
 td' = td []
 
-textarea :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+textarea :: forall st. Array (Props st) -> Array (Component st) -> Component st
 textarea = mkComponent "textarea"
 
-textarea' :: forall eff st. Array (Component eff st) -> Component eff st
+textarea' :: forall st. Array (Component st) -> Component st
 textarea' = textarea []
 
-tfoot :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+tfoot :: forall st. Array (Props st) -> Array (Component st) -> Component st
 tfoot = mkComponent "tfoot"
 
-tfoot' :: forall eff st. Array (Component eff st) -> Component eff st
+tfoot' :: forall st. Array (Component st) -> Component st
 tfoot' = tfoot []
 
-th :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+th :: forall st. Array (Props st) -> Array (Component st) -> Component st
 th = mkComponent "th"
 
-th' :: forall eff st. Array (Component eff st) -> Component eff st
+th' :: forall st. Array (Component st) -> Component st
 th' = th []
 
-thead :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+thead :: forall st. Array (Props st) -> Array (Component st) -> Component st
 thead = mkComponent "thead"
 
-thead' :: forall eff st. Array (Component eff st) -> Component eff st
+thead' :: forall st. Array (Component st) -> Component st
 thead' = thead []
 
-time :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+time :: forall st. Array (Props st) -> Array (Component st) -> Component st
 time = mkComponent "time"
 
-time' :: forall eff st. Array (Component eff st) -> Component eff st
+time' :: forall st. Array (Component st) -> Component st
 time' = time []
 
-title :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+title :: forall st. Array (Props st) -> Array (Component st) -> Component st
 title = mkComponent "title"
 
-title' :: forall eff st. Array (Component eff st) -> Component eff st
+title' :: forall st. Array (Component st) -> Component st
 title' = title []
 
-tr :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+tr :: forall st. Array (Props st) -> Array (Component st) -> Component st
 tr = mkComponent "tr"
 
-tr' :: forall eff st. Array (Component eff st) -> Component eff st
+tr' :: forall st. Array (Component st) -> Component st
 tr' = tr []
 
-track :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+track :: forall st. Array (Props st) -> Array (Component st) -> Component st
 track = mkComponent "track"
 
-track' :: forall eff st. Array (Component eff st) -> Component eff st
+track' :: forall st. Array (Component st) -> Component st
 track' = track []
 
-u :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+u :: forall st. Array (Props st) -> Array (Component st) -> Component st
 u = mkComponent "u"
 
-u' :: forall eff st. Array (Component eff st) -> Component eff st
+u' :: forall st. Array (Component st) -> Component st
 u' = u []
 
-ul :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+ul :: forall st. Array (Props st) -> Array (Component st) -> Component st
 ul = mkComponent "ul"
 
-ul' :: forall eff st. Array (Component eff st) -> Component eff st
+ul' :: forall st. Array (Component st) -> Component st
 ul' = ul []
 
-var :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+var :: forall st. Array (Props st) -> Array (Component st) -> Component st
 var = mkComponent "var"
 
-var' :: forall eff st. Array (Component eff st) -> Component eff st
+var' :: forall st. Array (Component st) -> Component st
 var' = var []
 
-video :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+video :: forall st. Array (Props st) -> Array (Component st) -> Component st
 video = mkComponent "video"
 
-video' :: forall eff st. Array (Component eff st) -> Component eff st
+video' :: forall st. Array (Component st) -> Component st
 video' = video []
 
-wbr :: forall eff st. Array (Props eff st) -> Array (Component eff st) -> Component eff st
+wbr :: forall st. Array (Props st) -> Array (Component st) -> Component st
 wbr = mkComponent "body"
 
-wbr' :: forall eff st. Array (Component eff st) -> Component eff st
+wbr' :: forall st. Array (Component st) -> Component st
 wbr' = wbr []
