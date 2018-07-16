@@ -8,5 +8,22 @@ exports.mapI = function(x) {
     }
 
     return as;
-  }
-}
+  };
+};
+
+exports.memo = function(f) {
+  var old_a = null;
+  var old_b = null;
+
+  return function(a) {
+    if (old_a !== a) {
+      old_a = a;
+      old_b = f(a);
+
+      return old_b;
+    }
+    else {
+      return old_b;
+    }
+  };
+};

@@ -60,6 +60,7 @@ import React.DOM (IsDynamic(..), mkDOM)
 import React.DOM as RD
 import React.DOM.Props as P
 import Refract.Lens (class RecordToLens, recordToLens)
+import Undefined (undefined)
 
 -- | A synonym for `<<<`.
 infixr 9 compose as ○
@@ -151,16 +152,18 @@ liftEffect f = liftF $ EffectF $ mkExists $ Effect (E.liftEffect ○ const f) id
 
 -- Zoom, state, effects --------------------------------------------------------
 
+foreign import memo :: ∀ a b. (a -> b) -> a -> b
+
 -- | Reify the current `Component` state.
 state :: ∀ st. (st -> Component st) -> Component st
-state f effect st = (f st) effect st
+state f effect st = memo f st effect st
 
 -- | Reify `Component` substate specified by a lens.
 stateL
   :: ∀ st stt. ALens' st stt
   -> (stt -> Component st)
   -> Component st
-stateL lns f effect st = (f (st ^. cloneLens lns)) effect st
+stateL lns f effect st = f (st ^. cloneLens lns) effect st
 
 -- | `stateL` for generic records.
 -- |
@@ -180,10 +183,10 @@ stateL lns f effect st = (f (st ^. cloneLens lns)) effect st
 -- | ```
 stateR
   :: ∀ r rs st. RecordToLens st r rs
-  => Record r
-  -> (Record rs -> Component st)
+  => r
+  -> (rs -> Component st)
   -> Component st
-stateR r f effect st = (f (st ^. recordToLens r)) effect st
+stateR r f effect st = memo f (st ^. recordToLens r) effect st
 
 -- | Modify `Component` substate specified by a `Lens`.
 modifyL
@@ -223,22 +226,22 @@ modifyL' lns' f = modify' (\st -> let st' × a = f (st ^. lns) in set lns st' st
 -- | ```
 modifyR
   :: ∀ r rs st. RecordToLens st r rs
-  => Record r
-  -> (Record rs -> Record rs)
+  => r
+  -> (rs -> rs)
   -> Effect st Unit
 modifyR r f = modify (over (recordToLens r) f)
 
 -- | Like `modifyR` but return a result.
 modifyR'
   :: ∀ r rs st a. RecordToLens st r rs
-  => Record r
-  -> (Record rs -> Record rs × a)
+  => r
+  -> (rs -> rs × a)
   -> Effect st a
 modifyR' r f = modify' (\st -> let st' × a = f (st ^. lns) in set lns st' st × a)
   where
     lns = recordToLens r
 
-type Unzoom st stt = Component st -> Component stt
+type Unzoom st stt = Effect st Unit -> Effect stt Unit
 
 -- | Embed a `Component` with a state of type `stt` into a `Component`
 -- | with a state of type `st`.
@@ -254,7 +257,7 @@ zoomUn
   :: ∀ st stt. ALens' st stt
   -> (Unzoom st stt -> Component stt)
   -> Component st
-zoomUn lns cmp effect st = cmp (\cmp' _ _ -> cmp' effect st) (\e -> effect $ mapEffect lns' e) (st ^. lns')
+zoomUn lns cmp effect st = cmp undefined (\e -> effect $ mapEffect lns' e) (st ^. lns')
   where lns' = cloneLens lns
 
 -- | `zoom` for generic records.
@@ -275,25 +278,28 @@ zoomUn lns cmp effect st = cmp (\cmp' _ _ -> cmp' effect st) (\e -> effect $ map
 -- | ```
 zoomR
   :: ∀ r rs st. RecordToLens st r rs
-  => Record r
-  -> Component (Record rs)
+  => r
+  -> Component rs
   -> Component st
 zoomR r cmp effect st = cmp (\e -> effect $ mapEffect (recordToLens r) e) (st ^. recordToLens r)
 
 -- | `zoomUn` for generic records.
 zoomRUn
   :: ∀ r rs st. RecordToLens st r rs
-  => Record r
-  -> (Unzoom st (Record rs)
-  -> Component (Record rs))
+  => r
+  -> (Unzoom st rs
+  -> Component rs)
   -> Component st
-zoomRUn r cmp effect st = cmp (\cmp' _ _ -> cmp' effect st) (\e -> effect $ mapEffect (recordToLens r) e) (st ^. recordToLens r)
+zoomRUn r cmp effect st = cmp undefined (\e -> effect $ mapEffect (recordToLens r) e) (st ^. recordToLens r)
 
 -- Props -----------------------------------------------------------------------
 
 type Props st = (Effect st Unit -> E.Effect Unit) -> P.Props
 
 -- Components ------------------------------------------------------------------
+
+newtype FocusedComponent st s
+  = FocusedComponent ((Effect st Unit -> E.Effect Unit) -> Lens' st s -> s -> ReactElement)
 
 -- | A `Component st` is parameterized over a state type `st` over which it operates.
 type Component st = (Effect st Unit -> E.Effect Unit) -> st -> ReactElement
@@ -367,7 +373,25 @@ mkComponent
   -> Array (Props st)     -- | Props
   -> Array (Component st) -- | Children
   -> Component st
-mkComponent element props children effect st = mkDOM (IsDynamic false) element (map (\p -> p effect) props) (map (\e -> e effect st) children)
+mkComponent element props children effect st = mkDOM (IsDynamic false) element (map (_ $ effect) props) (map (\e -> e effect st) children)
+
+-- | Create a DOM element `Component`.
+mkComponent'
+  :: ∀ st s. String                -- | Element name
+  -> Array (Props st)              -- | Props
+  -> Array (FocusedComponent st s) -- | Children
+  -> FocusedComponent st s
+mkComponent' element props children = FocusedComponent \effect l st -> mkDOM
+  (IsDynamic false) element (map (_ $ effect) props)
+  (map (\(FocusedComponent cmp) -> cmp effect l st) children)
+
+stateF :: ∀ stt s. (s -> Lens' stt s -> FocusedComponent stt s) -> FocusedComponent stt s
+stateF f = FocusedComponent \effect l st -> runComponent (f st l) effect l st
+  where
+    runComponent (FocusedComponent cmp) = cmp
+
+zoomF :: ∀ stt st s. Lens' st s -> FocusedComponent stt s -> FocusedComponent stt st 
+zoomF l (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect eff) (l' ○ l) (st ^. l)
 
 -- Run -------------------------------------------------------------------------
 

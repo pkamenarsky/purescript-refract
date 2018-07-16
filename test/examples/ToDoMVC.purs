@@ -16,7 +16,7 @@ import Data.Map as M
 import Data.String as S
 import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
-import Prelude (class Ord, Unit, bind, compare, identity, not, show, when, ($), (+), (<>), (==), (>))
+import Prelude (class Ord, Unit, bind, compare, identity, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
 import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
@@ -151,18 +151,24 @@ todoInput :: ∀ st.
      , active :: ALens' st Boolean
      }
   -> Component st
-todoInput delete lns = stateR lns \st -> if st.active
-  then blurableInput lns.temp \result -> do
+todoInput delete lns = zoomRUn lns \unzoom -> state \st -> if st.active
+  then blurableInput (prop (s :: S "temp")) \result -> do
     case result of
-      Cancel -> modifyR lns \st' -> st' { temp = "", active = false }
-      Input str -> modifyR lns \st' -> st' { temp = "", active = false, current = st.temp }
-      Delete -> modify delete
+      Cancel -> modify \st' -> st' { temp = "", active = false }
+      Input str -> modify \st' -> st' { temp = "", active = false, current = st.temp }
+      Delete -> unzoom $ modify delete
+  else div [] []
+  -- then blurableInput lns.temp \result -> do
+  --   case result of
+  --     Cancel -> modifyR lns \st' -> st' { temp = "", active = false }
+  --     Input str -> modifyR lns \st' -> st' { temp = "", active = false, current = st.temp }
+  --     Delete -> modify delete
 
-  else label
-    [ className "todo-description"
-    , onDoubleClick \_ -> modifyR lns \st' -> st' { temp = st.current, active = true }
-    ]
-    [ text st.current ]
+  -- else label
+  --   [ className "todo-description"
+  --   , onDoubleClick \_ -> modifyR lns \st' -> st' { temp = st.current, active = true }
+  --   ]
+  --   [ text st.current ]
 
 spanButton :: ∀ st a. ALens' st a -> (a -> a) -> Array (Component st) -> Component st
 spanButton lns f children = span [ onClick \_ -> modifyL lns f ] children
