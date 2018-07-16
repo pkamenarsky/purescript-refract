@@ -14,12 +14,8 @@ module Refract
   -- , createElement
   , defaultSpec
   , effectfully
-  -- , foreach
-  -- , foreachF
-  , foreachZ
-  , foreachZF
+  , foreach
   , foreachMap
-  , foreachMapF
   , liftEffect
   , mkComponent
   , modify
@@ -27,6 +23,8 @@ module Refract
   , modifyL
   , modifyL'
   , state
+  , unfiltered
+  , keySort
   , zoom
   ) where
 
@@ -327,40 +325,30 @@ foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
 --   --   st' = st ^. lns
 
 -- | Zooming unfiltered `Array` traversal.
-foreachZ
+foreach
   :: ∀ stt st a.
-     ALens' st (Array a)
-  -> FocusedComponent stt a
-  -> FocusedComponent stt st
-foreachZ = undefined -- foreachZF (const true)
-
--- | Zooming filtered `Array` traversal.
-foreachZF :: ∀ stt st a.
      (a -> Boolean)
   -> ALens' st (Array a)
   -> FocusedComponent stt a
   -> FocusedComponent stt st
-foreachZF f lns cmp = undefined -- foreachF f lns \lns' -> zoom (cloneLens lns') cmp
+foreach = undefined -- foreachZF (const true)
 
--- | Unfiltered `Map` traversal.
-foreachMap
-  :: ∀ stt st k v. Ord k
-  => (k × v -> k × v -> Ordering)
-  -> ALens' st (Map k v)
-  -> (ALens' st v -> (st -> st) -> FocusedComponent stt st)
-  -> FocusedComponent stt st
-foreachMap ord_f = undefined -- foreachMapF ord_f (const true)
+unfiltered :: ∀ a. a -> Boolean
+unfiltered _ = true
 
 -- | Filtered `Map` traversal.
-foreachMapF
+foreachMap
   :: ∀ stt st k v. Ord k
   => (k × v -> k × v -> Ordering)
   -> (k × v -> Boolean)
   -> ALens' st (Map k v)
-  -> (ALens' st v -> (st -> st) -> FocusedComponent stt st)
+  -> (Effect stt Unit -> FocusedComponent stt st)
   -> FocusedComponent stt st
-foreachMapF ord_f filter_f lns' cmp = undefined
+foreachMap ord_f filter_f lns' cmp = undefined
   -- RD.div [] $ flip map (elems $ M.toUnfoldable (st ^. lns)) \(k × v) -> cmp (lns ○ lensAtM k) (over lns (M.delete k)) effect st
   -- where
   --   lns = cloneLens lns'
   --   elems = sortBy ord_f ○ filter filter_f
+
+keySort :: ∀ k v. Ord k => k × v -> k × v -> Ordering
+keySort (k1 × _) (k2 × _) = compare k1 k2

@@ -2,7 +2,7 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, foreachZ, modifyL, state, zoom)
+import Refract (Component, foreach, modifyL, state, unfiltered, zoom)
 import Refract.DOM (div, text)
 
 import Data.Array (cons)
@@ -26,5 +26,5 @@ twoCounters = div [] [ zoom _1 counter, zoom _2 counter ]
 manyCounters :: Component (Array Int)
 manyCounters = state \_ l -> div []
   [ div [ onClick \_ -> modifyL l (cons 0) ] [ text "Add counter" ]
-  , foreachZ identity counter
+  , foreach unfiltered identity counter
   ]
