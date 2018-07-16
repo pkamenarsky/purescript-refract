@@ -20,8 +20,6 @@ module Refract
   , mkComponent
   , modify
   , modify'
-  , modifyL
-  , modifyL'
   , state
   , unfiltered
   , keySort
@@ -64,54 +62,54 @@ infixr 6 type Tuple as ×
 -- Effects ---------------------------------------------------------------------
 
 -- | The base functor of the `Effect` free monad.
-newtype EffectF st next = EffectF (Exists (EffectEF st next))
+newtype EffectF st s next = EffectF (Exists (EffectEF st s next))
 
 -- | A functor for the existential.
-data EffectEF st next r
-  = Modify (st -> st × r) (r -> next)
-  | Effect (st -> Aff r) (r -> next)
+data EffectEF st s next r
+  = Modify (s -> s × r) (r -> next)
+  | Effect (s -> Aff r) (r -> next)
 
-instance invariantEffectEF :: Invariant (EffectEF st next) where
+instance invariantEffectEF :: Invariant (EffectEF st s next) where
   imap f g = case _ of
     Modify m n -> Modify (map f ○ m) (n ○ g)
     Effect e n -> Effect (map f ○ e) (n ○ g)
 
-instance functorEffectF :: Functor (EffectF st) where
+instance functorEffectF :: Functor (EffectF st s) where
   map f = overEffectF \eef -> mkExists case eef of
     Modify m n -> Modify m (f ○ n)
     Effect e n -> Effect e (f ○ n)
 
-unEffectF :: ∀ st next. EffectF st next -> Exists (EffectEF st next)
+unEffectF :: ∀ st s next. EffectF st s next -> Exists (EffectEF st s next)
 unEffectF (EffectF ef) = ef
 
 overEffectF
-  :: ∀ st st' next next'
-   . (∀ a. EffectEF st next a -> Exists (EffectEF st' next'))
-  -> EffectF st next
-  -> EffectF st' next'
+  :: ∀ st s t next next'
+   . (∀ a. EffectEF st s next a -> Exists (EffectEF st t next'))
+  -> EffectF st s next
+  -> EffectF st t next'
 overEffectF f = EffectF ○ runExists f ○ unEffectF
 
 -- | An `Effect` with base type `st`.
-type Effect st = Free (EffectF st)
+type Effect st s = Free (EffectF st s)
 
-mapEffectEF :: ∀ st stt next a. Lens' st stt -> EffectEF stt next a -> EffectEF st next a
+mapEffectEF :: ∀ st s t next a. Lens' t s -> EffectEF st s next a -> EffectEF st t next a
 mapEffectEF lns (Modify f next) = Modify (\st -> let st' × a = f (st ^. lns) in set lns st' st × a) next
 mapEffectEF lns (Effect f next) = Effect (\st -> f (st ^. lns)) next
 
-mapEffectF :: ∀ st stt next. Lens' st stt -> EffectF stt next -> EffectF st next
+mapEffectF :: ∀ st s t next. Lens' t s -> EffectF st s next -> EffectF st t next
 mapEffectF lns = overEffectF (mkExists ○ mapEffectEF lns)
 
-mapEffect :: ∀ st stt a. Lens' st stt -> Effect stt a -> Effect st a
+mapEffect :: ∀ st s t a. Lens' t s -> Effect st s a -> Effect st t a
 mapEffect lns m = hoistFree (mapEffectF lns) m
 
-interpretEffect :: ∀ st a. R.ReactThis Unit (Record st) -> Effect (Record st) a -> Aff a
+interpretEffect :: ∀ st a. R.ReactThis Unit (Record st) -> Effect (Record st) (Record st) a -> Aff a
 interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
   where
     -- Since we don't know what the particular type of `b` is (it is hidden away
     -- in the existential), we need to make sure that `go` works for any `b`.
     -- Which means that we take the second component of `Modify`/`Effect` and
     -- apply it to the result of the first.
-    go :: ∀ next b. EffectEF (Record st) next b -> Aff next
+    go :: ∀ next b. EffectEF (Record st) (Record st) next b -> Aff next
     go (Modify f next) = do
       st <- E.liftEffect $ R.getState this
       let st' × a = f st
@@ -124,20 +122,20 @@ interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
       f st >>= pure ○ next
 
 -- | Modify the current `Component` state.
-modify :: ∀ st. (st -> st) -> Effect st Unit
+modify :: ∀ st s. (s -> s) -> Effect st s Unit
 modify f = modify' \st -> f st × unit
 
 -- | Modify the current `Component` state and return a result.
-modify' :: ∀ st a. (st -> st × a) -> Effect st a
+modify' :: ∀ st s a. (s -> s × a) -> Effect st s a
 modify' f = liftF $ EffectF $ mkExists $ Modify f identity
 
 -- | Perform a `Control.Monad.Aff` action and return a result.
-effectfully :: ∀ a st. (st -> Aff a) -> Effect st a
+effectfully :: ∀ a st s. (s -> Aff a) -> Effect st s a
 -- Use `id` here to get the hidden existential to match up with the result type
 effectfully f = liftF $ EffectF $ mkExists $ Effect f identity
 
 -- | Perform a `Monad.Effect` action and return a result.
-liftEffect :: ∀ a st. E.Effect a -> Effect st a
+liftEffect :: ∀ a st s. E.Effect a -> Effect st s a
 liftEffect f = liftF $ EffectF $ mkExists $ Effect (E.liftEffect ○ const f) identity
 
 -- Zoom, state, effects --------------------------------------------------------
@@ -148,34 +146,17 @@ state f = FocusedComponent \effect l st -> runComponent (f st l) effect l st
   where
     runComponent (FocusedComponent cmp) = cmp
 
-zoom :: ∀ stt st s. Lens' st s -> FocusedComponent stt s -> FocusedComponent stt st 
-zoom l (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect eff) (l' ○ l) (st ^. l)
-
-modifyL
-  :: ∀ r rs st. RecordToLens st r rs
-  => r
-  -> (rs -> rs)
-  -> Effect st Unit
-modifyL r f = modify (over (recordToLens r) f)
-
--- | Like `modifyR` but return a result.
-modifyL'
-  :: ∀ r rs st a. RecordToLens st r rs
-  => r
-  -> (rs -> rs × a)
-  -> Effect st a
-modifyL' r f = modify' (\st -> let st' × a = f (st ^. lns) in set lns st' st × a)
-  where
-    lns = recordToLens r
+zoom :: ∀ st s t. Lens' s t -> FocusedComponent st t -> FocusedComponent st s
+zoom l (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
 
 -- Props -----------------------------------------------------------------------
 
-type Props st = (Effect st Unit -> E.Effect Unit) -> P.Props
+type Props st s = (Effect st s Unit -> E.Effect Unit) -> P.Props
 
 -- Components ------------------------------------------------------------------
 
 newtype FocusedComponent st s
-  = FocusedComponent ((Effect st Unit -> E.Effect Unit) -> Lens' st s -> s -> ReactElement)
+  = FocusedComponent ((Effect st s Unit -> E.Effect Unit) -> Lens' st s -> s -> ReactElement)
 
 type Component s = forall st. FocusedComponent st s
 
@@ -183,22 +164,22 @@ type Component s = forall st. FocusedComponent st s
 
 -- | A React component class. Useful whenever a `Component` needs to implement
 -- | React lifecycle methods.
-type ComponentClass st = ReactClass { effect :: Effect { | st } Unit -> E.Effect Unit, state :: { | st } }
+type ComponentClass st s = ReactClass { effect :: Effect { | st } s Unit -> E.Effect Unit, state :: { | st } }
 
 -- | React lifecycle spec.
-type Spec st =
-  { componentDidMount :: Effect st Unit
-  , componentWillUnmount :: Effect st Unit
-  , componentDidUpdate :: st -> Effect st Unit
+type Spec st s =
+  { componentDidMount :: Effect st s Unit
+  , componentWillUnmount :: Effect st s Unit
+  , componentDidUpdate :: st -> Effect st s Unit
 
   , shouldComponentUpdate :: st -> Boolean
 
-  , unsafeComponentWillUpdate :: st -> Effect st Unit
-  , unsafeComponentWillMount :: Effect st Unit
+  , unsafeComponentWillUpdate :: st -> Effect st s Unit
+  , unsafeComponentWillMount :: Effect st s Unit
   }
 
 -- | No-op lifecycle method spec.
-defaultSpec :: ∀ st. Spec st
+defaultSpec :: ∀ st s. Spec st s
 defaultSpec =
   { componentDidMount: pure unit
   , componentWillUnmount: pure unit
@@ -243,20 +224,12 @@ defaultSpec =
 -- -- | Create a `Component` from a `ComponentClass`.
 -- createElement :: ∀ st. ComponentClass st -> Component (Record st)
 -- createElement class_ effect state' = R.createLeafElement class_ { effect, state: state' }
--- 
--- -- | Create a DOM element `Component`.
--- mkComponent
---   :: ∀ st. String         -- | Element name
---   -> Array (Props st)     -- | Props
---   -> Array (Component st) -- | Children
---   -> Component st
--- mkComponent element props children effect st = mkDOM (IsDynamic false) element (map (_ $ effect) props) (map (\e -> e effect st) children)
 
 -- | Create a DOM element `Component`.
 mkComponent
-  :: ∀ st s. String                -- | Element name
-  -> Array (Props st)              -- | Props
-  -> Array (FocusedComponent st s) -- | Children
+  :: ∀ st s. String                  -- | Element name
+  -> Array (Props st s)              -- | Props
+  -> Array (FocusedComponent st s)   -- | Children
   -> FocusedComponent st s
 mkComponent element props children = FocusedComponent \effect l st -> mkDOM
   (IsDynamic false) element (map (_ $ effect) props)
@@ -338,12 +311,12 @@ unfiltered _ = true
 
 -- | Filtered `Map` traversal.
 foreachMap
-  :: ∀ stt st k v. Ord k
+  :: ∀ st s k v. Ord k
   => (k × v -> k × v -> Ordering)
   -> (k × v -> Boolean)
-  -> ALens' st (Map k v)
-  -> (Effect stt Unit -> FocusedComponent stt st)
-  -> FocusedComponent stt st
+  -> ALens' s (Map k v)
+  -> (Effect st s Unit -> FocusedComponent st s)
+  -> FocusedComponent st s
 foreachMap ord_f filter_f lns' cmp = undefined
   -- RD.div [] $ flip map (elems $ M.toUnfoldable (st ^. lns)) \(k × v) -> cmp (lns ○ lensAtM k) (over lns (M.delete k)) effect st
   -- where

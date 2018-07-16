@@ -2,7 +2,7 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, foreach, modifyL, state, unfiltered, zoom)
+import Refract (Component, foreach, modify, state, unfiltered, zoom)
 import Refract.DOM (div, text)
 
 import Data.Array (cons)
@@ -14,17 +14,17 @@ import Prelude hiding (div)
 --------------------------------------------------------------------------------
 
 counter :: Component Int
-counter = state \st l -> div []
-  [ div [ onClick \_ -> modifyL l (_ - 1) ] [ text "Decrement" ]
+counter = state \st _ -> div []
+  [ div [ onClick \_ -> modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
-  , div [ onClick \_ -> modifyL l (_ + 1) ] [ text "Increment" ]
+  , div [ onClick \_ -> modify (_ + 1) ] [ text "Increment" ]
   ]
 
 twoCounters :: Component (Tuple Int Int)
 twoCounters = div [] [ zoom _1 counter, zoom _2 counter ]
 
 manyCounters :: Component (Array Int)
-manyCounters = state \_ l -> div []
-  [ div [ onClick \_ -> modifyL l (cons 0) ] [ text "Add counter" ]
+manyCounters = div []
+  [ div [ onClick \_ -> modify (cons 0) ] [ text "Add counter" ]
   , foreach unfiltered identity counter
   ]
