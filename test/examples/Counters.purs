@@ -21,10 +21,13 @@ counter = state \st _ -> div []
   ]
 
 twoCounters :: Component (Tuple Int Int)
-twoCounters = div [] [ zoom _1 counter, zoom _2 counter ]
+twoCounters = div []
+  [ zoom _1 counter
+  , zoom _2 counter
+  ]
 
 manyCounters :: Component (Array Int)
 manyCounters = div []
   [ div [ onClick \_ -> modify (cons 0) ] [ text "Add counter" ]
-  , foreach unfiltered identity counter
+  , foreach unfiltered counter
   ]

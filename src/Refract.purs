@@ -141,8 +141,8 @@ liftEffect f = liftF $ EffectF $ mkExists $ Effect (E.liftEffect ○ const f) id
 -- Zoom, state, effects --------------------------------------------------------
 
 -- | Reify the current `Component` state.
-state :: ∀ stt s. (s -> Lens' stt s -> FocusedComponent stt s) -> FocusedComponent stt s
-state f = FocusedComponent \effect l st -> runComponent (f st l) effect l st
+state :: ∀ st s. (s -> (Effect st s Unit -> Effect st st Unit) -> FocusedComponent st s) -> FocusedComponent st s
+state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
   where
     runComponent (FocusedComponent cmp) = cmp
 
@@ -298,12 +298,12 @@ foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
 --   --   st' = st ^. lns
 
 -- | Zooming unfiltered `Array` traversal.
+-- TODO: traversable
 foreach
-  :: ∀ stt st a.
+  :: ∀ st a.
      (a -> Boolean)
-  -> ALens' st (Array a)
-  -> FocusedComponent stt a
-  -> FocusedComponent stt st
+  -> FocusedComponent st a
+  -> FocusedComponent st (Array a)
 foreach = undefined -- foreachZF (const true)
 
 unfiltered :: ∀ a. a -> Boolean
@@ -314,10 +314,9 @@ foreachMap
   :: ∀ st s k v. Ord k
   => (k × v -> k × v -> Ordering)
   -> (k × v -> Boolean)
-  -> ALens' s (Map k v)
   -> (Effect st s Unit -> FocusedComponent st s)
-  -> FocusedComponent st s
-foreachMap ord_f filter_f lns' cmp = undefined
+  -> FocusedComponent st (Map k v)
+foreachMap ord_f filter_f cmp = undefined
   -- RD.div [] $ flip map (elems $ M.toUnfoldable (st ^. lns)) \(k × v) -> cmp (lns ○ lensAtM k) (over lns (M.delete k)) effect st
   -- where
   --   lns = cloneLens lns'
