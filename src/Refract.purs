@@ -17,6 +17,7 @@ module Refract
   , foreach
   , foreachMap
   , liftEffect
+  , mapEffect
   , mkComponent
   , modify
   , modify'

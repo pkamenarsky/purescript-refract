@@ -21,6 +21,7 @@ import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, o
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
 import Unsafe.Coerce (unsafeCoerce)
+import Undefined (undefined)
   
 --------------------------------------------------------------------------------
 
@@ -102,61 +103,66 @@ data InputResult = Cancel | Input String | Delete
 -- | * Discards the entered text on escape or blur
 -- | * Deletes input component on enter, when the text is empty
 blurableInput
-  :: ∀ st.
-     ALens' st String                -- | Lens specifying the target value
-  -> (InputResult -> Effect st Unit) -- | Result effect operating on the parent state
-  -> Component st
-blurableInput editL result =
-  stateL editL \edit -> input
+  :: ∀ st s.
+     (InputResult -> Effect st String Unit) -- | Result effect operating on the parent state
+  -> FocusedComponent st String
+blurableInput result = state \st unzoom -> input
     [ className "todo-edit"
     , autoFocus true
-    , value edit
+    , value st
     , onChange \e -> do
         target <- liftEffect $ Event.target e
-        modifyL editL \_ -> (unsafeCoerce target).value
+        modify \_ -> (unsafeCoerce target).value
     , onKeyDown \e -> do
         keyCode <- liftEffect $ Event.keyCode e
         if round keyCode == 13
-          then if S.length edit > 0
-            then result $ Input edit
+          then if S.length st > 0
+            then result $ Input st
             else result Delete
           else when (round keyCode == 27) (result Cancel)
     , onBlur \_ -> result Cancel
     ] []
 
-checkbox :: ∀ st. ALens' st Boolean -> Component st
-checkbox lns = zoom lns $ state \st -> input
+checkbox :: Component Boolean
+checkbox = state \st _ -> input
   [ _type "checkbox"
   , className "todo-checkbox"
   , checked st
   , onChange \_ -> modify not
   ] []
 
-inputOnEnter :: ∀ st. ALens' st String -> (String -> Effect st Unit) -> Component st
-inputOnEnter lnsStr done = stateL lnsStr \str -> input
+inputOnEnter :: ∀ st. (String -> Effect st String Unit) -> FocusedComponent st String
+inputOnEnter done = state \str _ -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
   , value str
   , onChange \e -> do
       target <- liftEffect $ Event.target e
-      modifyL lnsStr \_ -> (unsafeCoerce target).value
+      modify \_ -> (unsafeCoerce target).value
   , onEnter $ when (S.length str > 0) (done str)
   ] []
 
+type T = 
+       { temp :: String
+       , current :: String
+       , active :: Boolean
+       }
+
+
 todoInput :: ∀ st.
-     (st -> st)
-  -> { temp :: ALens' st String
-     , current :: ALens' st String
-     , active :: ALens' st Boolean
-     }
-  -> Component st
-todoInput delete lns = zoomRUn lns \unzoom -> state \st -> if st.active
-  then blurableInput (prop (s :: S "temp")) \result -> do
+     (Effect st T Unit)
+  -> FocusedComponent st
+       { temp :: String
+       , current :: String
+       , active :: Boolean
+       }
+todoInput delete = state \st _ -> if st.active
+  then zoom _temp $ blurableInput \result -> do
     case result of
-      Cancel -> modify \st' -> st' { temp = "", active = false }
-      Input str -> modify \st' -> st' { temp = "", active = false, current = st.temp }
-      Delete -> unzoom $ modify delete
+      Cancel -> undefined -- modify \st' -> st' { temp = "", active = false }
+      Input str -> undefined -- modify \st' -> st' { temp = "", active = false, current = st.temp }
+      Delete -> undefined
   else div [] []
   -- then blurableInput lns.temp \result -> do
   --   case result of
@@ -170,74 +176,74 @@ todoInput delete lns = zoomRUn lns \unzoom -> state \st -> if st.active
   --   ]
   --   [ text st.current ]
 
-spanButton :: ∀ st a. ALens' st a -> (a -> a) -> Array (Component st) -> Component st
-spanButton lns f children = span [ onClick \_ -> modifyL lns f ] children
-
-todo
-  :: ∀ st.
-     ALens' st ToDo  -- | Lens to the current todo
-  -> (st -> st)      -- | Removes the current item from the list
-  -> Component st    -- | Todo Component
-todo lns' delete = div
-  [ className "todo" ]
-  [ checkbox (lns ○ _completed)
-  , todoInput delete
-      { temp: lns ○ _input
-      , current: lns ○ _description
-      , active: lns ○ _edited
-      }
-  , div [ className "todo-delete", onClick \_ -> modify delete ] []
-  ]
-  where
-    lns = cloneLens lns'
-
-todoMVC :: ∀ st. ALens' st AppState -> Component st
-todoMVC lns = zoom lns $ state \st -> div [ className "container" ]
-  -- Input field
-  [ inputOnEnter _todo \str -> modify \st' -> st
-      { todo = ""
-      , nextId = st'.nextId + 1
-      , todos = M.insert st'.nextId
-          { description: str
-          , completed: false
-          , edited: false
-          , input: ""
-          } st.todos
-      }
-
-  -- Individual todos
-  , foreachMapF ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) _todos todo
-
-  -- Footer
-  , div
-      [ className "footer" ]
-      [ span
-          [ className "todo-count"]
-          [ text $ show (length $ filter (not _.completed) $ M.values st.todos) <> " items left" ]
-
-      , div
-          [ className "todo-filters" ]
-          [ spanButton identity (set _filter All) [ text "All" ], text "/"
-          , spanButton identity (set _filter Active) [ text "Active" ], text "/"
-          , spanButton identity (set _filter Completed) [ text "Completed" ]
-          ]
-
-      , if (length $ filter (_.completed) $ M.values st.todos) > 0
-          then span
-            [ className "todo-clear"
-            , onClick \_ -> modify \st' -> st' { todos = filterMap (not (_.completed)) st.todos }
-            ]
-            [ text "Clear completed"]
-          else span [] []
-      ]
-  ]
-  where
-    visible :: ToDoFilter -> ToDo -> Boolean
-    visible All _ = true
-    visible Active todo' = not todo'.completed
-    visible Completed todo' = todo'.completed
-
--- Main ------------------------------------------------------------------------
-
--- main :: ∀ eff. AppState -> (AppState -> Eff eff Unit) -> Eff (dom :: DOM | eff) Unit
--- main = run "main" (todoMVC id)
+-- spanButton :: ∀ st a. ALens' st a -> (a -> a) -> Array (Component st) -> Component st
+-- spanButton lns f children = span [ onClick \_ -> modifyL lns f ] children
+-- 
+-- todo
+--   :: ∀ st.
+--      ALens' st ToDo  -- | Lens to the current todo
+--   -> (st -> st)      -- | Removes the current item from the list
+--   -> Component st    -- | Todo Component
+-- todo lns' delete = div
+--   [ className "todo" ]
+--   [ checkbox (lns ○ _completed)
+--   , todoInput delete
+--       { temp: lns ○ _input
+--       , current: lns ○ _description
+--       , active: lns ○ _edited
+--       }
+--   , div [ className "todo-delete", onClick \_ -> modify delete ] []
+--   ]
+--   where
+--     lns = cloneLens lns'
+-- 
+-- todoMVC :: ∀ st. ALens' st AppState -> Component st
+-- todoMVC lns = zoom lns $ state \st -> div [ className "container" ]
+--   -- Input field
+--   [ inputOnEnter _todo \str -> modify \st' -> st
+--       { todo = ""
+--       , nextId = st'.nextId + 1
+--       , todos = M.insert st'.nextId
+--           { description: str
+--           , completed: false
+--           , edited: false
+--           , input: ""
+--           } st.todos
+--       }
+-- 
+--   -- Individual todos
+--   , foreachMapF ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) _todos todo
+-- 
+--   -- Footer
+--   , div
+--       [ className "footer" ]
+--       [ span
+--           [ className "todo-count"]
+--           [ text $ show (length $ filter (not _.completed) $ M.values st.todos) <> " items left" ]
+-- 
+--       , div
+--           [ className "todo-filters" ]
+--           [ spanButton identity (set _filter All) [ text "All" ], text "/"
+--           , spanButton identity (set _filter Active) [ text "Active" ], text "/"
+--           , spanButton identity (set _filter Completed) [ text "Completed" ]
+--           ]
+-- 
+--       , if (length $ filter (_.completed) $ M.values st.todos) > 0
+--           then span
+--             [ className "todo-clear"
+--             , onClick \_ -> modify \st' -> st' { todos = filterMap (not (_.completed)) st.todos }
+--             ]
+--             [ text "Clear completed"]
+--           else span [] []
+--       ]
+--   ]
+--   where
+--     visible :: ToDoFilter -> ToDo -> Boolean
+--     visible All _ = true
+--     visible Active todo' = not todo'.completed
+--     visible Completed todo' = todo'.completed
+-- 
+-- -- Main ------------------------------------------------------------------------
+-- 
+-- -- main :: ∀ eff. AppState -> (AppState -> Eff eff Unit) -> Eff (dom :: DOM | eff) Unit
+-- -- main = run "main" (todoMVC id)
