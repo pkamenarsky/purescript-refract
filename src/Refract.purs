@@ -281,11 +281,11 @@ defaultSpec =
 -- | Create a DOM element `Component`.
 mkComponent
   :: ∀ s t. String                  -- | Element name
-  -> Array (Props t)                -- | Props
+  -> Array (Props s)                -- | Props
   -> Array (FocusedComponent s t)   -- | Children
   -> FocusedComponent s t
 mkComponent element props children = FocusedComponent \effect l st -> mkDOM
-  (IsDynamic false) element (map (\eff -> eff $ \e -> effect $ mapEffect l e) props)
+  (IsDynamic false) element (map (_ $ effect) props)
   (map (\(FocusedComponent cmp) -> cmp effect l st) children)
 
 -- Run -------------------------------------------------------------------------
