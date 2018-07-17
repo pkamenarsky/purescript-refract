@@ -4,677 +4,677 @@ import Refract
 
 import Unsafe.Coerce (unsafeCoerce)
   
-text :: ∀ st s. String -> FocusedComponent st s
+text :: ∀ s t. String -> FocusedComponent s t
 text str = FocusedComponent \_ _ _ -> unsafeCoerce str
 
-a :: ∀ st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+a :: ∀ s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 a = mkComponent "a"
 
-a' :: ∀ st s. Array (FocusedComponent st s) -> FocusedComponent st s
+a' :: ∀ s t. Array (FocusedComponent s t) -> FocusedComponent s t
 a' = a []
 
-abbr :: ∀ st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+abbr :: ∀ s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 abbr = mkComponent "abbr"
 
-abbr' :: ∀ st s. Array (FocusedComponent st s) -> FocusedComponent st s
+abbr' :: ∀ s t. Array (FocusedComponent s t) -> FocusedComponent s t
 abbr' = abbr []
 
-address :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+address :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 address = mkComponent "address"
 
-address' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+address' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 address' = address []
 
-area :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+area :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 area = mkComponent "area"
 
-area' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+area' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 area' = area []
 
-article :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+article :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 article = mkComponent "article"
 
-article' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+article' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 article' = article []
 
-aside :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+aside :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 aside = mkComponent "aside"
 
-aside' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+aside' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 aside' = aside []
 
-audio :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+audio :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 audio = mkComponent "audio"
 
-audio' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+audio' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 audio' = audio []
 
-b :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+b :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 b = mkComponent "b"
 
-b' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+b' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 b' = b []
 
-base :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+base :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 base = mkComponent "base"
 
-base' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+base' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 base' = base []
 
-bdi :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+bdi :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 bdi = mkComponent "bdi"
 
-bdi' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+bdi' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 bdi' = bdi []
 
-bdo :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+bdo :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 bdo = mkComponent "bdo"
 
-bdo' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+bdo' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 bdo' = bdo []
 
-big :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+big :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 big = mkComponent "big"
 
-big' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+big' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 big' = big []
 
-blockquote :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+blockquote :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 blockquote = mkComponent "blockquote"
 
-blockquote' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+blockquote' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 blockquote' = blockquote []
 
-body :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+body :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 body = mkComponent "body"
 
-body' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+body' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 body' = body []
 
-br :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+br :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 br = mkComponent "br"
 
-br' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+br' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 br' = br []
 
-button :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+button :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 button = mkComponent "button"
 
-button' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+button' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 button' = button []
 
-canvas :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+canvas :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 canvas = mkComponent "canvas"
 
-canvas' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+canvas' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 canvas' = canvas []
 
-caption :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+caption :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 caption = mkComponent "caption"
 
-caption' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+caption' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 caption' = caption []
 
-cite :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+cite :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 cite = mkComponent "cite"
 
-cite' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+cite' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 cite' = cite []
 
-code :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+code :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 code = mkComponent "code"
 
-code' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+code' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 code' = code []
 
-col :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+col :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 col = mkComponent "col"
 
-col' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+col' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 col' = col []
 
-colgroup :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+colgroup :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 colgroup = mkComponent "colgroup"
 
-colgroup' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+colgroup' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 colgroup' = colgroup []
 
-_data :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+_data :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 _data = mkComponent "data"
 
-_data' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+_data' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 _data' = _data []
 
-datalist :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+datalist :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 datalist = mkComponent "datalist"
 
-datalist' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+datalist' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 datalist' = datalist []
 
-dd :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+dd :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 dd = mkComponent "dd"
 
-dd' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+dd' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 dd' = dd []
 
-del :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+del :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 del = mkComponent "del"
 
-del' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+del' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 del' = del []
 
-details :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+details :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 details = mkComponent "details"
 
-details' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+details' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 details' = details []
 
-dfn :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+dfn :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 dfn = mkComponent "dfn"
 
-dfn' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+dfn' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 dfn' = dfn []
 
-dialog :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+dialog :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 dialog = mkComponent "dialog"
 
-dialog' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+dialog' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 dialog' = dialog []
 
-div :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+div :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 div = mkComponent "div"
 
-div' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+div' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 div' = div []
 
-dl :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+dl :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 dl = mkComponent "dl"
 
-dl' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+dl' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 dl' = dl []
 
-dt :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+dt :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 dt = mkComponent "dt"
 
-dt' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+dt' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 dt' = dt []
 
-em :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+em :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 em = mkComponent "em"
 
-em' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+em' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 em' = em []
 
-embed :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+embed :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 embed = mkComponent "embed"
 
-embed' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+embed' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 embed' = embed []
 
-fieldset :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+fieldset :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 fieldset = mkComponent "fieldset"
 
-fieldset' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+fieldset' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 fieldset' = fieldset []
 
-figcaption :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+figcaption :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 figcaption = mkComponent "figcaption"
 
-figcaption' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+figcaption' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 figcaption' = figcaption []
 
-figure :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+figure :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 figure = mkComponent "figure"
 
-figure' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+figure' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 figure' = figure []
 
-footer :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+footer :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 footer = mkComponent "footer"
 
-footer' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+footer' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 footer' = footer []
 
-form :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+form :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 form = mkComponent "form"
 
-form' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+form' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 form' = form []
 
-h1 :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+h1 :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 h1 = mkComponent "h1"
 
-h1' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+h1' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 h1' = h1 []
 
-h2 :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+h2 :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 h2 = mkComponent "h2"
 
-h2' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+h2' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 h2' = h2 []
 
-h3 :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+h3 :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 h3 = mkComponent "h3"
 
-h3' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+h3' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 h3' = h3 []
 
-h4 :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+h4 :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 h4 = mkComponent "h4"
 
-h4' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+h4' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 h4' = h4 []
 
-h5 :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+h5 :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 h5 = mkComponent "h5"
 
-h5' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+h5' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 h5' = h5 []
 
-h6 :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+h6 :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 h6 = mkComponent "h6"
 
-h6' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+h6' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 h6' = h6 []
 
-head :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+head :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 head = mkComponent "head"
 
-head' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+head' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 head' = head []
 
-header :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+header :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 header = mkComponent "header"
 
-header' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+header' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 header' = header []
 
-hr :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+hr :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 hr = mkComponent "hr"
 
-hr' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+hr' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 hr' = hr []
 
-html :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+html :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 html = mkComponent "html"
 
-html' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+html' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 html' = html []
 
-i :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+i :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 i = mkComponent "i"
 
-i' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+i' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 i' = i []
 
-iframe :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+iframe :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 iframe = mkComponent "iframe"
 
-iframe' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+iframe' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 iframe' = iframe []
 
-img :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+img :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 img = mkComponent "img"
 
-img' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+img' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 img' = img []
 
-input :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+input :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 input = mkComponent "input"
 
-input' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+input' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 input' = input []
 
-ins :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+ins :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 ins = mkComponent "ins"
 
-ins' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+ins' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 ins' = ins []
 
-kbd :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+kbd :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 kbd = mkComponent "kbd"
 
-kbd' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+kbd' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 kbd' = kbd []
 
-keygen :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+keygen :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 keygen = mkComponent "keygen"
 
-keygen' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+keygen' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 keygen' = keygen []
 
-label :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+label :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 label = mkComponent "label"
 
-label' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+label' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 label' = label []
 
-legend :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+legend :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 legend = mkComponent "legend"
 
-legend' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+legend' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 legend' = legend []
 
-li :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+li :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 li = mkComponent "li"
 
-li' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+li' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 li' = li []
 
-link :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+link :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 link = mkComponent "link"
 
-link' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+link' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 link' = body []
 
-main :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+main :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 main = mkComponent "main"
 
-main' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+main' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 main' = main []
 
-map :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+map :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 map = mkComponent "map"
 
-map' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+map' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 map' = map []
 
-mark :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+mark :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 mark = mkComponent "mark"
 
-mark' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+mark' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 mark' = mark []
 
-menu :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+menu :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 menu = mkComponent "menu"
 
-menu' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+menu' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 menu' = menu []
 
-menuitem :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+menuitem :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 menuitem = mkComponent "menuitem"
 
-menuitem' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+menuitem' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 menuitem' = menuitem []
 
-meta :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+meta :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 meta = mkComponent "meta"
 
-meta' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+meta' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 meta' = meta []
 
-meter :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+meter :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 meter = mkComponent "meter"
 
-meter' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+meter' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 meter' = meter []
 
-nav :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+nav :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 nav = mkComponent "nav"
 
-nav' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+nav' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 nav' = nav []
 
-noscript :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+noscript :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 noscript = mkComponent "noscript"
 
-noscript' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+noscript' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 noscript' = noscript []
 
-object :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+object :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 object = mkComponent "object"
 
-object' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+object' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 object' = object []
 
-ol :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+ol :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 ol = mkComponent "ol"
 
-ol' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+ol' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 ol' = ol []
 
-optgroup :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+optgroup :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 optgroup = mkComponent "optgroup"
 
-optgroup' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+optgroup' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 optgroup' = optgroup []
 
-option :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+option :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 option = mkComponent "option"
 
-option' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+option' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 option' = option []
 
-output :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+output :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 output = mkComponent "output"
 
-output' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+output' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 output' = output []
 
-p :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+p :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 p = mkComponent "p"
 
-p' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+p' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 p' = p []
 
-param :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+param :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 param = mkComponent "param"
 
-param' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+param' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 param' = param []
 
-picture :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+picture :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 picture = mkComponent "picture"
 
-picture' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+picture' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 picture' = picture []
 
-pre :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+pre :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 pre = mkComponent "pre"
 
-pre' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+pre' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 pre' = pre []
 
-progress :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+progress :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 progress = mkComponent "progress"
 
-progress' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+progress' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 progress' = progress []
 
-q :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+q :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 q = mkComponent "q"
 
-q' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+q' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 q' = q []
 
-rp :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+rp :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 rp = mkComponent "rp"
 
-rp' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+rp' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 rp' = rp []
 
-rt :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+rt :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 rt = mkComponent "rt"
 
-rt' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+rt' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 rt' = rt []
 
-ruby :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+ruby :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 ruby = mkComponent "ruby"
 
-ruby' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+ruby' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 ruby' = ruby []
 
-s :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+s :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 s = mkComponent "s"
 
-s' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+s' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 s' = s []
 
-samp :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+samp :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 samp = mkComponent "samp"
 
-samp' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+samp' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 samp' = samp []
 
-script :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+script :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 script = mkComponent "script"
 
-script' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+script' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 script' = script []
 
-section :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+section :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 section = mkComponent "section"
 
-section' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+section' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 section' = section []
 
-select :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+select :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 select = mkComponent "select"
 
-select' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+select' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 select' = select []
 
-small :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+small :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 small = mkComponent "small"
 
-small' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+small' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 small' = small []
 
-source :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+source :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 source = mkComponent "source"
 
-source' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+source' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 source' = source []
 
-span :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+span :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 span = mkComponent "span"
 
-span' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+span' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 span' = span []
 
-strong :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+strong :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 strong = mkComponent "strong"
 
-strong' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+strong' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 strong' = strong []
 
-style :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+style :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 style = mkComponent "style"
 
-style' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+style' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 style' = style []
 
-sub :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+sub :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 sub = mkComponent "sub"
 
-sub' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+sub' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 sub' = sub []
 
-summary :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+summary :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 summary = mkComponent "summary"
 
-summary' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+summary' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 summary' = summary []
 
-sup :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+sup :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 sup = mkComponent "sup"
 
-sup' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+sup' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 sup' = sup []
 
-table :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+table :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 table = mkComponent "table"
 
-table' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+table' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 table' = table []
 
-tbody :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+tbody :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 tbody = mkComponent "tbody"
 
-tbody' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+tbody' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 tbody' = tbody []
 
-td :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+td :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 td = mkComponent "td"
 
-td' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+td' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 td' = td []
 
-textarea :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+textarea :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 textarea = mkComponent "textarea"
 
-textarea' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+textarea' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 textarea' = textarea []
 
-tfoot :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+tfoot :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 tfoot = mkComponent "tfoot"
 
-tfoot' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+tfoot' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 tfoot' = tfoot []
 
-th :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+th :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 th = mkComponent "th"
 
-th' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+th' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 th' = th []
 
-thead :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+thead :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 thead = mkComponent "thead"
 
-thead' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+thead' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 thead' = thead []
 
-time :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+time :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 time = mkComponent "time"
 
-time' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+time' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 time' = time []
 
-title :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+title :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 title = mkComponent "title"
 
-title' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+title' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 title' = title []
 
-tr :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+tr :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 tr = mkComponent "tr"
 
-tr' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+tr' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 tr' = tr []
 
-track :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+track :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 track = mkComponent "track"
 
-track' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+track' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 track' = track []
 
-u :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+u :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 u = mkComponent "u"
 
-u' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+u' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 u' = u []
 
-ul :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+ul :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 ul = mkComponent "ul"
 
-ul' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+ul' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 ul' = ul []
 
-var :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+var :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 var = mkComponent "var"
 
-var' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+var' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 var' = var []
 
-video :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+video :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 video = mkComponent "video"
 
-video' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+video' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 video' = video []
 
-wbr :: forall st s. Array (Props st s) -> Array (FocusedComponent st s) -> FocusedComponent st s
+wbr :: forall s t. Array (Props t) -> Array (FocusedComponent s t) -> FocusedComponent s t
 wbr = mkComponent "body"
 
-wbr' :: forall st s. Array (FocusedComponent st s) -> FocusedComponent st s
+wbr' :: forall s t. Array (FocusedComponent s t) -> FocusedComponent s t
 wbr' = wbr []

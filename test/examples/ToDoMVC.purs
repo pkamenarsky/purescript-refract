@@ -16,7 +16,7 @@ import Data.Map as M
 import Data.String as S
 import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
-import Prelude (class Ord, Unit, bind, compare, identity, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
+import Prelude (class Ord, Unit, bind, compare, flip, identity, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
 import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
@@ -103,10 +103,10 @@ data InputResult = Cancel | Input String | Delete
 -- | * Discards the entered text on escape or blur
 -- | * Deletes input component on enter, when the text is empty
 blurableInput
-  :: ∀ st s.
-     (InputResult -> Effect st String Unit) -- | Result effect operating on the parent state
-  -> FocusedComponent st String
-blurableInput result = state \st unzoom -> input
+  :: ∀ s.
+     (InputResult -> Effect s Unit) -- | Result effect operating on the parent state
+  -> FocusedComponent s String
+blurableInput result = state \st embed -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
@@ -115,12 +115,12 @@ blurableInput result = state \st unzoom -> input
         modify \_ -> (unsafeCoerce target).value
     , onKeyDown \e -> do
         keyCode <- liftEffect $ Event.keyCode e
-        if round keyCode == 13
+        embed $ if round keyCode == 13
           then if S.length st > 0
             then result $ Input st
             else result Delete
           else when (round keyCode == 27) (result Cancel)
-    , onBlur \_ -> result Cancel
+    , onBlur \_ -> embed $ result Cancel
     ] []
 
 checkbox :: Component Boolean
@@ -131,8 +131,8 @@ checkbox = state \st _ -> input
   , onChange \_ -> modify not
   ] []
 
-inputOnEnter :: ∀ st. (String -> Effect st String Unit) -> FocusedComponent st String
-inputOnEnter done = state \str _ -> input
+inputOnEnter :: ∀ s. (String -> Effect s Unit) -> FocusedComponent s String
+inputOnEnter done = state \str embed -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
@@ -140,63 +140,46 @@ inputOnEnter done = state \str _ -> input
   , onChange \e -> do
       target <- liftEffect $ Event.target e
       modify \_ -> (unsafeCoerce target).value
-  , onEnter $ when (S.length str > 0) (done str)
+  , onEnter $ when (S.length str > 0) (embed $ done str)
   ] []
 
-type T = 
+todoInput :: ∀ s.
+     Effect s Unit
+  -> FocusedComponent s
        { temp :: String
        , current :: String
        , active :: Boolean
        }
-
-
-todoInput :: ∀ st.
-     (Effect st T Unit)
-  -> FocusedComponent st
-       { temp :: String
-       , current :: String
-       , active :: Boolean
-       }
-todoInput delete = state \st _ -> if st.active
+todoInput delete = state \st embed -> if st.active
   then zoom _temp $ blurableInput \result -> do
     case result of
-      Cancel -> undefined -- modify \st' -> st' { temp = "", active = false }
-      Input str -> undefined -- modify \st' -> st' { temp = "", active = false, current = st.temp }
-      Delete -> undefined
-  else div [] []
-  -- then blurableInput lns.temp \result -> do
-  --   case result of
-  --     Cancel -> modifyR lns \st' -> st' { temp = "", active = false }
-  --     Input str -> modifyR lns \st' -> st' { temp = "", active = false, current = st.temp }
-  --     Delete -> modify delete
+      Cancel -> modify \st' -> st' { temp = "", active = false }
+      Input str -> modify \st' -> st' { temp = "", active = false, current = st.temp }
+      Delete -> embed delete
+  else label
+    [ className "todo-description"
+    , onDoubleClick \_ -> modify \st' -> st' { temp = st.current, active = true }
+    ]
+    [ text st.current ]
 
-  -- else label
-  --   [ className "todo-description"
-  --   , onDoubleClick \_ -> modifyR lns \st' -> st' { temp = st.current, active = true }
-  --   ]
-  --   [ text st.current ]
+spanButton :: ∀ s t. Effect s Unit -> Array (FocusedComponent s t) -> FocusedComponent s t
+spanButton f children = state \_ embed -> span [ onClick \_ -> embed f ] children
 
--- spanButton :: ∀ st a. ALens' st a -> (a -> a) -> Array (Component st) -> Component st
--- spanButton lns f children = span [ onClick \_ -> modifyL lns f ] children
--- 
--- todo
---   :: ∀ st.
---      ALens' st ToDo  -- | Lens to the current todo
---   -> (st -> st)      -- | Removes the current item from the list
---   -> Component st    -- | Todo Component
--- todo lns' delete = div
---   [ className "todo" ]
---   [ checkbox (lns ○ _completed)
---   , todoInput delete
---       { temp: lns ○ _input
---       , current: lns ○ _description
---       , active: lns ○ _edited
---       }
---   , div [ className "todo-delete", onClick \_ -> modify delete ] []
---   ]
---   where
---     lns = cloneLens lns'
--- 
+todo
+  :: ∀ s.
+     Effect s Unit           -- | Removes the current item from the list
+  -> FocusedComponent s ToDo -- | Todo Component
+todo delete = state \_ embed -> div
+  [ className "todo" ]
+  [ zoom _completed checkbox
+  , flip zoom (todoInput $ embed delete)
+      { temp: _input
+      , current: _description
+      , active: _edited
+      }
+  , div [ className "todo-delete", onClick \_ -> embed delete ] []
+  ]
+
 -- todoMVC :: ∀ st. ALens' st AppState -> Component st
 -- todoMVC lns = zoom lns $ state \st -> div [ className "container" ]
 --   -- Input field
