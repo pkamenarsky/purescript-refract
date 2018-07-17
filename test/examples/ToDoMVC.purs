@@ -172,11 +172,11 @@ todo
 todo delete = state \_ embed -> div
   [ className "todo" ]
   [ zoom _completed checkbox
-  , flip zoom (todoInput $ embed delete)
-      { temp: _input
-      , current: _description
-      , active: _edited
-      }
+  -- , flip zoom (todoInput $ embed delete)
+  --     { temp: _input
+  --     , current: _description
+  --     , active: _edited
+  --     }
   , div [ className "todo-delete", onClick \_ -> embed delete ] []
   ]
 

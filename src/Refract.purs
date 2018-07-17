@@ -103,14 +103,14 @@ mapEffectF lns = overEffectF (mkExists ○ mapEffectEF lns)
 mapEffect :: ∀ s t a. Lens' t s -> Effect s a -> Effect t a
 mapEffect lns m = hoistFree (mapEffectF lns) m
 
-interpretEffect :: ∀ st a. R.ReactThis Unit (Record st) -> Effect (Record st) a -> Aff a
+interpretEffect :: ∀ s a. R.ReactThis Unit (Record s) -> Effect (Record s) a -> Aff a
 interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
   where
     -- Since we don't know what the particular type of `b` is (it is hidden away
     -- in the existential), we need to make sure that `go` works for any `b`.
     -- Which means that we take the second component of `Modify`/`Effect` and
     -- apply it to the result of the first.
-    go :: ∀ next b. EffectEF (Record st) next b -> Aff next
+    go :: ∀ next b. EffectEF (Record s) next b -> Aff next
     go (Modify f next) = do
       st <- E.liftEffect $ R.getState this
       let st' × a = f st
@@ -139,30 +139,32 @@ effectfully f = liftF $ EffectF $ mkExists $ Effect f identity
 liftEffect :: ∀ a s. E.Effect a -> Effect s a
 liftEffect f = liftF $ EffectF $ mkExists $ Effect (E.liftEffect ○ const f) identity
 
--- Zoom, state, effects --------------------------------------------------------
-
--- | Reify the current `Component` state.
-state :: ∀ s t. (t -> (Effect s Unit -> Effect t Unit) -> FocusedComponent s t) -> FocusedComponent s t
-state f = undefined -- FocusedComponent \effect l st -> runComponent (f st (undefined effect)) effect l st
-  where
-    runComponent (FocusedComponent cmp) = cmp
-
--- zoom :: ∀ ps s t. Lens' s t -> FocusedComponent s t -> FocusedComponent ps s
--- zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
-
-zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent s t -> FocusedComponent ps s
-zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
-
 -- Props -----------------------------------------------------------------------
 
 type Props s = (Effect s Unit -> E.Effect Unit) -> P.Props
 
 -- Components ------------------------------------------------------------------
 
-newtype FocusedComponent st s
-  = FocusedComponent ((Effect s Unit -> E.Effect Unit) -> Lens' st s -> s -> ReactElement)
+newtype FocusedComponent s t
+  = FocusedComponent ((Effect t Unit -> E.Effect Unit) -> Lens' s t -> t -> ReactElement)
 
-type Component s = forall st. FocusedComponent st s
+type Component s = forall t. FocusedComponent t s
+
+-- Zoom, state -----------------------------------------------------------------
+
+-- | Reify the current `Component` state.
+state :: ∀ s t. (t -> (Effect s Unit -> Effect t Unit) -> FocusedComponent s t) -> FocusedComponent s t
+state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect ?_)) effect l st
+  where
+    runComponent (FocusedComponent cmp) = cmp
+
+zoom :: ∀ ps s t. Lens' s t -> FocusedComponent s t -> FocusedComponent ps s
+zoom l (FocusedComponent cmp) = FocusedComponent \effect _ st -> cmp (\eff -> effect $ mapEffect l eff) l (st ^. l)
+
+-- zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent s t -> FocusedComponent ps s
+-- zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
+
+-- React -----------------------------------------------------------------------
 
 -- | A `Component st` is parameterized over a state type `st` over which it operates.
 
@@ -267,7 +269,7 @@ mkComponent element props children = FocusedComponent \effect l st -> mkDOM
 --       e   <- getElementById (ElementId elemId) (documentToNonElementParentNode (htmlDocumentToDocument doc))
 --       pure $ fromMaybe undefined e
 
---------------------------------------------------------------------------------
+-- Traversals ------------------------------------------------------------------
 
 lensAtA :: ∀ a. Int -> Lens' (Array a) a
 lensAtA i = lens (\m -> unsafePartial $ fromJust $ index m i) (\m v -> fromMaybe m $ updateAt i v m)
