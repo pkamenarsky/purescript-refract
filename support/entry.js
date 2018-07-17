@@ -1,7 +1,7 @@
 'use strict';
 
-var css = require('../static/style.css');
-var entry = require('../test/examples/ToDoMVC.purs');
+// var css = require('../static/style.css');
+var entry = require('../test/examples/Counters.purs');
 
 var subscribe = function(st) {
   return function() {
@@ -10,7 +10,8 @@ var subscribe = function(st) {
 }
 
 // entry.main(JSON.parse(localStorage.getItem('__refract_state')) || entry.initialState)(subscribe)();
-entry.main(entry.initialState)(subscribe)();
+// entry.main(entry.initialState)(subscribe)();
+entry.main();
 
 if (module.hot) {
   module.hot.accept();
