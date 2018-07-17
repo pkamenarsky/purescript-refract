@@ -158,11 +158,10 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
   where
     runComponent (FocusedComponent cmp) = cmp
 
-zoom :: ∀ ps s t. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
-zoom l (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (effect $ _) (l' ○ l) (st ^. l)
-
--- zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
--- zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
+zoom :: ∀ ps s t l. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
+zoom l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l') (st ^. l')
+  where
+    l' = recordToLens l
 
 -- React -----------------------------------------------------------------------
 
@@ -237,9 +236,9 @@ mkComponent
   -> Array (Props s)                -- | Props
   -> Array (FocusedComponent s t)   -- | Children
   -> FocusedComponent s t
-mkComponent element props children = undefined -- FocusedComponent \effect l st -> mkDOM
-  -- (IsDynamic false) element (map (_ $ effect) props)
-  -- -- (map (\(FocusedComponent cmp) -> cmp effect l st) children)
+mkComponent element props children = FocusedComponent \effect l st -> mkDOM
+  (IsDynamic false) element (map (_ $ effect) props)
+  (map (\(FocusedComponent cmp) -> cmp effect l st) children)
 
 -- Run -------------------------------------------------------------------------
 
