@@ -14,10 +14,10 @@ import Prelude hiding (div)
 --------------------------------------------------------------------------------
 
 counter :: Component Int
-counter = state \st _ -> div []
-  [ div [ onClick \_ -> modify (_ - 1) ] [ text "Decrement" ]
+counter = state \st embed -> div []
+  [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
-  , div [ onClick \_ -> modify (_ + 1) ] [ text "Increment" ]
+  , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
   ]
 
 twoCounters :: Component (Tuple Int Int)
@@ -27,7 +27,7 @@ twoCounters = div []
   ]
 
 manyCounters :: Component (Array Int)
-manyCounters = div []
-  [ div [ onClick \_ -> modify (cons 0) ] [ text "Add counter" ]
+manyCounters = state \_ embed -> div []
+  [ div [ onClick \_ -> embed $ modify (cons 0) ] [ text "Add counter" ]
   , foreach unfiltered counter
   ]

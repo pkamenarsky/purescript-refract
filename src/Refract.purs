@@ -153,16 +153,16 @@ type Component s = forall t. FocusedComponent t s
 -- Zoom, state -----------------------------------------------------------------
 
 -- | Reify the current `Component` state.
-state :: ∀ s t. (t -> (Effect s Unit -> Effect t Unit) -> FocusedComponent s t) -> FocusedComponent s t
-state f = FocusedComponent \effect l st -> runComponent (f st \eff -> ?_ eff) effect l st
+state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
+state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
   where
     runComponent (FocusedComponent cmp) = cmp
 
-zoom :: ∀ ps s t. Lens' s t -> FocusedComponent s t -> FocusedComponent ps s
-zoom l (FocusedComponent cmp) = undefined -- FocusedComponent \effect _ st -> cmp (\eff -> effect $ mapEffect l eff) l (st ^. l)
+-- zoom :: ∀ ps s t. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
+-- zoom l = undefined -- (FocusedComponent cmp) = undefined -- FocusedComponent \effect _ st -> cmp (\eff -> effect $ mapEffect l eff) l (st ^. l)
 
--- zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent s t -> FocusedComponent ps s
--- zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
+zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
+zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
 
 -- React -----------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ defaultSpec =
 -- | Create a DOM element `Component`.
 mkComponent
   :: ∀ s t. String                  -- | Element name
-  -> Array (Props t)                -- | Props
+  -> Array (Props s)                -- | Props
   -> Array (FocusedComponent s t)   -- | Children
   -> FocusedComponent s t
 mkComponent element props children = undefined -- FocusedComponent \effect l st -> mkDOM
@@ -306,10 +306,10 @@ foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
 -- | Zooming unfiltered `Array` traversal.
 -- TODO: traversable
 foreach
-  :: ∀ st a.
+  :: ∀ s a.
      (a -> Boolean)
-  -> FocusedComponent st a
-  -> FocusedComponent st (Array a)
+  -> FocusedComponent s a
+  -> FocusedComponent s (Array a)
 foreach = undefined -- foreachZF (const true)
 
 unfiltered :: ∀ a. a -> Boolean
@@ -317,11 +317,11 @@ unfiltered _ = true
 
 -- | Filtered `Map` traversal.
 foreachMap
-  :: ∀ st s k v. Ord k
+  :: ∀ s t k v. Ord k
   => (k × v -> k × v -> Ordering)
   -> (k × v -> Boolean)
-  -> (Effect s Unit -> FocusedComponent st s)
-  -> FocusedComponent st (Map k v)
+  -> (Effect s Unit -> FocusedComponent s t)
+  -> FocusedComponent s (Map k v)
 foreachMap ord_f filter_f cmp = undefined
   -- RD.div [] $ flip map (elems $ M.toUnfoldable (st ^. lns)) \(k × v) -> cmp (lns ○ lensAtM k) (over lns (M.delete k)) effect st
   -- where

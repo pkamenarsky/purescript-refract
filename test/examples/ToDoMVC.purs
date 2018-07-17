@@ -92,9 +92,6 @@ type AppState =
   , filter     :: ToDoFilter
   }
 
-filterMap :: ∀ k v. Ord k => (v -> Boolean) -> Map k v -> Map k v
-filterMap f = M.fromFoldable ○ filter (f ○ snd) ○ M.toUnfoldable
-
 data InputResult = Cancel | Input String | Delete
 
 -- | Reusable input component (not specific to ToDoMVC)
@@ -106,7 +103,7 @@ blurableInput
   :: ∀ s.
      (InputResult -> Effect s Unit) -- | Result effect operating on the parent state
   -> FocusedComponent s String
-blurableInput result = state \st embed -> input
+blurableInput result = state \st _ -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
@@ -115,24 +112,24 @@ blurableInput result = state \st embed -> input
         modify \_ -> (unsafeCoerce target).value
     , onKeyDown \e -> do
         keyCode <- liftEffect $ Event.keyCode e
-        embed $ if round keyCode == 13
+        if round keyCode == 13
           then if S.length st > 0
             then result $ Input st
             else result Delete
           else when (round keyCode == 27) (result Cancel)
-    , onBlur \_ -> embed $ result Cancel
+    , onBlur \_ -> result Cancel
     ] []
 
 checkbox :: Component Boolean
-checkbox = state \st _ -> input
+checkbox = state \st embed -> input
   [ _type "checkbox"
   , className "todo-checkbox"
   , checked st
-  , onChange \_ -> modify not
+  , onChange \_ -> embed $ modify not
   ] []
 
 inputOnEnter :: ∀ s. (String -> Effect s Unit) -> FocusedComponent s String
-inputOnEnter done = state \str embed -> input
+inputOnEnter done = state \str _ -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
@@ -140,7 +137,7 @@ inputOnEnter done = state \str embed -> input
   , onChange \e -> do
       target <- liftEffect $ Event.target e
       modify \_ -> (unsafeCoerce target).value
-  , onEnter $ when (S.length str > 0) (embed $ done str)
+  , onEnter $ when (S.length str > 0) (done str)
   ] []
 
 todoInput :: ∀ s.
@@ -153,78 +150,82 @@ todoInput :: ∀ s.
 todoInput delete = state \st embed -> if st.active
   then zoom _temp $ blurableInput \result -> do
     case result of
-      Cancel -> modify \st' -> st' { temp = "", active = false }
-      Input str -> modify \st' -> st' { temp = "", active = false, current = st.temp }
-      Delete -> embed delete
+      Cancel -> embed $ modify \st' -> st' { temp = "", active = false }
+      Input str -> embed $ modify \st' -> st' { temp = "", active = false, current = st.temp }
+      Delete -> delete
   else label
     [ className "todo-description"
-    , onDoubleClick \_ -> modify \st' -> st' { temp = st.current, active = true }
+    , onDoubleClick \_ -> embed $ modify \st' -> st' { temp = st.current, active = true }
     ]
     [ text st.current ]
 
 spanButton :: ∀ s t. Effect s Unit -> Array (FocusedComponent s t) -> FocusedComponent s t
-spanButton f children = state \_ embed -> span [ onClick \_ -> embed f ] children
+spanButton f children = span [ onClick \_ -> f ] children
 
 todo
   :: ∀ s.
      Effect s Unit           -- | Removes the current item from the list
   -> FocusedComponent s ToDo -- | Todo Component
-todo delete = state \_ embed -> div
+todo delete = state \_ _ -> div
   [ className "todo" ]
   [ zoom _completed checkbox
-  -- , flip zoom (todoInput $ embed delete)
-  --     { temp: _input
-  --     , current: _description
-  --     , active: _edited
-  --     }
-  , div [ className "todo-delete", onClick \_ -> embed delete ] []
+  , flip zoom (todoInput delete)
+      { temp: _input
+      , current: _description
+      , active: _edited
+      }
+  , div [ className "todo-delete", onClick \_ -> delete ] []
   ]
 
--- todoMVC :: ∀ st. ALens' st AppState -> Component st
--- todoMVC lns = zoom lns $ state \st -> div [ className "container" ]
---   -- Input field
---   [ inputOnEnter _todo \str -> modify \st' -> st
---       { todo = ""
---       , nextId = st'.nextId + 1
---       , todos = M.insert st'.nextId
---           { description: str
---           , completed: false
---           , edited: false
---           , input: ""
---           } st.todos
---       }
--- 
---   -- Individual todos
---   , foreachMapF ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) _todos todo
--- 
---   -- Footer
---   , div
---       [ className "footer" ]
---       [ span
---           [ className "todo-count"]
---           [ text $ show (length $ filter (not _.completed) $ M.values st.todos) <> " items left" ]
--- 
---       , div
---           [ className "todo-filters" ]
---           [ spanButton identity (set _filter All) [ text "All" ], text "/"
---           , spanButton identity (set _filter Active) [ text "Active" ], text "/"
---           , spanButton identity (set _filter Completed) [ text "Completed" ]
---           ]
--- 
---       , if (length $ filter (_.completed) $ M.values st.todos) > 0
---           then span
---             [ className "todo-clear"
---             , onClick \_ -> modify \st' -> st' { todos = filterMap (not (_.completed)) st.todos }
---             ]
---             [ text "Clear completed"]
---           else span [] []
---       ]
---   ]
---   where
---     visible :: ToDoFilter -> ToDo -> Boolean
---     visible All _ = true
---     visible Active todo' = not todo'.completed
---     visible Completed todo' = todo'.completed
+todoMVC :: Component AppState
+todoMVC = state \st embed -> div [ className "container" ]
+  -- Input field
+  [ zoom _todo $ inputOnEnter \str -> embed $ modify \st' -> st
+      { todo = ""
+      , nextId = st'.nextId + 1
+      , todos = M.insert st'.nextId
+          { description: str
+          , completed: false
+          , edited: false
+          , input: ""
+          } st.todos
+      }
+
+  -- Individual todos
+  , zoom _todos $ foreachMap ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) todo
+
+  -- Footer
+  , div
+      [ className "footer" ]
+      [ span
+          [ className "todo-count"]
+          [ text $ show (length $ filter (not _.completed) $ M.values st.todos) <> " items left" ]
+
+      , div
+          [ className "todo-filters" ]
+          [ spanButton (embed $ modify $ set _filter Active) [ text "All" ], text "/"
+          , spanButton (embed $ modify $ set _filter Active) [ text "Active" ], text "/"
+          , spanButton (embed $ modify $ set _filter Completed) [ text "Completed" ]
+          ]
+
+      , if (length $ filter (_.completed) $ M.values st.todos) > 0
+          then span
+            [ className "todo-clear"
+            , onClick \_ -> embed $ modify \st' -> st' { todos = filterMap (not (_.completed)) st.todos }
+            ]
+            [ text "Clear completed"]
+          else span [] []
+      ]
+  ]
+  where
+    visible :: ToDoFilter -> ToDo -> Boolean
+    visible All _ = true
+    visible Active todo' = not todo'.completed
+    visible Completed todo' = todo'.completed
+
+    filterMap :: ∀ k v. Ord k => (v -> Boolean) -> Map k v -> Map k v
+    filterMap f = M.fromFoldable ○ filter (f ○ snd) ○ M.toUnfoldable
+
 -- 
 -- -- Main ------------------------------------------------------------------------
 -- 
