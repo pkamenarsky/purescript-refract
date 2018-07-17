@@ -160,6 +160,7 @@ type Component s = forall t. FocusedComponent t s
 
 foreign import refEq :: ∀ a. a -> a -> Boolean
 
+-- | Reify the current `Component` state.
 state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
 state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
   where
@@ -167,10 +168,8 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
 
 -- | Reify the current `Component` state.
 stateCached :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
--- state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
-stateCached f = FocusedComponent \effect lens st ->
-  R.unsafeCreateLeafElement
-    (R.component "state" $ reactClass (f st $ mapEffect lens))
+stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement
+    (R.component "stateCached" $ reactClass (f st $ mapEffect lens))
     { effect
     , lens
     , state: st
