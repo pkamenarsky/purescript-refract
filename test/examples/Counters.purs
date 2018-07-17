@@ -2,22 +2,38 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, foreach, modify, state, unfiltered, zoom)
+import Refract (Component, FocusedComponent, foreach, modify, run, state, unfiltered, zoom, zoomL)
 import Refract.DOM (div, text)
 
 import Data.Array (cons)
-import Data.Tuple (Tuple)
-import Data.Lens (_1, _2)
+import Effect (Effect)
+import Data.Symbol (SProxy(SProxy))
+import Data.Tuple (Tuple(Tuple))
+import Data.Lens (Lens', _1, _2)
+import Data.Lens.Record (prop)
 import Props (onClick)
 import Prelude hiding (div)
+import Undefined (undefined)
   
 --------------------------------------------------------------------------------
+
+type AppState =
+  { c :: Int
+  }
+
+_c :: ∀ r. Lens' { c :: Int | r } Int
+_c = prop (SProxy :: SProxy "c")
 
 counter :: Component Int
 counter = state \st embed -> div []
   [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
+  ]
+
+counterA :: Component AppState
+counterA = div []
+  [ zoom _c counter
   ]
 
 twoCounters :: Component (Tuple Int Int)
@@ -31,3 +47,11 @@ manyCounters = state \_ embed -> div []
   [ div [ onClick \_ -> embed $ modify (cons 0) ] [ text "Add counter" ]
   , foreach unfiltered counter
   ]
+
+-- Main ------------------------------------------------------------------------
+
+-- main :: Array Int -> (Array Int -> Effect Unit) -> Effect Unit
+-- main = run "main" (manyCounters identity)
+
+main :: Effect Unit
+main = run "main" counterA { c: 0 } (\_ -> pure unit)

@@ -21,10 +21,12 @@ module Refract
   , mkComponent
   , modify
   , modify'
+  , run
   , state
   , unfiltered
   , keySort
   , zoom
+  , zoomL
   ) where
 
 import Prelude
@@ -40,7 +42,7 @@ import Data.Map as M
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect) as E
-import Effect.Aff (Aff, makeAff, nonCanceler)
+import Effect.Aff (Aff, makeAff, launchAff_, nonCanceler)
 import Effect.Class (liftEffect) as E
 import Partial.Unsafe (unsafePartial)
 import React (ReactClass, ReactElement)
@@ -48,8 +50,15 @@ import React as R
 import React.DOM (IsDynamic(..), mkDOM)
 import React.DOM as RD
 import React.DOM.Props as P
+import ReactDOM as RD
 import Refract.Lens (class RecordToLens, recordToLens)
 import Undefined (undefined)
+import Web.DOM as WD
+import Web.DOM.Document as WD
+import Web.DOM.NonElementParentNode as WD
+import Web.HTML as W
+import Web.HTML.HTMLDocument as W
+import Web.HTML.Window as W
 
 -- | A synonym for `<<<`.
 infixr 9 compose as ○
@@ -103,7 +112,7 @@ mapEffectF lns = overEffectF (mkExists ○ mapEffectEF lns)
 mapEffect :: ∀ s t a. Lens' t s -> Effect s a -> Effect t a
 mapEffect lns m = hoistFree (mapEffectF lns) m
 
-interpretEffect :: ∀ s a. R.ReactThis Unit (Record s) -> Effect (Record s) a -> Aff a
+interpretEffect :: ∀ s a. R.ReactThis {} (Record s) -> Effect (Record s) a -> Aff a
 interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
   where
     -- Since we don't know what the particular type of `b` is (it is hidden away
@@ -194,6 +203,9 @@ stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement
           pure $ not $ props.state `refEq` props'.state
       }
 
+zoomL :: ∀ ps s t l. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
+zoomL l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l) (st ^. l)
+
 zoom :: ∀ ps s t l. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
 zoom l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l') (st ^. l')
   where
@@ -279,30 +291,40 @@ mkComponent element props children = FocusedComponent \effect l st -> mkDOM
 -- Run -------------------------------------------------------------------------
 
 -- | Attach `Component` to the DOM element with the specified id and run it.
--- run
---   :: ∀ st. String     -- | Element id
---   -> Component st     -- | Component
---   -> st                   -- | Initial state
---   -> (st -> Unit) -- | State callback (useful for hot reloading)
---   -> (dom :: DOM | eff) Unit
--- run elemId cmp st updateState = void $ element >>= render ui
---   where
---     ui = R.createFactory (R.createClass spec) unit
--- 
---     spec :: R.ReactSpec Unit st (Reacteff)
---     spec = R.spec st \this -> do
---       st' <- R.getState this
---       unsafeCoerce$ updateState $ st'
---       pure $ st' # cmp \effect ->
---         unsafeCoerce$ launchAff_ $
---           interpretEffect this (unsafeCoerceEffect effect)
--- 
---     element :: (dom :: DOM | eff) Element
---     element = do
---       win <- window
---       doc <- document win
---       e   <- getElementById (ElementId elemId) (documentToNonElementParentNode (htmlDocumentToDocument doc))
---       pure $ fromMaybe undefined e
+run
+  :: ∀ s. String                       -- | Element id
+  -> FocusedComponent { | s } { | s }  -- | Component
+  -> { | s }
+  -> ({ | s } -> E.Effect Unit)        -- | State callback (useful for hot reloading)
+  -> E.Effect Unit
+run elemId cmp st updateState = void $ element >>= RD.render ui
+  where
+    ui = R.unsafeCreateLeafElement (R.component "root" $ reactClass cmp) {}
+
+    reactClass (FocusedComponent cmp) this = pure
+      { render: do
+           st' <- R.getState this
+           updateState st'
+           pure $ cmp (\effect -> launchAff_ $ interpretEffect this effect) identity st'
+      , state: st
+      }
+
+    effect eff = undefined
+
+    -- spec :: R.ReactSpec Unit st (Reacteff)
+    -- spec = R.spec st \this -> do
+    --   st' <- R.getState this
+    --   unsafeCoerce$ updateState $ st'
+    --   pure $ st' # cmp \effect ->
+    --     unsafeCoerce$ launchAff_ $
+    --       interpretEffect this (unsafeCoerceEffect effect)
+
+    element :: E.Effect WD.Element
+    element = do
+      win <- W.window
+      doc <- W.document win
+      e   <- WD.getElementById elemId (WD.toNonElementParentNode $ W.toDocument doc)
+      pure $ fromMaybe undefined e
 
 -- Traversals ------------------------------------------------------------------
 

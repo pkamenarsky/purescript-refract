@@ -16,6 +16,7 @@ import Data.Map as M
 import Data.String as S
 import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
+import Effect as E
 import Prelude (class Ord, Unit, bind, compare, flip, identity, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
 import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
 import React.SyntheticEvent as Event
@@ -226,8 +227,7 @@ todoMVC = state \st embed -> div [ className "container" ]
     filterMap :: ∀ k v. Ord k => (v -> Boolean) -> Map k v -> Map k v
     filterMap f = M.fromFoldable ○ filter (f ○ snd) ○ M.toUnfoldable
 
--- 
--- -- Main ------------------------------------------------------------------------
--- 
--- -- main :: ∀ eff. AppState -> (AppState -> Eff eff Unit) -> Eff (dom :: DOM | eff) Unit
--- -- main = run "main" (todoMVC id)
+-- Main ------------------------------------------------------------------------
+
+main :: AppState -> (AppState -> E.Effect Unit) -> E.Effect Unit
+main = run "main" todoMVC
