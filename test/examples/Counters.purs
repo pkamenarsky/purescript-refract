@@ -19,10 +19,14 @@ import Undefined (undefined)
 
 type AppState =
   { c :: Int
+  , d :: Int
   }
 
 _c :: ∀ r. Lens' { c :: Int | r } Int
 _c = prop (SProxy :: SProxy "c")
+
+_d :: ∀ r. Lens' { d :: Int | r } Int
+_d = prop (SProxy :: SProxy "d")
 
 counter :: Component Int
 counter = state \st embed -> div []
@@ -34,6 +38,7 @@ counter = state \st embed -> div []
 counterA :: Component AppState
 counterA = div []
   [ zoom _c counter
+  , zoom _d counter
   ]
 
 twoCounters :: Component (Tuple Int Int)
@@ -54,4 +59,4 @@ manyCounters = state \_ embed -> div []
 -- main = run "main" (manyCounters identity)
 
 main :: Effect Unit
-main = run "main" counterA { c: 0 } (\_ -> pure unit)
+main = run "main" counterA { c: 0, d: 0 } (\_ -> pure unit)

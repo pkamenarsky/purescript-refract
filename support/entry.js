@@ -1,6 +1,6 @@
 'use strict';
 
-// var css = require('../static/style.css');
+var css = require('../static/style.css');
 var entry = require('../test/examples/Counters.purs');
 
 var subscribe = function(st) {

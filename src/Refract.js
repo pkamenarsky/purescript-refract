@@ -28,7 +28,7 @@ exports.memo = function(f) {
   };
 };
 
-exports.refEq = functtion(a) {
+exports.refEq = function(a) {
   return function(b) {
     return a === b;
   };
