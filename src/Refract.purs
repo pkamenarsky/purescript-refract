@@ -23,6 +23,7 @@ module Refract
   , modify'
   , run
   , state
+  , stateCached
   , unfiltered
   , keySort
   , zoom
@@ -168,6 +169,7 @@ type Component s = forall t. FocusedComponent t s
 -- Zoom, state -----------------------------------------------------------------
 
 foreign import refEq :: ∀ a. a -> a -> Boolean
+foreign import logAny :: ∀ a. a -> E.Effect Unit
 
 -- | Reify the current `Component` state.
 state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
@@ -197,10 +199,17 @@ stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement
     reactClass (FocusedComponent cmp) this = pure
       { render: do
           props <- R.getProps this
+          logAny props
           pure $ cmp props.effect (cloneLens props.lens) props.state
-      , shouldComponentUpdate: \props _ -> do
+      , componentDidMount: do
           props' <- R.getProps this
-          pure $ not $ props.state `refEq` props'.state
+          logAny "MOUNT"
+          pure unit
+      , shouldComponentUpdate: \props _ -> do
+          -- props' <- R.getProps this
+          logAny "SHOULD"
+          -- pure $ not $ props.state `refEq` props'.state
+          pure false
       }
 
 zoomL :: ∀ ps s t l. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s

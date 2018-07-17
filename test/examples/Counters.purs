@@ -2,7 +2,7 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, FocusedComponent, foreach, modify, run, state, unfiltered, zoom, zoomL)
+import Refract (Component, FocusedComponent, foreach, modify, run, state, stateCached, unfiltered, zoom, zoomL)
 import Refract.DOM (div, text)
 
 import Data.Array (cons)
@@ -29,7 +29,7 @@ _d :: ∀ r. Lens' { d :: Int | r } Int
 _d = prop (SProxy :: SProxy "d")
 
 counter :: Component Int
-counter = state \st embed -> div []
+counter = stateCached \st embed -> div []
   [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]

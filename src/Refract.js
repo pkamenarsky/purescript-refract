@@ -30,6 +30,13 @@ exports.memo = function(f) {
 
 exports.refEq = function(a) {
   return function(b) {
+    console.log("EQ", a, b);
     return a === b;
+  };
+};
+
+exports.logAny = function(a) {
+  return function() {
+    console.log(a);
   };
 };
