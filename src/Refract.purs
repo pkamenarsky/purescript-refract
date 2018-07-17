@@ -68,12 +68,12 @@ newtype EffectF s next = EffectF (Exists (EffectEF s next))
 -- | A functor for the existential.
 data EffectEF s next r
   = Modify (s -> s × r) (r -> next)
-  | Effect (s -> Aff r) (r -> next)
+  | Effect (Aff r) (r -> next)
 
 instance invariantEffectEF :: Invariant (EffectEF s next) where
   imap f g = case _ of
     Modify m n -> Modify (map f ○ m) (n ○ g)
-    Effect e n -> Effect (map f ○ e) (n ○ g)
+    Effect e n -> Effect (map f e) (n ○ g)
 
 instance functorEffectF :: Functor (EffectF s) where
   map f = overEffectF \eef -> mkExists case eef of
@@ -95,7 +95,7 @@ type Effect s = Free (EffectF s)
 
 mapEffectEF :: ∀ s t next a. Lens' t s -> EffectEF s next a -> EffectEF t next a
 mapEffectEF lns (Modify f next) = Modify (\st -> let st' × a = f (st ^. lns) in set lns st' st × a) next
-mapEffectEF lns (Effect f next) = Effect (\st -> f (st ^. lns)) next
+mapEffectEF lns (Effect f next) = Effect f next
 
 mapEffectF :: ∀ s t next. Lens' t s -> EffectF s next -> EffectF t next
 mapEffectF lns = overEffectF (mkExists ○ mapEffectEF lns)
@@ -118,9 +118,11 @@ interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
         void $ R.writeStateWithCallback this st' $ cb $ Right st'
         pure nonCanceler
       pure (next a)
-    go (Effect f next) = do
-      st <- E.liftEffect $ R.getState this
-      f st >>= pure ○ next
+    go (Effect f next) = f >>= pure ○ next
+
+-- | Get the current `Component` state.
+get :: ∀ s. Effect s s
+get = modify' \st -> st × st
 
 -- | Modify the current `Component` state.
 modify :: ∀ s. (s -> s) -> Effect s Unit
@@ -131,13 +133,17 @@ modify' :: ∀ s a. (s -> s × a) -> Effect s a
 modify' f = liftF $ EffectF $ mkExists $ Modify f identity
 
 -- | Perform a `Control.Monad.Aff` action and return a result.
-effectfully :: ∀ a s. (s -> Aff a) -> Effect s a
+effectfully :: ∀ a s. Aff a -> Effect s a
 -- Use `id` here to get the hidden existential to match up with the result type
 effectfully f = liftF $ EffectF $ mkExists $ Effect f identity
 
+-- | A synonym for `effectfully`.
+liftAff :: ∀ a s. Aff a -> Effect s a
+liftAff = effectfully
+
 -- | Perform a `Monad.Effect` action and return a result.
 liftEffect :: ∀ a s. E.Effect a -> Effect s a
-liftEffect f = liftF $ EffectF $ mkExists $ Effect (E.liftEffect ○ const f) identity
+liftEffect f = liftF $ EffectF $ mkExists $ Effect (E.liftEffect f) identity
 
 -- Props -----------------------------------------------------------------------
 
