@@ -146,7 +146,7 @@ type Props s = (Effect s Unit -> E.Effect Unit) -> P.Props
 -- Components ------------------------------------------------------------------
 
 newtype FocusedComponent s t
-  = FocusedComponent ((Effect t Unit -> E.Effect Unit) -> Lens' s t -> t -> ReactElement)
+  = FocusedComponent ((Effect s Unit -> E.Effect Unit) -> Lens' s t -> t -> ReactElement)
 
 type Component s = forall t. FocusedComponent t s
 
@@ -154,12 +154,12 @@ type Component s = forall t. FocusedComponent t s
 
 -- | Reify the current `Component` state.
 state :: ∀ s t. (t -> (Effect s Unit -> Effect t Unit) -> FocusedComponent s t) -> FocusedComponent s t
-state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect ?_)) effect l st
+state f = FocusedComponent \effect l st -> runComponent (f st \eff -> ?_ eff) effect l st
   where
     runComponent (FocusedComponent cmp) = cmp
 
 zoom :: ∀ ps s t. Lens' s t -> FocusedComponent s t -> FocusedComponent ps s
-zoom l (FocusedComponent cmp) = FocusedComponent \effect _ st -> cmp (\eff -> effect $ mapEffect l eff) l (st ^. l)
+zoom l (FocusedComponent cmp) = undefined -- FocusedComponent \effect _ st -> cmp (\eff -> effect $ mapEffect l eff) l (st ^. l)
 
 -- zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent s t -> FocusedComponent ps s
 -- zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
@@ -237,9 +237,9 @@ mkComponent
   -> Array (Props t)                -- | Props
   -> Array (FocusedComponent s t)   -- | Children
   -> FocusedComponent s t
-mkComponent element props children = FocusedComponent \effect l st -> mkDOM
-  (IsDynamic false) element (map (_ $ effect) props)
-  (map (\(FocusedComponent cmp) -> cmp effect l st) children)
+mkComponent element props children = undefined -- FocusedComponent \effect l st -> mkDOM
+  -- (IsDynamic false) element (map (_ $ effect) props)
+  -- -- (map (\(FocusedComponent cmp) -> cmp effect l st) children)
 
 -- Run -------------------------------------------------------------------------
 
