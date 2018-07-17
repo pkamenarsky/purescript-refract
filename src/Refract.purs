@@ -34,7 +34,7 @@ import Data.Array (catMaybes, filter, index, length, sortBy, updateAt)
 import Data.Either (Either(..))
 import Data.Exists (Exists, mkExists, runExists)
 import Data.Functor.Invariant (class Invariant)
-import Data.Lens (ALens', Lens', Setter', cloneLens, lens, over, set, (^.))
+import Data.Lens (ALens', Lens', Setter', Shop, cloneLens, lens, over, set, (^.))
 import Data.Map (Map)
 import Data.Map as M
 import Data.Maybe (Maybe(..), fromJust, fromMaybe)
@@ -158,11 +158,42 @@ type Component s = forall t. FocusedComponent t s
 
 -- Zoom, state -----------------------------------------------------------------
 
--- | Reify the current `Component` state.
+foreign import refEq :: ∀ a. a -> a -> Boolean
+
 state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
 state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
   where
     runComponent (FocusedComponent cmp) = cmp
+
+-- | Reify the current `Component` state.
+stateCached :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
+-- state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
+stateCached f = FocusedComponent \effect lens st ->
+  R.unsafeCreateLeafElement
+    (R.component "state" $ reactClass (f st $ mapEffect lens))
+    { effect
+    , lens
+    , state: st
+    }
+  where
+    runComponent (FocusedComponent cmp) = cmp
+
+    reactClass :: FocusedComponent s t
+               -> R.ReactThis
+                    { effect :: Effect s Unit -> E.Effect Unit
+                    , lens :: ALens' s t
+                    , state :: t
+                    }
+                    {}
+               -> E.Effect _
+    reactClass (FocusedComponent cmp) this = pure
+      { render: do
+          props <- R.getProps this
+          pure $ cmp props.effect (cloneLens props.lens) props.state
+      , shouldComponentUpdate: \props _ -> do
+          props' <- R.getProps this
+          pure $ not $ props.state `refEq` props'.state
+      }
 
 zoom :: ∀ ps s t l. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
 zoom l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l') (st ^. l')
@@ -175,10 +206,10 @@ zoom l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $
 
 -- | A React component class. Useful whenever a `Component` needs to implement
 -- | React lifecycle methods.
-type ComponentClass s = ReactClass { effect :: Effect { | s } Unit -> E.Effect Unit, state :: { | s } }
+type ComponentClass s t = ReactClass { effect :: Effect { | s } Unit -> E.Effect Unit, state :: { | s }, lens :: Lens' { | s } t }
 
 -- | React lifecycle spec.
-type Spec s =
+type Spec s t =
   { componentDidMount :: Effect s Unit
   , componentWillUnmount :: Effect s Unit
   , componentDidUpdate :: s -> Effect s Unit
@@ -190,7 +221,7 @@ type Spec s =
   }
 
 -- | No-op lifecycle method spec.
-defaultSpec :: ∀ s. Spec s
+defaultSpec :: ∀ s t. Spec s t
 defaultSpec =
   { componentDidMount: pure unit
   , componentWillUnmount: pure unit
@@ -202,12 +233,12 @@ defaultSpec =
   , unsafeComponentWillMount: pure unit
   }
 
--- -- | Create a `ComponentClass` from a `Spec` and a `Component`.
+-- | Create a `ComponentClass` from a `Spec` and a `Component`.
 -- componentClass
---   :: ∀ st. Spec { | st }
+--   :: ∀ s t. Spec { | s } t
 --   -> String
---   -> Component { | st }
---   -> ComponentClass st
+--   -> FocusedComponent { | s } t
+--   -> ComponentClass { | s } t
 -- componentClass spec displayName cmp = R.component displayName reactClass
 --   where
 --     reactClass this = pure
@@ -231,7 +262,7 @@ defaultSpec =
 --       , unsafeComponentWillUpdate: \props _ -> do
 --           props.effect $ spec.unsafeComponentWillUpdate props.state
 --       }
--- 
+
 -- -- | Create a `Component` from a `ComponentClass`.
 -- createElement :: ∀ st. ComponentClass st -> Component (Record st)
 -- createElement class_ effect state' = R.createLeafElement class_ { effect, state: state' }
@@ -239,11 +270,11 @@ defaultSpec =
 -- | Create a DOM element `Component`.
 mkComponent
   :: ∀ s t. String                  -- | Element name
-  -> Array (Props s)                -- | Props
+  -> Array (Props t)                -- | Props
   -> Array (FocusedComponent s t)   -- | Children
   -> FocusedComponent s t
 mkComponent element props children = FocusedComponent \effect l st -> mkDOM
-  (IsDynamic false) element (map (_ $ effect) props)
+  (IsDynamic false) element (map (\eff -> eff $ \e -> effect $ mapEffect l e) props)
   (map (\(FocusedComponent cmp) -> cmp effect l st) children)
 
 -- Run -------------------------------------------------------------------------

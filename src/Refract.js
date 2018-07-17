@@ -27,3 +27,9 @@ exports.memo = function(f) {
     }
   };
 };
+
+exports.refEq = functtion(a) {
+  return function(b) {
+    return a === b;
+  };
+};
