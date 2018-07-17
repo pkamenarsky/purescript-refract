@@ -158,11 +158,11 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
   where
     runComponent (FocusedComponent cmp) = cmp
 
--- zoom :: ∀ ps s t. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
--- zoom l = undefined -- (FocusedComponent cmp) = undefined -- FocusedComponent \effect _ st -> cmp (\eff -> effect $ mapEffect l eff) l (st ^. l)
+zoom :: ∀ ps s t. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
+zoom l (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (effect $ _) (l' ○ l) (st ^. l)
 
-zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
-zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
+-- zoom :: ∀ ps l s t. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
+-- zoom l = undefined -- (FocusedComponent cmp) = FocusedComponent \effect l' st -> cmp (\eff -> effect $ mapEffect l eff) (l' ○ l) (st ^. l)
 
 -- React -----------------------------------------------------------------------
 
