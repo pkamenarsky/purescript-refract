@@ -2,7 +2,7 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, Effect, FocusedComponent, foreach, modify, run, state, stateCached, unfiltered, zoom, zoomL)
+import Refract (Component, Effect, FocusedComponent, trace, showAny, foreach, memo, memo2, modify, run, state, stateCached, unfiltered, zoom, zoomL)
 import Refract.DOM (div, text)
 import Data.Array (cons)
 import Effect as E
@@ -27,8 +27,16 @@ _c = prop (SProxy :: SProxy "c")
 _d :: ∀ r. Lens' { d :: Int | r } Int
 _d = prop (SProxy :: SProxy "d")
 
-counter :: ∀ st. Effect st Unit -> FocusedComponent st Int
-counter decrement = stateCached \st embed -> div []
+counter :: ∀ s t. (Effect t Unit -> Effect s Unit) -> (t -> t) -> FocusedComponent s Int
+counter = memo2 \embed' decrement -> stateCached \embed st -> trace ("EMBED: " <> showAny embed) $ div []
+  [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
+  , text (show st)
+  , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
+  , div [ onClick \_ -> embed' $ modify $ decrement ] [ text "Parent" ]
+  ]
+
+counter' :: ∀ s. (Effect s Unit) -> FocusedComponent s Int
+counter' decrement = stateCached \embed st -> trace ("EMBED: " <> showAny embed) $ div []
   [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
@@ -37,9 +45,13 @@ counter decrement = stateCached \st embed -> div []
 
 counterA :: Component AppState
 counterA = state \_ embed -> div []
-  [ zoom _c $ counter $ embed $ modify \st -> st { c = st.c + 10 }
-  , zoom _d $ counter $ embed $ modify \st -> st { d = st.d + 10 }
+  [ zoom _c $ counter embed f
+  , zoom _d $ counter embed g
+  , zoom _d $ counter' $ embed $ modify \st -> st { d = st.d + 10 }
   ]
+
+f = (\st -> st { c = st.c + 10 })
+g = (\st -> st { d = st.d + 10 })
 
 -- twoCounters :: Component (Tuple Int Int)
 -- twoCounters = div []

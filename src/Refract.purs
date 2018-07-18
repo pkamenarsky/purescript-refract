@@ -18,12 +18,16 @@ module Refract
   , foreachMap
   , liftEffect
   , mapEffect
+  , memo
+  , memo2
   , mkComponent
   , modify
   , modify'
   , run
   , state
   , stateCached
+  , showAny
+  , trace
   , unfiltered
   , keySort
   , zoom
@@ -170,8 +174,10 @@ type Component s = forall t. FocusedComponent t s
 
 foreign import refEq :: ∀ a. a -> a -> Boolean
 foreign import logAny :: ∀ a. a -> E.Effect Unit
+foreign import showAny :: ∀ a. a -> String
 foreign import trace :: ∀ a. String -> a -> a
 foreign import memo :: ∀ a b. (a -> b) -> a -> b
+foreign import memo2 :: ∀ a b c. (a -> b -> c) -> a -> b -> c
 
 -- | Reify the current `Component` state.
 state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
@@ -180,47 +186,48 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
     runComponent (FocusedComponent cmp) = cmp
 
 -- | Reify the current `Component` state.
-stateCached :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
-stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement component { effect , lens , state: st , f }
-
-component :: ∀ s t. R.ReactClass _
-component = R.component "stateCached" reactClass
-
-reactClass
-  :: ∀ s t r. R.ReactThis
-       { effect :: Effect s Unit -> E.Effect Unit
-       , lens :: ALens' s t
-       , state :: t
-       , f :: (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t)
-       }
-       {}
-  -> E.Effect
-          { render :: E.Effect ReactElement
-          , componentDidMount :: E.Effect Unit
-          , shouldComponentUpdate ::
-               { state :: t
-               | r
-               }
-               -> {} -> E.Effect Boolean
-          }
-reactClass this = pure
-  { render: do
-      props <- R.getProps this
-      logAny "RENDER"
-      let l = cloneLens props.lens
-      pure $ runComponent (props.f props.state $ mapEffect l) props.effect l props.state
-  , componentDidMount: do
-      props' <- R.getProps this
-      logAny "MOUNT"
-      pure unit
-  , shouldComponentUpdate: \props _ -> do
-      props' <- R.getProps this
-      -- logAny "SHOULD"
-      pure $ not $ props.state `refEq` props'.state
-      -- pure false
-  }
+stateCached :: ∀ s t. ((Effect t Unit -> Effect s Unit) -> t -> FocusedComponent s t) -> FocusedComponent s t
+stateCached f = FocusedComponent \effect lens st ->
+  R.unsafeCreateLeafElement component { effect , lens , state: st , f }
   where
-    runComponent (FocusedComponent cmp) = cmp
+    component :: ∀ s t. R.ReactClass _
+    component = R.component "stateCached" reactClass
+    
+    reactClass
+      :: ∀ s t r. R.ReactThis
+           { effect :: Effect s Unit -> E.Effect Unit
+           , lens :: ALens' s t
+           , state :: t
+           , f :: ((Effect t Unit -> Effect s Unit) -> t -> FocusedComponent s t)
+           }
+           {}
+      -> E.Effect
+              { render :: E.Effect ReactElement
+              , componentDidMount :: E.Effect Unit
+              , shouldComponentUpdate ::
+                   { state :: t
+                   | r
+                   }
+                   -> {} -> E.Effect Boolean
+              }
+    reactClass this = pure
+      { render: do
+          props <- R.getProps this
+          logAny "RENDER"
+          let l = cloneLens props.lens
+          pure $ runComponent (props.f (mapEffect l) props.state) props.effect l props.state
+      , componentDidMount: do
+          props' <- R.getProps this
+          logAny "MOUNT"
+          pure unit
+      , shouldComponentUpdate: \props _ -> do
+          props' <- R.getProps this
+          -- logAny "SHOULD"
+          pure $ not $ props.state `refEq` props'.state
+          -- pure false
+      }
+      where
+        runComponent (FocusedComponent cmp) = cmp
 
 zoomL :: ∀ ps s t l. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
 zoomL l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l) (st ^. l)
