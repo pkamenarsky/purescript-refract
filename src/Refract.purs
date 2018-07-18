@@ -209,6 +209,14 @@ stateCached3 f = \a b -> FocusedComponent \effect lens st ->
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
+stateCached4 :: ∀ a b c s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> c -> FocusedComponent s t) -> a -> b -> c -> FocusedComponent s t
+stateCached4 f = \a b c -> FocusedComponent \effect lens st ->
+  let render st' = runComponent (f (mapEffect lens) st' a b c) effect lens st'
+  in R.unsafeCreateLeafElement component' { state: st, render }
+  where
+    runComponent (FocusedComponent cmp) = cmp
+    component' = component $ genId unit
+
 zoom :: ∀ ps s t l. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
 zoom l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l') (st ^. l')
   where
