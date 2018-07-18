@@ -2,7 +2,7 @@ module Counters where
   
 --------------------------------------------------------------------------------
 
-import Refract (Component, Effect, FocusedComponent, trace, showAny, foreach, memo, memo2, modify, run, state, stateCached, unfiltered, zoom, zoomL)
+import Refract (Component, Effect, FocusedComponent, trace, showAny, foreach, modify, run, state, stateCached, stateCached2, stateCached3, unfiltered, zoom, zoomL)
 import Refract.DOM (div, text)
 import Data.Array (cons)
 import Effect as E
@@ -28,7 +28,7 @@ _d :: ∀ r. Lens' { d :: Int | r } Int
 _d = prop (SProxy :: SProxy "d")
 
 counter :: ∀ s t. (Effect t Unit -> Effect s Unit) -> (t -> t) -> FocusedComponent s Int
-counter = memo2 \embed' decrement -> stateCached \embed st -> trace ("EMBED: " <> showAny embed) $ div []
+counter = stateCached3 \embed st embed' decrement -> trace ("EMBED: " <> showAny embed) $ div []
   [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
@@ -36,7 +36,7 @@ counter = memo2 \embed' decrement -> stateCached \embed st -> trace ("EMBED: " <
   ]
 
 counter' :: ∀ s. Effect s Unit -> FocusedComponent s Int
-counter' = memo \decrement -> stateCached \embed st -> trace ("EMBED2: " <> showAny embed) $ div []
+counter' = stateCached2 \embed st decrement -> trace ("EMBED2: " <> showAny embed) $ div []
   [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
@@ -45,8 +45,11 @@ counter' = memo \decrement -> stateCached \embed st -> trace ("EMBED2: " <> show
 
 counterA :: Component AppState
 counterA = state \_ embed -> div []
-  [ zoom _c $ counter embed f
-  , zoom _d $ counter embed g
+  [
+  --   zoom _c $ counter embed f
+  -- , zoom _d $ counter embed g
+    zoom _c $ counter' $ embed $ modify \st -> st { c = st.c + 10 }
+  , zoom _c $ counter' $ embed $ modify \st -> st { d = st.d + 10 }
   , zoom _d $ counter' $ embed $ modify \st -> st { d = st.d + 10 }
   ]
 
