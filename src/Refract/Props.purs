@@ -1,4 +1,4 @@
-module Props where
+module Refract.Props where
 
 import Prelude
 

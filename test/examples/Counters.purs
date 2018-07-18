@@ -23,9 +23,9 @@ import Data.Tuple (fst, snd)
 import Effect as E
 import Effect as E
 import Prelude (class Ord, Unit, bind, compare, flip, identity, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
-import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
-import Props (className, key, value, onChange)
-import Props (onClick)
+import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
+import Refract.Props (className, key, value, onChange)
+import Refract.Props (onClick)
 import React.SyntheticEvent as Event
 import Refract (Component, Effect, FocusedComponent, trace, showAny, foreach, modify, run, state, stateCached, stateCached2, stateCached3, unfiltered, zoom, zoomL, liftEffect)
 import Refract.DOM (div, input, label, span, text)

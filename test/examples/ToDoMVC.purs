@@ -18,9 +18,9 @@ import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
 import Effect as E
 import Prelude (class Ord, Unit, bind, compare, flip, identity, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
-import Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
+import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
 import Unsafe.Coerce (unsafeCoerce)
 import Undefined (undefined)
   
