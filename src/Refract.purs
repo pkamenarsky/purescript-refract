@@ -173,6 +173,7 @@ type Component s = forall t. FocusedComponent t s
 
 -- Zoom, state -----------------------------------------------------------------
 
+foreign import genId :: Unit -> String
 foreign import refEq :: ∀ a. a -> a -> Boolean
 foreign import logAny :: ∀ a. a -> E.Effect Unit
 foreign import showAny :: ∀ a. a -> String
@@ -190,7 +191,7 @@ stateCached f = FocusedComponent \effect lens st ->
   R.unsafeCreateLeafElement component { effect , lens , state: st , f }
   where
     component :: ∀ s t. R.ReactClass _
-    component = R.component "stateCached" reactClass
+    component = R.component (genId unit) reactClass
     
     reactClass
       :: ∀ s t r. R.ReactThis
@@ -234,7 +235,7 @@ stateCached2 f = \a -> FocusedComponent \effect lens st ->
   R.unsafeCreateLeafElement component { effect , lens , state: st , f, a }
   where
     component :: ∀ s t. R.ReactClass _
-    component = R.component "stateCached" reactClass
+    component = R.component (genId unit) reactClass
     
     reactClass
       :: ∀ s t r. R.ReactThis
@@ -280,7 +281,7 @@ stateCached3 f = \a b -> FocusedComponent \effect lens st ->
   R.unsafeCreateLeafElement component { effect , lens , state: st , f, a, b }
   where
     component :: ∀ s t. R.ReactClass _
-    component = R.component "stateCached" reactClass
+    component = R.component (genId unit) reactClass
     
     reactClass
       :: ∀ s t r. R.ReactThis
@@ -326,7 +327,7 @@ stateCached4 f = \a b c -> FocusedComponent \effect lens st ->
   R.unsafeCreateLeafElement component { effect , lens , state: st , f, a, b, c }
   where
     component :: ∀ s t. R.ReactClass _
-    component = R.component "stateCached" reactClass
+    component = R.component (genId unit) reactClass
     
     reactClass
       :: ∀ s t r. R.ReactThis
@@ -496,8 +497,6 @@ lensAtA i = lens (\m -> unsafePartial $ fromJust $ index m i) (\m v -> fromMaybe
 lensAtM :: ∀ k v. Ord k => k -> Lens' (Map k v) v
 lensAtM k = lens (\m -> unsafePartial $ fromJust $ M.lookup k m) (\m v -> M.insert k v m)
 
-foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
-
 -- | Filtered `Array` traversal.
 foreach
   :: ∀ s a
@@ -556,7 +555,7 @@ foreachMap = \show_f keyord_f ord_f filter_f cmp -> FocusedComponent \effect l' 
   in R.unsafeCreateLeafElement component { state: st, render: render }
   where
     component :: ∀ s t. R.ReactClass _
-    component = R.component "stateCached" reactClass
+    component = R.component (genId unit) reactClass
     
     reactClass
       :: ∀ k v r. R.ReactThis

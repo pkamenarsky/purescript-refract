@@ -1,14 +1,8 @@
-exports.mapI = function(x) {
-  return function(f) {
-    var as = new Array(x);
-    var i;
+var id = 0;
 
-    for (i = 0; i < x; i++) {
-      as[i] = f(i);
-    }
-
-    return as;
-  };
+exports.genId = function() {
+  id++;
+  return "RefractComponent_" + id;
 };
 
 exports.refEq = function(a) {
