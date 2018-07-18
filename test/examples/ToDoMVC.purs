@@ -166,7 +166,7 @@ spanButton f children = span [ onClick \_ -> f ] children
 todo
   :: ∀ s.
      Effect s Unit           -- | Removes the current item from the list
-  -> Int
+  -> Int                     -- | Todo id
   -> FocusedComponent s ToDo -- | Todo Component
 todo delete _ = state \_ _ -> div
   [ className "todo" ]
