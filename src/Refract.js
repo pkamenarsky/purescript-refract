@@ -16,7 +16,7 @@ exports.memo = function(f) {
   var old_b = null;
 
   return function(a) {
-    if (old_a !== a) {
+    if (old_a === a) {
       old_a = a;
       old_b = f(a);
 
@@ -30,7 +30,7 @@ exports.memo = function(f) {
 
 exports.refEq = function(a) {
   return function(b) {
-    console.log("EQ", a, b);
+    console.log("EQ", a, b, a === b);
     return a === b;
   };
 };
@@ -38,5 +38,12 @@ exports.refEq = function(a) {
 exports.logAny = function(a) {
   return function() {
     console.log(a);
+  };
+};
+
+exports.trace = function(str) {
+  return function(a) {
+    console.log(str);
+    return a;
   };
 };

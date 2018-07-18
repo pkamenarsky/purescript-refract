@@ -170,6 +170,8 @@ type Component s = forall t. FocusedComponent t s
 
 foreign import refEq :: ∀ a. a -> a -> Boolean
 foreign import logAny :: ∀ a. a -> E.Effect Unit
+foreign import trace :: ∀ a. String -> a -> a
+foreign import memo :: ∀ a b. (a -> b) -> a -> b
 
 -- | Reify the current `Component` state.
 state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
@@ -180,36 +182,40 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
 -- | Reify the current `Component` state.
 stateCached :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
 stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement
-    (R.component "stateCached" $ reactClass (f st $ mapEffect lens))
+    component
     { effect
     , lens
     , state: st
+    , render: runComponent (f st $ mapEffect lens) effect lens
     }
   where
     runComponent (FocusedComponent cmp) = cmp
 
-    reactClass :: FocusedComponent s t
-               -> R.ReactThis
-                    { effect :: Effect s Unit -> E.Effect Unit
-                    , lens :: ALens' s t
-                    , state :: t
-                    }
-                    {}
-               -> E.Effect _
-    reactClass (FocusedComponent cmp) this = pure
+    component = R.component "stateCached" reactClass
+
+    reactClass
+      :: R.ReactThis
+           { effect :: Effect s Unit -> E.Effect Unit
+           , lens :: ALens' s t
+           , state :: t
+           , render :: t -> R.ReactElement
+           }
+           {}
+      -> E.Effect _
+    reactClass this = pure
       { render: do
           props <- R.getProps this
-          logAny props
-          pure $ cmp props.effect (cloneLens props.lens) props.state
+          logAny "RENDER"
+          pure $ props.render props.state
       , componentDidMount: do
           props' <- R.getProps this
           logAny "MOUNT"
           pure unit
       , shouldComponentUpdate: \props _ -> do
-          -- props' <- R.getProps this
-          logAny "SHOULD"
-          -- pure $ not $ props.state `refEq` props'.state
-          pure false
+          props' <- R.getProps this
+          -- logAny "SHOULD"
+          pure $ not $ props.state `refEq` props'.state
+          -- pure false
       }
 
 zoomL :: ∀ ps s t l. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
