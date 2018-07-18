@@ -4,15 +4,15 @@ module ToDoMVC where
 
 import Refract
 
--- import DOM (DOM)
 import Data.Function (on)
 import Data.Int (round)
 import Data.Lens (ALens', Lens', cloneLens, set)
 import Data.Lens.Record (prop)
 import Data.List (filter, length)
-import Data.Ordering (invert)
 import Data.Map (Map)
 import Data.Map as M
+import Data.Ord (compare)
+import Data.Ordering (invert)
 import Data.String as S
 import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
@@ -21,8 +21,8 @@ import Prelude (class Ord, Unit, bind, compare, flip, identity, not, pure, show,
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
 import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
-import Unsafe.Coerce (unsafeCoerce)
 import Undefined (undefined)
+import Unsafe.Coerce (unsafeCoerce)
   
 --------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ blurableInput
   :: ∀ s.
      (InputResult -> Effect s Unit) -- | Result effect operating on the parent state
   -> FocusedComponent s String
-blurableInput result = state \st embed -> input
+blurableInput = stateCached2 \embed st result -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
@@ -122,7 +122,7 @@ blurableInput result = state \st embed -> input
     ] []
 
 checkbox :: Component Boolean
-checkbox = state \st embed -> input
+checkbox = stateCached \embed st -> input
   [ _type "checkbox"
   , className "todo-checkbox"
   , checked st
@@ -130,7 +130,7 @@ checkbox = state \st embed -> input
   ] []
 
 inputOnEnter :: ∀ s. (String -> Effect s Unit) -> FocusedComponent s String
-inputOnEnter done = state \str embed -> input
+inputOnEnter = stateCached2 \embed str done -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
@@ -148,7 +148,7 @@ todoInput :: ∀ s.
        , current :: String
        , active :: Boolean
        }
-todoInput delete = state \st embed -> if st.active
+todoInput = stateCached2 \embed st delete -> if st.active
   then zoom _temp $ blurableInput \result -> do
     case result of
       Cancel -> embed $ modify \st' -> st' { temp = "", active = false }
@@ -168,7 +168,7 @@ todo
      Effect s Unit           -- | Removes the current item from the list
   -> Int                     -- | Todo id
   -> FocusedComponent s ToDo -- | Todo Component
-todo delete _ = state \_ _ -> div
+todo = stateCached3 \_ _ delete _ -> div
   [ className "todo" ]
   [ zoom _completed checkbox
   , flip zoom (todoInput delete)
@@ -194,7 +194,7 @@ todoMVC = state \st embed -> div [ className "container" ]
       }
 
   -- Individual todos
-  , zoom _todos $ foreachMap show ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) todo
+  , zoom _todos $ foreachMap show compare ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) todo
 
   -- Footer
   , div

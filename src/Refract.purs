@@ -64,6 +64,7 @@ import Web.DOM.NonElementParentNode as WD
 import Web.HTML as W
 import Web.HTML.HTMLDocument as W
 import Web.HTML.Window as W
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | A synonym for `<<<`.
 infixr 9 compose as ○
@@ -319,6 +320,53 @@ stateCached3 f = \a b -> FocusedComponent \effect lens st ->
       where
         runComponent (FocusedComponent cmp) = cmp
 
+-- | Reify the current `Component` state.
+stateCached4 :: ∀ a b c s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> c -> FocusedComponent s t) -> a -> b -> c -> FocusedComponent s t
+stateCached4 f = \a b c -> FocusedComponent \effect lens st ->
+  R.unsafeCreateLeafElement component { effect , lens , state: st , f, a, b, c }
+  where
+    component :: ∀ s t. R.ReactClass _
+    component = R.component "stateCached" reactClass
+    
+    reactClass
+      :: ∀ s t r. R.ReactThis
+           { effect :: Effect s Unit -> E.Effect Unit
+           , lens :: ALens' s t
+           , state :: t
+           , f :: ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> c -> FocusedComponent s t)
+           , a :: a
+           , b :: b
+           , c :: c
+           }
+           {}
+      -> E.Effect
+              { render :: E.Effect ReactElement
+              , componentDidMount :: E.Effect Unit
+              , shouldComponentUpdate ::
+                   { state :: t
+                   | r
+                   }
+                   -> {} -> E.Effect Boolean
+              }
+    reactClass this = pure
+      { render: do
+          props <- R.getProps this
+          logAny "RENDER"
+          let l = cloneLens props.lens
+          pure $ runComponent (props.f (mapEffect l) props.state props.a props.b props.c) props.effect l props.state
+      , componentDidMount: do
+          props' <- R.getProps this
+          logAny "MOUNT"
+          pure unit
+      , shouldComponentUpdate: \props _ -> do
+          props' <- R.getProps this
+          -- logAny "SHOULD"
+          pure $ not $ props.state `refEq` props'.state
+          -- pure false
+      }
+      where
+        runComponent (FocusedComponent cmp) = cmp
+
 zoomL :: ∀ ps s t l. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
 zoomL l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l) (st ^. l)
 
@@ -450,31 +498,7 @@ lensAtM k = lens (\m -> unsafePartial $ fromJust $ M.lookup k m) (\m v -> M.inse
 
 foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
 
--- | Unfiltered `Array` traversal.
--- foreach
---   :: ∀ st a.
---      ALens' st (Array a)
---   -> (ALens' st a -> Component st)
---   -> Component st
--- foreach = undefined -- foreachF (const true)
--- 
--- -- | Filtered `Array` traversal.
--- foreachF
---   :: ∀ st a.
---      (a -> Boolean)
---   -> ALens' st (Array a)
---   -> (ALens' st a -> Component st)
---   -> Component st
--- foreachF f lns' cmp effect st = undefined
---   -- RD.div [] $ catMaybes $ mapI (length st') \i -> case index st' i >>= pure ○ f of
---   --   Just true  -> Just $ cmp (lns ○ lensAtA i) effect st
---   --   Just false -> Nothing
---   --   Nothing    -> Nothing
---   -- where
---   --   lns = cloneLens lns'
---   --   st' = st ^. lns
-
--- TODO: traversable
+-- | Filtered `Array` traversal.
 foreach
   :: ∀ s a
   .  (a -> Boolean)
@@ -490,22 +514,80 @@ foreach f cmp = FocusedComponent \effect l st ->
 unfiltered :: ∀ a. a -> Boolean
 unfiltered _ = true
 
--- | Filtered `Map` traversal.
+deleteBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Map k v
+deleteBy f k m = coerce M.delete { compare: f } k m
+  where
+    coerce :: (forall a. Ord k => k -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Map k v
+    coerce = unsafeCoerce
+
+insertBy :: ∀ k v. (k -> k -> Ordering) -> k -> v -> Map k v -> Map k v
+insertBy f k m = coerce M.insert { compare: f } k m
+  where
+    coerce :: (forall a. Ord k => k -> v -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> v -> Map k v -> Map k v
+    coerce = unsafeCoerce
+
+lookupBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Maybe v
+lookupBy f k m = coerce M.lookup { compare: f } k m
+  where
+    coerce :: (forall a. Ord k => k -> Map k v -> Maybe v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Maybe v
+    coerce = unsafeCoerce
+
+lensAtMBy :: ∀ k v. (k -> k -> Ordering) -> k -> Lens' (Map k v) v
+lensAtMBy ord_f k = lens (\m -> unsafePartial $ fromJust $ lookupBy ord_f k m) (\m v -> insertBy ord_f k v m)
+
+-- | Filtered and sorted `Map` traversal.
 foreachMap
   :: ∀ s k v
-  .  Ord k
-  => (k -> String)
+  .  (k -> String)
+  -> (k -> k -> Ordering)
   -> (k × v -> k × v -> Ordering)
   -> (k × v -> Boolean)
   -> (Effect s Unit -> k -> FocusedComponent s v)
   -> FocusedComponent s (Map k v)
-foreachMap key_f ord_f filter_f cmp = FocusedComponent \effect l' st ->
+foreachMap = \show_f keyord_f ord_f filter_f cmp -> FocusedComponent \effect l' st ->
   let l = cloneLens l'
       elems = sortBy ord_f ○ filter filter_f
-      mkElement (k × v) = R.fragmentWithKey (key_f k) [ runComponent (cmp (modify $ over l $ M.delete k) k) effect (l ○ lensAtM k) v ]
+      -- TODO: key being ignored here?
+      mkElement (k × v) = RD.div [ P.key $ show_f k ] [ runComponent (cmp (modify $ over l $ deleteBy keyord_f k ) k) effect (l ○ lensAtMBy keyord_f k) v ]
       runComponent (FocusedComponent cmp') = cmp'
+      render st = RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
 
-  in  RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
+  -- in  RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
+  in R.unsafeCreateLeafElement component { state: st, render: render }
+  where
+    component :: ∀ s t. R.ReactClass _
+    component = R.component "stateCached" reactClass
+    
+    reactClass
+      :: ∀ k v r. R.ReactThis
+           { state :: Map k v
+           , render :: Map k v -> R.ReactElement
+           }
+           {}
+      -> E.Effect
+              { render :: E.Effect ReactElement
+              , componentDidMount :: E.Effect Unit
+              , shouldComponentUpdate ::
+                   { state :: Map k v
+                   | r
+                   }
+                   -> {} -> E.Effect Boolean
+              }
+    reactClass this = pure
+      { render: do
+          props <- R.getProps this
+          logAny "RENDER"
+          pure $ props.render props.state
+      , componentDidMount: do
+          props' <- R.getProps this
+          logAny "MOUNT"
+          pure unit
+      , shouldComponentUpdate: \props _ -> do
+          props' <- R.getProps this
+          -- logAny "SHOULD"
+          pure $ not $ props.state `refEq` props'.state
+          -- pure false
+      }
 
 keySort :: ∀ k v. Ord k => k × v -> k × v -> Ordering
 keySort (k1 × _) (k2 × _) = compare k1 k2
