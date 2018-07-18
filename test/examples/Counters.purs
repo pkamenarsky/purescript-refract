@@ -35,8 +35,8 @@ counter = memo2 \embed' decrement -> stateCached \embed st -> trace ("EMBED: " <
   , div [ onClick \_ -> embed' $ modify $ decrement ] [ text "Parent" ]
   ]
 
-counter' :: ∀ s. (Effect s Unit) -> FocusedComponent s Int
-counter' decrement = stateCached \embed st -> trace ("EMBED: " <> showAny embed) $ div []
+counter' :: ∀ s. Effect s Unit -> FocusedComponent s Int
+counter' = memo \decrement -> stateCached \embed st -> trace ("EMBED2: " <> showAny embed) $ div []
   [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]

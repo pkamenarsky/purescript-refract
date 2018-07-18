@@ -45,7 +45,6 @@ exports.memo = function(f) {
   };
 };
 
-
 exports.memo2_ = function(f) {
   var old_a = null;
   var old_b = null;
