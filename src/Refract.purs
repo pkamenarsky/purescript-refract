@@ -37,7 +37,7 @@ module Refract
 import Prelude
 
 import Control.Monad.Free (Free, hoistFree, liftF, runFreeM)
-import Data.Array (catMaybes, filter, index, length, sortBy, updateAt)
+import Data.Array (catMaybes, filter, index, length, range, sortBy, updateAt, zip)
 import Data.Either (Either(..))
 import Data.Exists (Exists, mkExists, runExists)
 import Data.Functor.Invariant (class Invariant)
@@ -484,9 +484,12 @@ foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
 foreach
   :: ∀ s a.
      (a -> Boolean)
-  -> FocusedComponent s a
+  -> (Int -> FocusedComponent s a)
   -> FocusedComponent s (Array a)
-foreach = undefined -- foreachZF (const true)
+foreach f cmp = FocusedComponent \effect l st -> RD.div [] $ map (mkElement effect l) $ zip (range 0 10000) $ filter f st
+  where
+    runComponent (FocusedComponent cmp') = cmp'
+    mkElement effect l (i × a) = runComponent (cmp i) effect (cloneLens l ○ lensAtA i) a
 
 unfiltered :: ∀ a. a -> Boolean
 unfiltered _ = true
