@@ -232,7 +232,7 @@ stateCached f = FocusedComponent \effect lens st ->
 -- | Reify the current `Component` state.
 stateCached2 :: ∀ a s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> FocusedComponent s t) -> a -> FocusedComponent s t
 stateCached2 f = \a -> FocusedComponent \effect lens st ->
-  R.unsafeCreateLeafElement component { effect , lens , state: st , f, a }
+  R.unsafeCreateLeafElement component { effect , lens , state: st , f, a, key: "asd" }
   where
     component :: ∀ s t. R.ReactClass _
     component = R.component (genId unit) reactClass
@@ -244,6 +244,7 @@ stateCached2 f = \a -> FocusedComponent \effect lens st ->
            , state :: t
            , f :: ((Effect t Unit -> Effect s Unit) -> t -> a -> FocusedComponent s t)
            , a :: a
+           , key :: String
            }
            {}
       -> E.Effect
@@ -278,7 +279,7 @@ stateCached2 f = \a -> FocusedComponent \effect lens st ->
 -- | Reify the current `Component` state.
 stateCached3 :: ∀ a b s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> FocusedComponent s t) -> a -> b -> FocusedComponent s t
 stateCached3 f = \a b -> FocusedComponent \effect lens st ->
-  R.unsafeCreateLeafElement component { effect , lens , state: st , f, a, b }
+  R.unsafeCreateLeafElement component { effect , lens , state: st , f, a, b, key: "asd" }
   where
     component :: ∀ s t. R.ReactClass _
     component = R.component (genId unit) reactClass
@@ -291,6 +292,7 @@ stateCached3 f = \a b -> FocusedComponent \effect lens st ->
            , f :: ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> FocusedComponent s t)
            , a :: a
            , b :: b
+           , key :: String
            }
            {}
       -> E.Effect
@@ -516,19 +518,19 @@ unfiltered _ = true
 deleteBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Map k v
 deleteBy f k m = coerce M.delete { compare: f } k m
   where
-    coerce :: (forall a. Ord k => k -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Map k v
+    coerce :: (forall k v. Ord k => k -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Map k v
     coerce = unsafeCoerce
 
 insertBy :: ∀ k v. (k -> k -> Ordering) -> k -> v -> Map k v -> Map k v
 insertBy f k m = coerce M.insert { compare: f } k m
   where
-    coerce :: (forall a. Ord k => k -> v -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> v -> Map k v -> Map k v
+    coerce :: (forall k v. Ord k => k -> v -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> v -> Map k v -> Map k v
     coerce = unsafeCoerce
 
 lookupBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Maybe v
 lookupBy f k m = coerce M.lookup { compare: f } k m
   where
-    coerce :: (forall a. Ord k => k -> Map k v -> Maybe v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Maybe v
+    coerce :: (forall k v. Ord k => k -> Map k v -> Maybe v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Maybe v
     coerce = unsafeCoerce
 
 lensAtMBy :: ∀ k v. (k -> k -> Ordering) -> k -> Lens' (Map k v) v
@@ -547,12 +549,12 @@ foreachMap = \show_f keyord_f ord_f filter_f cmp -> FocusedComponent \effect l' 
   let l = cloneLens l'
       elems = sortBy ord_f ○ filter filter_f
       -- TODO: key being ignored here?
-      mkElement (k × v) = RD.div [ P.key $ show_f k ] [ runComponent (cmp (modify $ over l $ deleteBy keyord_f k ) k) effect (l ○ lensAtMBy keyord_f k) v ]
+      mkElement (k × v) = R.fragmentWithKey (show_f k) [ runComponent (cmp (modify $ over l $ deleteBy keyord_f k ) k) effect (l ○ lensAtMBy keyord_f k) v ]
       runComponent (FocusedComponent cmp') = cmp'
       render st = RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
 
   -- in  RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
-  in R.unsafeCreateLeafElement component { state: st, render: render }
+  in R.createLeafElement component { state: st, render: render }
   where
     component :: ∀ s t. R.ReactClass _
     component = R.component (genId unit) reactClass
