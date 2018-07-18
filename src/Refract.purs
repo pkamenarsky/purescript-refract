@@ -181,42 +181,46 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
 
 -- | Reify the current `Component` state.
 stateCached :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
-stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement
-    component
-    { effect
-    , lens
-    , state: st
-    , render: runComponent (f st $ mapEffect lens) effect lens
-    }
+stateCached f = FocusedComponent \effect lens st -> R.unsafeCreateLeafElement component { effect , lens , state: st , f }
+
+component :: ∀ s t. R.ReactClass _
+component = R.component "stateCached" reactClass
+
+reactClass
+  :: ∀ s t r. R.ReactThis
+       { effect :: Effect s Unit -> E.Effect Unit
+       , lens :: ALens' s t
+       , state :: t
+       , f :: (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t)
+       }
+       {}
+  -> E.Effect
+          { render :: E.Effect ReactElement
+          , componentDidMount :: E.Effect Unit
+          , shouldComponentUpdate ::
+               { state :: t
+               | r
+               }
+               -> {} -> E.Effect Boolean
+          }
+reactClass this = pure
+  { render: do
+      props <- R.getProps this
+      logAny "RENDER"
+      let l = cloneLens props.lens
+      pure $ runComponent (props.f props.state $ mapEffect l) props.effect l props.state
+  , componentDidMount: do
+      props' <- R.getProps this
+      logAny "MOUNT"
+      pure unit
+  , shouldComponentUpdate: \props _ -> do
+      props' <- R.getProps this
+      -- logAny "SHOULD"
+      pure $ not $ props.state `refEq` props'.state
+      -- pure false
+  }
   where
     runComponent (FocusedComponent cmp) = cmp
-
-    component = R.component "stateCached" reactClass
-
-    reactClass
-      :: R.ReactThis
-           { effect :: Effect s Unit -> E.Effect Unit
-           , lens :: ALens' s t
-           , state :: t
-           , render :: t -> R.ReactElement
-           }
-           {}
-      -> E.Effect _
-    reactClass this = pure
-      { render: do
-          props <- R.getProps this
-          logAny "RENDER"
-          pure $ props.render props.state
-      , componentDidMount: do
-          props' <- R.getProps this
-          logAny "MOUNT"
-          pure unit
-      , shouldComponentUpdate: \props _ -> do
-          props' <- R.getProps this
-          -- logAny "SHOULD"
-          pure $ not $ props.state `refEq` props'.state
-          -- pure false
-      }
 
 zoomL :: ∀ ps s t l. Lens' s t -> FocusedComponent ps t -> FocusedComponent ps s
 zoomL l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l) (st ^. l)
