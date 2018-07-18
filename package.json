@@ -7,8 +7,8 @@
     "webpack-dev-server": "webpack-dev-server --content-base static/ --hot --inline --progress --config webpack.config.js"
   },
   "dependencies": {
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
   },
   "devDependencies": {
     "css-loader": "^0.28.7",

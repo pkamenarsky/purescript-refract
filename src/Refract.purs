@@ -273,9 +273,6 @@ stateCached2 f = \a -> FocusedComponent \effect lens st ->
       where
         runComponent (FocusedComponent cmp) = cmp
 
-memo2' :: ∀ a b c. (a -> b -> c) -> a -> b -> c
-memo2' f a b = f a b
-
 -- | Reify the current `Component` state.
 stateCached3 :: ∀ a b s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> FocusedComponent s t) -> a -> b -> FocusedComponent s t
 stateCached3 f = \a b -> FocusedComponent \effect lens st ->
@@ -428,8 +425,6 @@ run elemId cmp st updateState = void $ element >>= RD.render ui
       , state: st
       }
 
-    effect eff = undefined
-
     -- spec :: R.ReactSpec Unit st (Reacteff)
     -- spec = R.spec st \this -> do
     --   st' <- R.getState this
@@ -479,33 +474,38 @@ foreign import mapI :: ∀ a. Int -> (Int -> a) -> Array a
 --   --   lns = cloneLens lns'
 --   --   st' = st ^. lns
 
--- | Zooming unfiltered `Array` traversal.
 -- TODO: traversable
 foreach
-  :: ∀ s a.
-     (a -> Boolean)
+  :: ∀ s a
+  .  (a -> Boolean)
   -> (Int -> FocusedComponent s a)
   -> FocusedComponent s (Array a)
-foreach f cmp = FocusedComponent \effect l st -> RD.div [] $ map (mkElement effect l) $ zip (range 0 10000) $ filter f st
-  where
-    runComponent (FocusedComponent cmp') = cmp'
-    mkElement effect l (i × a) = runComponent (cmp i) effect (cloneLens l ○ lensAtA i) a
+foreach f cmp = FocusedComponent \effect l st ->
+  let filtered = filter f st
+      mkElement (i × a) = runComponent (cmp i) effect (cloneLens l ○ lensAtA i) a
+      runComponent (FocusedComponent cmp') = cmp'
+
+  in  RD.div [] $ map mkElement $ zip (range 0 (length filtered - 1)) filtered
 
 unfiltered :: ∀ a. a -> Boolean
 unfiltered _ = true
 
 -- | Filtered `Map` traversal.
 foreachMap
-  :: ∀ s t k v. Ord k
-  => (k × v -> k × v -> Ordering)
+  :: ∀ s k v
+  .  Ord k
+  => (k -> String)
+  -> (k × v -> k × v -> Ordering)
   -> (k × v -> Boolean)
-  -> (Effect s Unit -> FocusedComponent s t)
+  -> (Effect s Unit -> k -> FocusedComponent s v)
   -> FocusedComponent s (Map k v)
-foreachMap ord_f filter_f cmp = undefined
-  -- RD.div [] $ flip map (elems $ M.toUnfoldable (st ^. lns)) \(k × v) -> cmp (lns ○ lensAtM k) (over lns (M.delete k)) effect st
-  -- where
-  --   lns = cloneLens lns'
-  --   elems = sortBy ord_f ○ filter filter_f
+foreachMap key_f ord_f filter_f cmp = FocusedComponent \effect l' st ->
+  let l = cloneLens l'
+      elems = sortBy ord_f ○ filter filter_f
+      mkElement (k × v) = R.fragmentWithKey (key_f k) [ runComponent (cmp (modify $ over l $ M.delete k) k) effect (l ○ lensAtM k) v ]
+      runComponent (FocusedComponent cmp') = cmp'
+
+  in  RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
 
 keySort :: ∀ k v. Ord k => k × v -> k × v -> Ordering
 keySort (k1 × _) (k2 × _) = compare k1 k2

@@ -66,7 +66,7 @@ counter = stateCached2 \embed st decrement -> trace ("EMBED2: " <> showAny embed
 indexedCounter :: ∀ s. Int -> FocusedComponent s Int
 indexedCounter = stateCached2 \embed st index -> trace ("EMBED2: " <> showAny embed) $
   div
-    [ ]
+    []
     [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
     , text (show st)
     , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]

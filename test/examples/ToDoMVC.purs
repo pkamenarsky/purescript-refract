@@ -104,13 +104,13 @@ blurableInput
   :: ∀ s.
      (InputResult -> Effect s Unit) -- | Result effect operating on the parent state
   -> FocusedComponent s String
-blurableInput result = state \st _ -> input
+blurableInput result = state \st embed -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
     , onChange \e -> do
         target <- liftEffect $ Event.target e
-        modify \_ -> (unsafeCoerce target).value
+        embed $ modify \_ -> (unsafeCoerce target).value
     , onKeyDown \e -> do
         keyCode <- liftEffect $ Event.keyCode e
         if round keyCode == 13
@@ -130,14 +130,14 @@ checkbox = state \st embed -> input
   ] []
 
 inputOnEnter :: ∀ s. (String -> Effect s Unit) -> FocusedComponent s String
-inputOnEnter done = state \str _ -> input
+inputOnEnter done = state \str embed -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
   , value str
   , onChange \e -> do
       target <- liftEffect $ Event.target e
-      modify \_ -> (unsafeCoerce target).value
+      embed $ modify \_ -> (unsafeCoerce target).value
   , onEnter $ when (S.length str > 0) (done str)
   ] []
 
@@ -166,8 +166,9 @@ spanButton f children = span [ onClick \_ -> f ] children
 todo
   :: ∀ s.
      Effect s Unit           -- | Removes the current item from the list
+  -> Int
   -> FocusedComponent s ToDo -- | Todo Component
-todo delete = state \_ _ -> div
+todo delete _ = state \_ _ -> div
   [ className "todo" ]
   [ zoom _completed checkbox
   , flip zoom (todoInput delete)
@@ -193,7 +194,7 @@ todoMVC = state \st embed -> div [ className "container" ]
       }
 
   -- Individual todos
-  , zoom _todos $ foreachMap ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) todo
+  , zoom _todos $ foreachMap show ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) todo
 
   -- Footer
   , div
@@ -204,7 +205,7 @@ todoMVC = state \st embed -> div [ className "container" ]
 
       , div
           [ className "todo-filters" ]
-          [ spanButton (embed $ modify $ set _filter Active) [ text "All" ], text "/"
+          [ spanButton (embed $ modify $ set _filter All) [ text "All" ], text "/"
           , spanButton (embed $ modify $ set _filter Active) [ text "Active" ], text "/"
           , spanButton (embed $ modify $ set _filter Completed) [ text "Completed" ]
           ]
@@ -229,5 +230,8 @@ todoMVC = state \st embed -> div [ className "container" ]
 
 -- Main ------------------------------------------------------------------------
 
-main :: AppState -> (AppState -> E.Effect Unit) -> E.Effect Unit
-main = run "main" todoMVC
+main_ :: AppState -> (AppState -> E.Effect Unit) -> E.Effect Unit
+main_ = run "main" todoMVC
+
+main :: E.Effect Unit
+main = run "main" todoMVC initialState (\_ -> pure unit)
