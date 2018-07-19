@@ -19,7 +19,7 @@ import Data.String as S
 import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
 import Effect as E
-import Prelude (class Ord, Unit, bind, const, compare, discard, flip, identity, map, not, pure, show, when, unit, ($), (+), (<>), (==), (>), (*>))
+import Prelude (class Ord, Unit, bind, const, compare, discard, flip, identity, map, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
 import Refract.Props (_type, autoFocus, checked, className, key, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
@@ -173,7 +173,7 @@ todoInput = state \_ st -> if st.active
 data Clicked = Clicked
 
 spanButton :: ∀ s. s -> Array (Component {} s) -> Component {} s
-spanButton t children = state \_ _ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
+spanButton t children = state \_ _ -> span [ onClick \_ -> (modify $ const t) ] children
 
 todo :: Component' { key :: String } ToDo DeleteAction
 todo = cache $ state \props _ -> div

@@ -65,8 +65,8 @@ twoCounters = div []
   , zoom' _d counter { key: "counter2" }
   ]
 
-manyCounters :: Component {} (Map Int Int)
-manyCounters = state \_ st -> div []
+manyCounters :: Component { key :: String } (Map Int Int)
+manyCounters = cache $ state \_ st -> div []
   [ div [ onClick \_ -> modify \m -> M.insert (M.size m) 0 m ] [ text "Add counter" ]
   , counters st
   ]
@@ -84,4 +84,4 @@ manyCounters = state \_ st -> div []
 -- main = run "main" (manyCounters identity)
 
 main :: E.Effect Unit
-main = run "main" (zoom' _many manyCounters {}) ({ c: 0, d: 0, many: M.empty } :: AppState) (\_ -> pure unit)
+main = run "main" (zoom' _many manyCounters { key: "counters" }) ({ c: 0, d: 0, many: M.empty } :: AppState) (\_ -> pure unit)
