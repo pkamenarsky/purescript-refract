@@ -6,7 +6,7 @@ import Prelude (Unit)
 import Unsafe.Coerce (unsafeCoerce)
   
 text :: ∀ p s r. String -> FocusedComponent p s r
-text str = FocusedComponent \_ _ -> unsafeCoerce str
+text str = FocusedComponent \_ _ _ -> unsafeCoerce str
 
 a :: ∀ p s r. Array (Props s r) -> Array (FocusedComponent {} s r) -> FocusedComponent p s r
 a = mkComponent "a"

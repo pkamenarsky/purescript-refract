@@ -56,17 +56,17 @@ _many = prop (SProxy :: SProxy "many")
 _name :: ∀ r. Lens' { name :: String | r } String
 _name = prop (SProxy :: SProxy "name")
 
-counter :: FocusedComponent Int Unit
-counter = state \st -> div []
+counter :: FocusedComponent {} Int Unit
+counter = state \_ st -> div []
   [ div [ onClick \_ -> modify (_ - 1) *> pure Nothing ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> modify (_ + 1) *> pure Nothing ] [ text "Increment" ]
   ]
 
-counterA :: Component AppState
+counterA :: FocusedComponent {} AppState Unit
 counterA = div []
-  [ zoom _c counter (const $ pure Nothing)
-  , zoom _d counter (const $ pure Nothing)
+  [ zoom _c counter {} (const $ pure Nothing)
+  , zoom _d counter {} (const $ pure Nothing)
   ]
 
 -- twoCounters :: Component (Tuple Int Int)
@@ -75,8 +75,8 @@ counterA = div []
 --   , zoom _2 (counter "Counter: ")
 --   ]
 
-inputOnEnter :: FocusedComponent String Unit
-inputOnEnter = state \str -> input
+inputOnEnter :: FocusedComponent {} String Unit
+inputOnEnter = state \_ str -> input
   [ className "todo-input"
   , value str
   -- , onChange \e -> do
@@ -84,13 +84,13 @@ inputOnEnter = state \str -> input
   --     embed $ modify \_ -> (unsafeCoerce target).value
   ] []
 
-manyCounters :: Component AppState
+manyCounters :: FocusedComponent {} AppState Unit
 manyCounters = div []
-  [ zoom _name inputOnEnter (const $ pure Nothing)
-  , flip (zoom _many) (const $ pure Nothing) $ state \st -> div []
-      [ div [ onClick \_ -> modify (cons 0) *> pure Nothing ] [ text "Add counter" ]
-      -- , foreach unfiltered indexedCounter
-      ]
+  [ zoom _name inputOnEnter {} (const $ pure Nothing)
+  -- , zoom _many) (const $ pure Nothing) $ state \st -> div []
+  --     [ div [ onClick \_ -> modify (cons 0) *> pure Nothing ] [ text "Add counter" ]
+  --     -- , foreach unfiltered indexedCounter
+  --     ]
   ]
 
 -- Main ------------------------------------------------------------------------

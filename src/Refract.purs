@@ -13,9 +13,6 @@ module Refract
   -- , componentClass
   -- , createElement
   , cache
-  , memo
-  , memo2
-  , memo3
   , defaultSpec
   , effectfully
   , embed
@@ -195,9 +192,6 @@ foreign import refEq :: ∀ a. a -> a -> Boolean
 foreign import logAny :: ∀ a. a -> E.Effect Unit
 foreign import showAny :: ∀ a. a -> String
 foreign import trace :: ∀ a. String -> a -> a
-foreign import memo :: ∀ a b. (a -> b) -> a -> b
-foreign import memo2 :: ∀ a b c. (a -> b -> c) -> a -> b -> c
-foreign import memo3 :: ∀ a b c d. (a -> b -> c -> d) -> a -> b -> c -> d
 
 cache :: ∀ p s r. FocusedComponent { key :: String | p } s r -> FocusedComponent { key :: String | p } s r
 cache cmp = FocusedComponent \effect p st -> 

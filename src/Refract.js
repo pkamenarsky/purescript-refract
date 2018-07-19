@@ -130,8 +130,8 @@ exports.refEq = function(objA) {
     // Test for A's keys different from B.
     for (var i = 0; i < keysA.length; i++) {
       if (!hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
-        return false;
         console.log("EQ", objA, objB, false);
+        return false;
       }
     }
 
