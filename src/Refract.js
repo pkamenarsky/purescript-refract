@@ -109,13 +109,13 @@ function is(x, y) {
  */
 exports.refEq = function(objA) {
   return function(objB) {
-    console.log("EQ", objA, objB, objA === objB);
-
     if (is(objA, objB)) {
+      console.log("EQ", objA, objB, true);
       return true;
     }
 
     if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+      console.log("EQ", objA, objB, false);
       return false;
     }
 
@@ -123,6 +123,7 @@ exports.refEq = function(objA) {
     var keysB = Object.keys(objB);
 
     if (keysA.length !== keysB.length) {
+      console.log("EQ", objA, objB, false);
       return false;
     }
 
@@ -130,8 +131,11 @@ exports.refEq = function(objA) {
     for (var i = 0; i < keysA.length; i++) {
       if (!hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
         return false;
+        console.log("EQ", objA, objB, false);
       }
     }
+
+    console.log("EQ", objA, objB, true);
 
     return true;
   };

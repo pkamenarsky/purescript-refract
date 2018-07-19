@@ -22,7 +22,7 @@ import Effect as E
 import Prelude (class Ord, Unit, bind, const, compare, discard, flip, identity, map, not, pure, show, when, unit, ($), (+), (<>), (==), (>), (*>))
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
-import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
+import Refract.Props (_type, autoFocus, checked, className, key, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
 import Undefined (undefined)
 import Unsafe.Coerce (unsafeCoerce)
   
@@ -137,7 +137,7 @@ checkbox = state \st -> input
 data Entered = Entered String
 
 inputOnEnter :: FocusedComponent String Entered
-inputOnEnter = state \str -> input
+inputOnEnter = cache $ state \str -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
@@ -185,7 +185,7 @@ spanButton :: ∀ s q. s -> Array (FocusedComponent s Unit) -> FocusedComponent 
 spanButton t children = state \_ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
 
 todo :: FocusedComponent ToDo DeleteAction -- | Todo Component
-todo = state \_ -> div
+todo = cache $ state \_ -> div
   [ className "todo" ]
   [ zoom _completed checkbox (const $ pure Nothing)
   , flip zoom todoInput
@@ -223,7 +223,7 @@ todos' = state \ st -> div [] $ flip map (todoArray All st) \(k × v) -> embed t
     visible Completed todo' = todo'.completed
 
 todos :: FocusedComponent { st :: Map Int ToDo, todoFilter :: ToDoFilter } Unit
-todos = state \ {st, todoFilter} -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
+todos = cache $ state \ {st, todoFilter} -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> div [ key $ show k ] [ embed todo v (mod k) (delete k) ]
   where
     mod k v = modify $ over _st \s -> M.insert k v s
     delete k DeleteAction = do
@@ -260,8 +260,8 @@ todoMVC = state \st -> div [ className "container" ]
       _ -> pure Nothing
 
   -- Individual todos
-  --, zoom { st: _todos, todoFilter: _filter } todos pure
-  , zoom _todos todos' pure
+  , zoom { st: _todos, todoFilter: _filter } todos pure
+  -- , zoom _todos todos' pure
 
   -- Footer
   , div
