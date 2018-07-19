@@ -223,7 +223,7 @@ todos' = state \ st -> div [] $ flip map (todoArray All st) \(k × v) -> embed t
     visible Completed todo' = todo'.completed
 
 todos :: FocusedComponent { st :: Map Int ToDo, todoFilter :: ToDoFilter } Unit
-todos = cache $ state \ {st, todoFilter} -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> div [ key $ show k ] [ embed todo v (mod k) (delete k) ]
+todos = cache $ state \ {st, todoFilter} -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k) -- div [ key $ show k ] [ embed todo v (mod k) (delete k) ]
   where
     mod k v = modify $ over _st \s -> M.insert k v s
     delete k DeleteAction = do
