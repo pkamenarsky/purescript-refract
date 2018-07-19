@@ -28,7 +28,7 @@ import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, on
 import Refract.Props (className, key, value, onChange)
 import Refract.Props (onClick)
 import React.SyntheticEvent as Event
-import Refract (Component, Effect, FocusedComponent, trace, showAny, modify, run, state, zoom, liftEffect)
+import Refract (Component, Effect, Component', trace, showAny, modify, run, state, zoom, liftEffect)
 import Refract.DOM (div, input, label, span, text)
 import Refract.DOM (div, input, text)
 import Undefined (undefined)
@@ -56,14 +56,14 @@ _many = prop (SProxy :: SProxy "many")
 _name :: ∀ r. Lens' { name :: String | r } String
 _name = prop (SProxy :: SProxy "name")
 
-counter :: FocusedComponent {} Int Unit
+counter :: Component {} Int
 counter = state \_ st -> div []
   [ div [ onClick \_ -> modify (_ - 1) *> pure Nothing ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> modify (_ + 1) *> pure Nothing ] [ text "Increment" ]
   ]
 
-counterA :: FocusedComponent {} AppState Unit
+counterA :: Component {} AppState
 counterA = div []
   [ zoom _c counter {} (const $ pure Nothing)
   , zoom _d counter {} (const $ pure Nothing)
@@ -75,7 +75,7 @@ counterA = div []
 --   , zoom _2 (counter "Counter: ")
 --   ]
 
-inputOnEnter :: FocusedComponent {} String Unit
+inputOnEnter :: Component {} String
 inputOnEnter = state \_ str -> input
   [ className "todo-input"
   , value str
@@ -84,7 +84,7 @@ inputOnEnter = state \_ str -> input
   --     embed $ modify \_ -> (unsafeCoerce target).value
   ] []
 
-manyCounters :: FocusedComponent {} AppState Unit
+manyCounters :: Component {} AppState
 manyCounters = div []
   [ zoom _name inputOnEnter {} (const $ pure Nothing)
   -- , zoom _many) (const $ pure Nothing) $ state \st -> div []
