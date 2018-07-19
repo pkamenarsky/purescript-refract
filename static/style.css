@@ -3,14 +3,14 @@
   font-family: 'Dosis';
   font-style: normal;
   font-weight: 500;
-  src: local('Dosis Medium'), local('Dosis-Medium'), url(/fonts/Dosis-Medium.ttf) format('woff2');
+  src: local('Dosis Medium'), local('Dosis-Medium'), url(/font/Dosis-Medium.ttf) format('woff2');
 }
 /* latin */
 @font-face {
   font-family: 'Dosis';
   font-style: normal;
   font-weight: 700;
-  src: local('Dosis Medium'), local('Dosis-Bold'), url(/fonts/Dosis-Bold.ttf) format('woff2');
+  src: local('Dosis Medium'), local('Dosis-Bold'), url(/font/Dosis-Bold.ttf) format('woff2');
 }
 
 body {
