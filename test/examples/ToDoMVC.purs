@@ -4,9 +4,10 @@ module ToDoMVC where
 
 import Refract
 
+import Data.Array as A
 import Data.Function (on)
 import Data.Int (round)
-import Data.Lens (ALens', Lens', cloneLens, set)
+import Data.Lens (ALens', Lens', _Just, cloneLens, set)
 import Data.Lens.Record (prop)
 import Data.List (filter, length)
 import Data.Map (Map)
@@ -18,7 +19,7 @@ import Data.String as S
 import Data.Symbol (SProxy(SProxy))
 import Data.Tuple (fst, snd)
 import Effect as E
-import Prelude (class Ord, Unit, bind, const, compare, discard, flip, identity, map, not, pure, show, when, unit, ($), (+), (<>), (==), (>))
+import Prelude (class Ord, Unit, bind, const, compare, discard, flip, identity, map, not, pure, show, when, unit, ($), (+), (<>), (==), (>), (*>))
 import React.SyntheticEvent as Event
 import Refract.DOM (div, input, label, span, text)
 import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, onClick, onDoubleClick, onEnter, onKeyDown, placeholder, value)
@@ -150,15 +151,13 @@ inputOnEnter = stateCached \embed str -> input
       else pure Nothing
   ] []
 
-data DeleteTodo = DeleteTodo
-
 todoInput :: ∀ s.
   FocusedComponent s
      { temp :: String
      , current :: String
      , active :: Boolean
      }
-   DeleteTodo
+   DeleteAction
 todoInput = stateCached \embed st -> if st.active
   then zoom _temp blurableInput \result -> do
     case result of
@@ -168,7 +167,7 @@ todoInput = stateCached \embed st -> if st.active
       Just (Input str) -> do
         embed $ modify \st' -> st' { temp = "", active = false, current = st.temp }
         pure Nothing
-      Just Delete -> pure $ Just DeleteTodo
+      Just Delete -> pure $ Just DeleteAction
       _ -> pure Nothing
   else label
     [ className "todo-description"
@@ -185,8 +184,8 @@ spanButton children = span [ onClick \_ -> pure $ Just Clicked ] (map ignore chi
 
 todo
   :: ∀ s.
-     Int                                -- | Todo id
-  -> FocusedComponent s ToDo DeleteTodo -- | Todo Component
+     Int                                  -- | Todo id
+  -> FocusedComponent s ToDo DeleteAction -- | Todo Component
 todo = stateCached2 \_ _ _ -> div
   [ className "todo" ]
   [ zoom _completed checkbox (const $ pure Nothing)
@@ -196,19 +195,35 @@ todo = stateCached2 \_ _ _ -> div
       , active: _edited
       }
       pure
-  , div [ className "todo-delete", onClick \_ -> pure $ Just DeleteTodo ] []
+  , div [ className "todo-delete", onClick \_ -> pure $ Just DeleteAction ] []
   ]
+
+todos :: ∀ s. ToDoFilter -> FocusedComponent s (Map Int ToDo) Unit
+todos = stateCached2 \embed st todoFilter -> zoomFor
+  (map fst ○ todoArray todoFilter)
+  lensAtM'
+  todo
+  where
+    todoArray todoFilter st
+      = A.sortBy ((invert ○ _) ○ compare `on` fst)
+      $ A.filter (visible todoFilter ○ snd)
+      $ M.toUnfoldable st
+
+    visible :: ToDoFilter -> ToDo -> Boolean
+    visible All _ = true
+    visible Active todo' = not todo'.completed
+    visible Completed todo' = todo'.completed
 
 todoMVC :: ∀ s. FocusedComponent s AppState Unit
 todoMVC = state \st embed -> div [ className "container" ]
   -- Input field
   [ zoom _todo inputOnEnter \str -> case str of
-      Just (Entered str) -> do
+      Just (Entered str') -> do
         embed $ modify \st' -> st'
           { todo = ""
           , nextId = st'.nextId + 1
           , todos = M.insert st'.nextId
-              { description: str
+              { description: str'
               , completed: false
               , edited: false
               , input: ""
@@ -218,7 +233,7 @@ todoMVC = state \st embed -> div [ className "container" ]
       _ -> pure Nothing
 
   -- Individual todos
---  , zoom _todos $ foreachMap show compare ((invert ○ _) ○ (compare `on` fst)) (visible st.filter ○ snd) todo
+  , zoom _todos (todos st.filter) pure
 
   -- Footer
   , div
@@ -246,11 +261,6 @@ todoMVC = state \st embed -> div [ className "container" ]
       ]
   ]
   where
-    visible :: ToDoFilter -> ToDo -> Boolean
-    visible All _ = true
-    visible Active todo' = not todo'.completed
-    visible Completed todo' = todo'.completed
-
     filterMap :: ∀ k v. Ord k => (v -> Boolean) -> Map k v -> Map k v
     filterMap f = M.fromFoldable ○ filter (f ○ snd) ○ M.toUnfoldable
 
