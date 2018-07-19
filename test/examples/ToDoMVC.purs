@@ -103,14 +103,14 @@ data InputResult = Cancel | Input String | Delete
 -- | * Discards the entered text on escape or blur
 -- | * Deletes input component on enter, when the text is empty
 blurableInput
-  :: ∀ s. FocusedComponent s String InputResult
-blurableInput = stateCached \embed st -> input
+  :: FocusedComponent String InputResult
+blurableInput = state \st -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
     , onChange \e -> do
         target <- liftEffect $ Event.target e
-        embed $ modify \_ -> (unsafeCoerce target).value
+        modify \_ -> (unsafeCoerce target).value
         pure Nothing
     , onKeyDown \e -> do
         keyCode <- liftEffect $ Event.keyCode e
@@ -125,68 +125,67 @@ blurableInput = stateCached \embed st -> input
     ] []
 
 checkbox :: Component Boolean
-checkbox = stateCached \embed st -> input
+checkbox = state \st -> input
   [ _type "checkbox"
   , className "todo-checkbox"
   , checked st
   , onChange \_ -> do
-      embed $ modify not
+      modify not
       pure Nothing
   ] []
 
 data Entered = Entered String
 
-inputOnEnter :: ∀ s. FocusedComponent s String Entered
-inputOnEnter = stateCached \embed str -> input
+inputOnEnter :: FocusedComponent String Entered
+inputOnEnter = state \str -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
   , value str
   , onChange \e -> do
       target <- liftEffect $ Event.target e
-      embed $ modify \_ -> (unsafeCoerce target).value
+      modify \_ -> (unsafeCoerce target).value
       pure Nothing
   , onEnter $ if S.length str > 0
       then pure $ Just $ Entered str
       else pure Nothing
   ] []
 
-todoInput :: ∀ s.
-  FocusedComponent s
+todoInput ::
+  FocusedComponent
      { temp :: String
      , current :: String
      , active :: Boolean
      }
    DeleteAction
-todoInput = stateCached \embed st -> if st.active
+todoInput = state \st -> if st.active
   then zoom _temp blurableInput \result -> do
     case result of
       Just Cancel -> do
-        embed $ modify \st' -> st' { temp = "", active = false }
+        modify \st' -> st' { temp = "", active = false }
         pure Nothing
       Just (Input str) -> do
-        embed $ modify \st' -> st' { temp = "", active = false, current = st.temp }
+        modify \st' -> st' { temp = "", active = false, current = st.temp }
         pure Nothing
       Just Delete -> pure $ Just DeleteAction
       _ -> pure Nothing
   else label
     [ className "todo-description"
     , onDoubleClick \_ -> do
-        embed $ modify \st' -> st' { temp = st.current, active = true }
+        modify \st' -> st' { temp = st.current, active = true }
         pure Nothing
     ]
     [ text st.current ]
 
 data Clicked = Clicked
 
-spanButton :: ∀ s q t. t -> Array (FocusedComponent s t Unit) -> FocusedComponent s t Unit
-spanButton t children = stateCached \embed _ -> span [ onClick \_ -> embed (modify $ const t) *> pure Nothing ] children
+spanButton :: ∀ s q. s -> Array (FocusedComponent s Unit) -> FocusedComponent s Unit
+spanButton t children = state \_ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
 
 todo
-  :: ∀ s.
-     Int                                  -- | Todo id
-  -> FocusedComponent s ToDo DeleteAction -- | Todo Component
-todo = stateCached2 \_ _ _ -> div
+  :: Int                                -- | Todo id
+  -> FocusedComponent ToDo DeleteAction -- | Todo Component
+todo index = state \_ -> div
   [ className "todo" ]
   [ zoom _completed checkbox (const $ pure Nothing)
   , flip zoom todoInput
@@ -198,28 +197,28 @@ todo = stateCached2 \_ _ _ -> div
   , div [ className "todo-delete", onClick \_ -> pure $ Just DeleteAction ] []
   ]
 
-todos :: ∀ s. ToDoFilter -> FocusedComponent s (Map Int ToDo) Unit
-todos = stateCached2 \embed st todoFilter -> zoomFor
-  (map fst ○ todoArray todoFilter)
-  lensAtM'
-  todo
-  where
-    todoArray todoFilter st
-      = A.sortBy ((invert ○ _) ○ compare `on` fst)
-      $ A.filter (visible todoFilter ○ snd)
-      $ M.toUnfoldable st
+todos :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
+todos todoFilter = undefined -- state \embed st -> zoomFor
+  -- (map fst ○ todoArray todoFilter)
+  -- lensAtM'
+  -- todo
+  -- where
+  --   todoArray todoFilter st
+  --     = A.sortBy ((invert ○ _) ○ compare `on` fst)
+  --     $ A.filter (visible todoFilter ○ snd)
+  --     $ M.toUnfoldable st
 
-    visible :: ToDoFilter -> ToDo -> Boolean
-    visible All _ = true
-    visible Active todo' = not todo'.completed
-    visible Completed todo' = todo'.completed
+  --   visible :: ToDoFilter -> ToDo -> Boolean
+  --   visible All _ = true
+  --   visible Active todo' = not todo'.completed
+  --   visible Completed todo' = todo'.completed
 
-todoMVC :: ∀ s. FocusedComponent s AppState Unit
-todoMVC = state \st embed -> div [ className "container" ]
+todoMVC :: FocusedComponent AppState Unit
+todoMVC = state \st -> div [ className "container" ]
   -- Input field
   [ zoom _todo inputOnEnter \str -> case str of
       Just (Entered str') -> do
-        embed $ modify \st' -> st'
+        modify \st' -> st'
           { todo = ""
           , nextId = st'.nextId + 1
           , todos = M.insert st'.nextId
@@ -253,7 +252,7 @@ todoMVC = state \st embed -> div [ className "container" ]
           then span
             [ className "todo-clear"
             , onClick \_ -> do
-                embed $ modify \st' -> st' { todos = filterMap (not (\todo -> todo.completed)) st.todos }
+                modify \st' -> st' { todos = filterMap (not (\todo -> todo.completed)) st.todos }
                 pure Nothing
             ]
             [ text "Clear completed"]

@@ -24,14 +24,11 @@ module Refract
   , modify'
   , run
   , state
-  , stateCached
-  , stateCached2
-  , stateCached3
   , showAny
   , trace
   , keySort
   , zoom
-  , lensAtM'
+  , lensAtM
   , zoomFor
   ) where
 
@@ -167,16 +164,11 @@ type Props s r = (Effect s (Maybe r) -> E.Effect Unit) -> P.Props
 
 -- Components ------------------------------------------------------------------
 
-type Derivation i s t =
-  { state  :: s
-  , derive :: s -> t
-  , update :: i -> t -> s
-  }
+-- | A `Component st` is parameterized over a state type `st` over which it operates.
+newtype FocusedComponent s r
+  = FocusedComponent ((Effect s (Maybe r) -> E.Effect Unit) -> s -> ReactElement)
 
-newtype FocusedComponent s t r
-  = FocusedComponent ((Effect s (Maybe r) -> E.Effect Unit) -> Lens' s t -> t -> ReactElement)
-
-type Component s = forall t. FocusedComponent t s Unit
+type Component s = FocusedComponent s Unit
 
 -- Zoom, state -----------------------------------------------------------------
 
@@ -189,81 +181,48 @@ foreign import memo :: ∀ a b. (a -> b) -> a -> b
 foreign import memo2 :: ∀ a b c. (a -> b -> c) -> a -> b -> c
 foreign import memo3 :: ∀ a b c d. (a -> b -> c -> d) -> a -> b -> c -> d
 
-ignore :: ∀ s t r. FocusedComponent s t Unit -> FocusedComponent s t r
-ignore (FocusedComponent cmp) = FocusedComponent \effect l st -> cmp (\eff -> effect $ eff *> pure Nothing) l st
+ignore :: ∀ s r. FocusedComponent s Unit -> FocusedComponent s r
+ignore (FocusedComponent cmp) = FocusedComponent \effect st -> cmp (\eff -> effect $ eff *> pure Nothing) st
 
 -- | Reify the current `Component` state.
-state :: ∀ s t r. (t -> (forall q. Effect t q -> Effect s q) -> FocusedComponent s t r) -> FocusedComponent s t r
-state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
+state :: ∀ s r. (s -> FocusedComponent s r) -> FocusedComponent s r
+state f = FocusedComponent \effect st -> runComponent (f st) effect st
   where
     runComponent (FocusedComponent cmp) = cmp
 
-cache :: ∀ s t r. FocusedComponent s t r -> FocusedComponent s t r
-cache = \cmp -> FocusedComponent \effect l st -> 
-  let render st' = runComponent cmp effect l st'
+cache :: ∀ s r. FocusedComponent s r -> FocusedComponent s r
+cache = \cmp -> FocusedComponent \effect st -> 
+  let render st' = runComponent cmp effect st'
   in R.unsafeCreateLeafElement component' { state: st, render }
   where
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
--- | Reify the current `Component` state.
-stateCached :: ∀ s t r. ((forall q. Effect t q -> Effect s q) -> t -> FocusedComponent s t r) -> FocusedComponent s t r
-stateCached f = FocusedComponent \effect lens st ->
-  let render st' = runComponent (f (mapEffect lens) st') effect lens st'
-  in R.unsafeCreateLeafElement component' { state: st, render }
-  where
-    runComponent (FocusedComponent cmp) = cmp
-    component' = component $ genId unit
-
-stateCached2 :: ∀ a s t r. (forall q. (Effect t q -> Effect s q) -> t -> a -> FocusedComponent s t r) -> a -> FocusedComponent s t r
-stateCached2 f = memo \a -> FocusedComponent \effect lens st ->
-  let render st' = runComponent (f (mapEffect lens) st' a) effect lens st'
-      runComponent (FocusedComponent cmp) = cmp
-      component' = component $ genId unit
-  in R.unsafeCreateLeafElement component' { state: st, render }
-
-stateCached3 :: ∀ a b s t r. ((forall q. Effect t q -> Effect s q) -> t -> a -> b -> FocusedComponent s t r) -> a -> b -> FocusedComponent s t r
-stateCached3 f = \a b -> FocusedComponent \effect lens st ->
-  let render st' = runComponent (f (mapEffect lens) st' a b) effect lens st'
-  in R.unsafeCreateLeafElement component' { state: st, render }
-  where
-    runComponent (FocusedComponent cmp) = cmp
-    component' = component $ genId unit
-
-stateCached4 :: ∀ a b c s t r. ((forall q. Effect t q -> Effect s q) -> t -> a -> b -> c -> FocusedComponent s t r) -> a -> b -> c -> FocusedComponent s t r
-stateCached4 f = \a b c -> FocusedComponent \effect lens st ->
-  let render st' = runComponent (f (mapEffect lens) st' a b c) effect lens st'
-  in R.unsafeCreateLeafElement component' { state: st, render }
-  where
-    runComponent (FocusedComponent cmp) = cmp
-    component' = component $ genId unit
-
-zoom :: ∀ ps s t l r q. RecordToLens s l t => l -> FocusedComponent ps t r -> (Maybe r -> Effect ps (Maybe q)) -> FocusedComponent ps s q
-zoom l (FocusedComponent cmp) r = FocusedComponent \effect l'' st -> cmp (\eff -> effect $ eff >>= r) (l'' ○ l') (st ^. l')
+zoom :: ∀ s t l r q. RecordToLens s l t => l -> FocusedComponent t r -> (Maybe r -> Effect s (Maybe q)) -> FocusedComponent s q
+zoom l (FocusedComponent cmp) r = FocusedComponent \effect st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) (st ^. l')
   where
     l' = recordToLens l
 
 data DeleteAction = DeleteAction
 
-zoomFor :: ∀ ps s t i r q
+zoomFor :: ∀ s t i r q
   .  Show i
   => (s -> Array i)
   -> (i -> ALens' s (Maybe t))
-  -> (i -> FocusedComponent ps t DeleteAction)
-  -> FocusedComponent ps s Unit
-zoomFor keys keylens cmp = FocusedComponent \effect l st ->
+  -> (i -> FocusedComponent t DeleteAction)
+  -> FocusedComponent s Unit
+zoomFor keys keylens cmp = FocusedComponent \effect st ->
   RD.div [] $ flip map (keys st) \key -> case cloneLens (keylens key) of
     keylens' -> case st ^. keylens' of
       Nothing  -> RD.div [] []
       Just st' -> RD.div [ P.key $ show key ] [ runComponent
         (cmp key)
-        (\eff -> effect $ delete (over l (\ps -> keylens' .~ Nothing $ ps)) eff)
-        (l ○ lens (const st') (\s t -> keylens' .~ Just t $ s))
+        undefined -- (\eff -> effect $ delete (\ps -> keylens' .~ Nothing $ ps) eff)
         st'
         ]
 
   where
-    delete :: (ps -> ps) -> Effect ps (Maybe DeleteAction) -> Effect ps (Maybe Unit)
+    delete :: (s -> s) -> Effect s (Maybe DeleteAction) -> Effect s (Maybe Unit)
     delete f action = do
       r <- action
       case r of
@@ -275,8 +234,6 @@ zoomFor keys keylens cmp = FocusedComponent \effect l st ->
     runComponent (FocusedComponent cmp) = cmp
 
 -- React -----------------------------------------------------------------------
-
--- | A `Component st` is parameterized over a state type `st` over which it operates.
 
 -- | A React component class. Useful whenever a `Component` needs to implement
 -- | React lifecycle methods.
@@ -343,22 +300,22 @@ defaultSpec =
 
 -- | Create a DOM element `Component`.
 mkComponent
-  :: ∀ s t r. String                -- | Element name
-  -> Array (Props s r)              -- | Props
-  -> Array (FocusedComponent s t r) -- | Children
-  -> FocusedComponent s t r
-mkComponent element props children = FocusedComponent \effect l st -> mkDOM
+  :: ∀ s t r. String              -- | Element name
+  -> Array (Props s r)            -- | Props
+  -> Array (FocusedComponent s r) -- | Children
+  -> FocusedComponent s r
+mkComponent element props children = FocusedComponent \effect st -> mkDOM
   (IsDynamic false) element (map (_ $ effect) props)
-  (map (\(FocusedComponent cmp) -> cmp effect l st) children)
+  (map (\(FocusedComponent cmp) -> cmp effect st) children)
 
 -- Run -------------------------------------------------------------------------
 
 -- | Attach `Component` to the DOM element with the specified id and run it.
 run
-  :: ∀ s. String                           -- | Element id
-  -> FocusedComponent { | s } { | s } Unit -- | Component
+  :: ∀ s. String                   -- | Element id
+  -> FocusedComponent { | s } Unit -- | Component
   -> { | s }
-  -> ({ | s } -> E.Effect Unit)            -- | State callback (useful for hot reloading)
+  -> ({ | s } -> E.Effect Unit)    -- | State callback (useful for hot reloading)
   -> E.Effect Unit
 run elemId cmp st updateState = void $ element >>= RD.render ui
   where
@@ -368,7 +325,7 @@ run elemId cmp st updateState = void $ element >>= RD.render ui
       { render: do
            st' <- R.getState this
            updateState st'
-           pure $ cmp (\effect -> launchAff_ $ interpretEffect this effect) identity st'
+           pure $ cmp (\effect -> launchAff_ $ interpretEffect this effect) st'
       , state: st
       }
 
@@ -392,11 +349,8 @@ run elemId cmp st updateState = void $ element >>= RD.render ui
 lensAtA :: ∀ a. Int -> Lens' (Array a) a
 lensAtA i = lens (\m -> unsafePartial $ fromJust $ index m i) (\m v -> fromMaybe m $ updateAt i v m)
 
-lensAtM :: ∀ k v. Ord k => k -> Lens' (Map k v) v
-lensAtM k = lens (\m -> unsafePartial $ fromJust $ M.lookup k m) (\m v -> M.insert k v m)
-
-lensAtM' :: ∀ k v. Ord k => k -> ALens' (Map k v) (Maybe v)
-lensAtM' k = lens (M.lookup k) \m v -> case v of
+lensAtM :: ∀ k v. Ord k => k -> ALens' (Map k v) (Maybe v)
+lensAtM k = lens (M.lookup k) \m v -> case v of
   Just v' -> M.insert k v' m
   Nothing -> M.delete k m
 

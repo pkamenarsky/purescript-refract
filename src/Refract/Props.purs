@@ -3,6 +3,7 @@ module Refract.Props where
 import Prelude
 
 import Data.Int (round)
+import Data.Maybe (Maybe(Just, Nothing))
 import React.SyntheticEvent as Event
 import React.DOM.Props as P
 import Refract (Effect, Props, (○))
@@ -456,163 +457,163 @@ unselectable v _ = P.unselectable v
 --------------------------------------------------------------------------------
 
 onAnimationStart :: ∀ s r.
-  (Event.SyntheticAnimationEvent -> Effect s r) -> Props s r
+  (Event.SyntheticAnimationEvent -> Effect s (Maybe r)) -> Props s r
 onAnimationStart f effect = P.onAnimationStart (effect ○ f)
 
 onAnimationEnd :: ∀ s r.
-  (Event.SyntheticAnimationEvent -> Effect s r) -> Props s r
+  (Event.SyntheticAnimationEvent -> Effect s (Maybe r)) -> Props s r
 onAnimationEnd f effect = P.onAnimationEnd (effect ○ f)
 
 onAnimationIteration :: ∀ s r.
-  (Event.SyntheticAnimationEvent -> Effect s r) -> Props s r
+  (Event.SyntheticAnimationEvent -> Effect s (Maybe r)) -> Props s r
 onAnimationIteration f effect = P.onAnimationIteration (effect ○ f)
 
 onTransitionEnd :: ∀ s r.
-  (Event.SyntheticTransitionEvent -> Effect s r) -> Props s r
+  (Event.SyntheticTransitionEvent -> Effect s (Maybe r)) -> Props s r
 onTransitionEnd f effect = P.onTransitionEnd (effect ○ f)
 
 onLoad :: ∀ s r.
-  (Event.SyntheticEvent -> Effect s r) -> Props s r
+  (Event.SyntheticEvent -> Effect s (Maybe r)) -> Props s r
 onLoad f effect = P.onLoad (effect ○ f)
 
 onCopy :: ∀ s r.
-  (Event.SyntheticClipboardEvent -> Effect s r) -> Props s r
+  (Event.SyntheticClipboardEvent -> Effect s (Maybe r)) -> Props s r
 onCopy f effect = P.onCopy (effect ○ f)
 
 onCut :: ∀ s r.
-  (Event.SyntheticClipboardEvent -> Effect s r) -> Props s r
+  (Event.SyntheticClipboardEvent -> Effect s (Maybe r)) -> Props s r
 onCut f effect = P.onCut (effect ○ f)
 
 onPaste :: ∀ s r.
-  (Event.SyntheticClipboardEvent -> Effect s r) -> Props s r
+  (Event.SyntheticClipboardEvent -> Effect s (Maybe r)) -> Props s r
 onPaste f effect = P.onPaste (effect ○ f)
 
 onKeyDown :: ∀ s r.
-  (Event.SyntheticKeyboardEvent -> Effect s r) -> Props s r
+  (Event.SyntheticKeyboardEvent -> Effect s (Maybe r)) -> Props s r
 onKeyDown f effect = P.onKeyDown (effect ○ f)
 
 onKeyPress :: ∀ s r.
-  (Event.SyntheticKeyboardEvent -> Effect s r) -> Props s r
+  (Event.SyntheticKeyboardEvent -> Effect s (Maybe r)) -> Props s r
 onKeyPress f effect = P.onKeyPress (effect ○ f)
 
 onKeyUp :: ∀ s r.
-  (Event.SyntheticKeyboardEvent -> Effect s r) -> Props s r
+  (Event.SyntheticKeyboardEvent -> Effect s (Maybe r)) -> Props s r
 onKeyUp f effect = P.onKeyUp (effect ○ f)
 
 onFocus :: ∀ s r.
-  (Event.SyntheticFocusEvent -> Effect s r) -> Props s r
+  (Event.SyntheticFocusEvent -> Effect s (Maybe r)) -> Props s r
 onFocus f effect = P.onFocus (effect ○ f)
 
 onBlur :: ∀ s r.
-  (Event.SyntheticFocusEvent -> Effect s r) -> Props s r
+  (Event.SyntheticFocusEvent -> Effect s (Maybe r)) -> Props s r
 onBlur f effect = P.onBlur (effect ○ f)
 
 onChange :: ∀ s r.
-  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
+  (Event.SyntheticInputEvent -> Effect s (Maybe r)) -> Props s r
 onChange f effect = P.onChange (effect ○ f)
 
 onInput :: ∀ s r.
-  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
+  (Event.SyntheticInputEvent -> Effect s (Maybe r)) -> Props s r
 onInput f effect = P.onInput (effect ○ f)
 
 onInvalid :: ∀ s r.
-  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
+  (Event.SyntheticInputEvent -> Effect s (Maybe r)) -> Props s r
 onInvalid f effect = P.onInvalid (effect ○ f)
 
 onSubmit :: ∀ s r.
-  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
+  (Event.SyntheticInputEvent -> Effect s (Maybe r)) -> Props s r
 onSubmit f effect = P.onSubmit (effect ○ f)
 
 onClick :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onClick f effect = P.onClick (effect ○ f)
 
 onDoubleClick :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDoubleClick f effect = P.onDoubleClick (effect ○ f)
 
 onDrag :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDrag f effect = P.onDrag (effect ○ f)
 
 onDragEnd :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDragEnd f effect = P.onDragEnd (effect ○ f)
 
 onDragEnter :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDragEnter f effect = P.onDragEnter (effect ○ f)
 
 onDragExit :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDragExit f effect = P.onDragExit (effect ○ f)
 
 onDragLeave :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDragLeave f effect = P.onDragLeave (effect ○ f)
 
 onDragOver :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDragOver f effect = P.onDragOver (effect ○ f)
 
 onDragStart :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDragStart f effect = P.onDragStart (effect ○ f)
 
 onDrop :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onDrop f effect = P.onDrop (effect ○ f)
 
 onMouseDown :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseDown f effect = P.onMouseDown (effect ○ f)
 
 onMouseEnter :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseEnter f effect = P.onMouseEnter (effect ○ f)
 
 onMouseLeave :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseLeave f effect = P.onMouseLeave (effect ○ f)
 
 onMouseMove :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseMove f effect = P.onMouseMove (effect ○ f)
 
 onMouseOut :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseOut f effect = P.onMouseOut (effect ○ f)
 
 onMouseOver :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseOver f effect = P.onMouseOver (effect ○ f)
 
 onMouseUp :: ∀ s r.
-  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
+  (Event.SyntheticMouseEvent -> Effect s (Maybe r)) -> Props s r
 onMouseUp f effect = P.onMouseUp (effect ○ f)
 
 onTouchCancel :: ∀ s r.
-  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
+  (Event.SyntheticTouchEvent -> Effect s (Maybe r)) -> Props s r
 onTouchCancel f effect = P.onTouchCancel (effect ○ f)
 
 onTouchEnd :: ∀ s r.
-  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
+  (Event.SyntheticTouchEvent -> Effect s (Maybe r)) -> Props s r
 onTouchEnd f effect = P.onTouchEnd (effect ○ f)
 
 onTouchMove :: ∀ s r.
-  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
+  (Event.SyntheticTouchEvent -> Effect s (Maybe r)) -> Props s r
 onTouchMove f effect = P.onTouchMove (effect ○ f)
 
 onTouchStart :: ∀ s r.
-  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
+  (Event.SyntheticTouchEvent -> Effect s (Maybe r)) -> Props s r
 onTouchStart f effect = P.onTouchStart (effect ○ f)
 
 onScroll :: ∀ s r.
-  (Event.SyntheticUIEvent -> Effect s r) -> Props s r
+  (Event.SyntheticUIEvent -> Effect s (Maybe r)) -> Props s r
 onScroll f effect = P.onScroll (effect ○ f)
 
 onWheel :: ∀ s r.
-  (Event.SyntheticWheelEvent -> Effect s r) -> Props s r
+  (Event.SyntheticWheelEvent -> Effect s (Maybe r)) -> Props s r
 onWheel f effect = P.onWheel (effect ○ f)
 
 --------------------------------------------------------------------------------
@@ -662,12 +663,12 @@ viewBox v _ = P.viewBox v
 
 -- --------------------------------------------------------------------------------
 
-onEnter :: ∀ s r. Effect s r -> Props s r
+onEnter :: ∀ s r. Effect s (Maybe r) -> Props s r
 onEnter f effect = P.onKeyDown \e -> do
   keyCode <- Event.keyCode e
   if round keyCode == 13 then effect f else pure unit
 
-onEscape :: ∀ s r. Effect s r -> Props s r
+onEscape :: ∀ s r. Effect s (Maybe r) -> Props s r
 onEscape f effect = P.onKeyDown \e -> do
   keyCode <- Event.keyCode e
   if round keyCode == 27 then effect f else pure unit
