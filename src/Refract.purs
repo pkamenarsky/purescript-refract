@@ -1,6 +1,7 @@
 module Refract
   ( Component
-  , Component'(Component')
+  , Component'
+  , ComponentEff(ComponentEff)
   , ComponentClass
   , EffectEF
   , EffectF
@@ -176,13 +177,14 @@ type Props s r = (Effect s (Maybe r) -> E.Effect Unit) -> P.Props
 -- Components ------------------------------------------------------------------
 
 -- | A `Component st` is parameterized over a state type `st` over which it operates.
-newtype Component' s r
-  = Component' ((Effect s (Maybe r) -> E.Effect Unit) -> ReactElement)
+newtype ComponentEff s r
+  = ComponentEff ((Effect s (Maybe r) -> E.Effect Unit) -> ReactElement)
 
-runComponent :: ∀ s r. Component' s r -> (Effect s (Maybe r) -> E.Effect Unit) -> ReactElement
-runComponent (Component' cmp) = cmp
+runComponent :: ∀ s r. ComponentEff s r -> (Effect s (Maybe r) -> E.Effect Unit) -> ReactElement
+runComponent (ComponentEff cmp) = cmp
 
-type Component s = Component' s Unit
+type Component  p s   = p -> s -> ComponentEff s Unit
+type Component' p s r = p -> s -> ComponentEff s r
 
 -- Zoom, state -----------------------------------------------------------------
 
@@ -192,24 +194,24 @@ foreign import logAny :: ∀ a. a -> E.Effect Unit
 foreign import showAny :: ∀ a. a -> String
 foreign import trace :: ∀ a. String -> a -> a
 
-cache :: ∀ p s r. ({ key :: String | p } -> s -> Component' s r) -> { key :: String | p } -> s -> Component' s r
-cache cmp p st = Component' \effect -> 
+cache :: ∀ p s r. Component' { key :: String | p } s r -> Component' { key :: String | p } s r
+cache cmp p st = ComponentEff \effect -> 
   let render st' = runComponent (cmp p st') effect
   in R.unsafeCreateLeafElement component' { props: p, state: st, render, key: p.key }
   where
     component' = component $ genId unit
 
 embed :: ∀ p1 p2 s t q r
-  .  (p1 -> s -> Component' s r)
+  .  Component' p1 s r
   -> p1
   -> s
   -> (s -> Effect t Unit)
   -> (r -> Effect t (Maybe q))
-  -> p2 -> t -> Component' t q
-embed cmp p1 s fs fr _ _ = Component' \effect -> runComponent (cmp p1 s) (\eff -> effect $ embedEffect s fs fr eff)
+  -> Component' p2 t q
+embed cmp p1 s fs fr _ _ = ComponentEff \effect -> runComponent (cmp p1 s) (\eff -> effect $ embedEffect s fs fr eff)
 
-zoom :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> (p1 -> t -> Component' t r) -> (Maybe r -> Effect s (Maybe q)) -> p1 -> s -> Component' s q
-zoom l cmp r p s = Component' \effect -> runComponent (cmp p (s ^. l')) (\eff -> effect (mapEffect l' eff >>= r))
+zoom :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> (Component' p1 t r) -> (Maybe r -> Effect s (Maybe q)) -> Component' p1 s q
+zoom l cmp r p s = ComponentEff \effect -> runComponent (cmp p (s ^. l')) (\eff -> effect (mapEffect l' eff >>= r))
   where
     l' = recordToLens l
 
@@ -248,7 +250,7 @@ defaultSpec =
 -- componentClass
 --   :: ∀ s t. Spec { | s } t
 --   -> String
---   -> Component' { | s } t
+--   -> ComponentEff { | s } t
 --   -> ComponentClass { | s } t
 -- componentClass spec displayName cmp = R.component displayName reactClass
 --   where
@@ -282,9 +284,9 @@ defaultSpec =
 mkComponent
   :: ∀ p s t r. String                 -- | Element name
   -> Array (Props s r)                 -- | Props
-  -> Array ({} -> s -> Component' s r) -- | Children
-  -> p -> s -> Component' s r
-mkComponent element props children p s = Component' \effect -> mkDOM
+  -> Array (Component' {} s r) -- | Children
+  -> Component' p s r
+mkComponent element props children p s = ComponentEff \effect -> mkDOM
   (IsDynamic false) element (map (_ $ effect) props)
   (map (\cmp -> runComponent (cmp {} s) effect) children)
 
@@ -293,7 +295,7 @@ mkComponent element props children p s = Component' \effect -> mkDOM
 -- | Attach `Component` to the DOM element with the specified id and run it.
 run
   :: ∀ s. String                                -- | Element id
-  -> ({} -> { | s } -> Component' { | s } Unit) -- | Component
+  -> (Component' {} { | s } Unit) -- | Component
   -> { | s }
   -> ({ | s } -> E.Effect Unit)                 -- | State callback (useful for hot reloading)
   -> E.Effect Unit

@@ -28,7 +28,7 @@ import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, on
 import Refract.Props (className, key, value, onChange)
 import Refract.Props (onClick)
 import React.SyntheticEvent as Event
-import Refract (Component, Effect, Component', trace, showAny, modify, run, state, zoom, liftEffect)
+import Refract (Component, Effect, Component', trace, showAny, modify, run, zoom, liftEffect)
 import Refract.DOM (div, input, label, span, text)
 import Refract.DOM (div, input, text)
 import Undefined (undefined)
@@ -57,7 +57,7 @@ _name :: ∀ r. Lens' { name :: String | r } String
 _name = prop (SProxy :: SProxy "name")
 
 counter :: Component {} Int
-counter = state \_ st -> div []
+counter _ st = div []
   [ div [ onClick \_ -> modify (_ - 1) *> pure Nothing ] [ text "Decrement" ]
   , text (show st)
   , div [ onClick \_ -> modify (_ + 1) *> pure Nothing ] [ text "Increment" ]
@@ -76,7 +76,7 @@ counterA = div []
 --   ]
 
 inputOnEnter :: Component {} String
-inputOnEnter = state \_ str -> input
+inputOnEnter _ str = input
   [ className "todo-input"
   , value str
   -- , onChange \e -> do
