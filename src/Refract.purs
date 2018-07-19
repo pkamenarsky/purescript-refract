@@ -14,7 +14,7 @@ module Refract
   -- , createElement
   , defaultSpec
   , effectfully
-  -- , foreach
+  , embed
   , ignore
   , liftEffect
   , mapEffect

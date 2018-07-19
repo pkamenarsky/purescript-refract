@@ -151,6 +151,8 @@ inputOnEnter = state \str -> input
       else pure Nothing
   ] []
 
+data DeleteAction = DeleteAction
+
 todoInput ::
   FocusedComponent
      { temp :: String
@@ -182,10 +184,8 @@ data Clicked = Clicked
 spanButton :: ∀ s q. s -> Array (FocusedComponent s Unit) -> FocusedComponent s Unit
 spanButton t children = state \_ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
 
-todo
-  :: Int                                -- | Todo id
-  -> FocusedComponent ToDo DeleteAction -- | Todo Component
-todo index = state \_ -> div
+todo :: FocusedComponent ToDo DeleteAction -- | Todo Component
+todo = state \_ -> div
   [ className "todo" ]
   [ zoom _completed checkbox (const $ pure Nothing)
   , flip zoom todoInput
@@ -201,20 +201,23 @@ todos :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
 todos todoFilter = state \st -> undefined
 
 todos' :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
-todos' todoFilter = undefined -- state \embed st -> zoomFor
-  -- (map fst ○ todoArray todoFilter)
-  -- lensAtM'
-  -- todo
-  -- where
-  --   todoArray todoFilter st
-  --     = A.sortBy ((invert ○ _) ○ compare `on` fst)
-  --     $ A.filter (visible todoFilter ○ snd)
-  --     $ M.toUnfoldable st
+todos' todoFilter = state \st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
+  where
+    mod k v = modify \s -> M.insert k v s
+    delete k DeleteAction = do
+      modify \s -> M.delete k s
+      pure Nothing
 
-  --   visible :: ToDoFilter -> ToDo -> Boolean
-  --   visible All _ = true
-  --   visible Active todo' = not todo'.completed
-  --   visible Completed todo' = todo'.completed
+    todoArray :: ToDoFilter -> (Map Int ToDo) -> Array (Int × ToDo)
+    todoArray todoFilter st
+      = A.sortBy ((invert ○ _) ○ compare `on` fst)
+      $ A.filter (visible todoFilter ○ snd)
+      $ M.toUnfoldable st
+
+    visible :: ToDoFilter -> ToDo -> Boolean
+    visible All _ = true
+    visible Active todo' = not todo'.completed
+    visible Completed todo' = todo'.completed
 
 todoMVC :: FocusedComponent AppState Unit
 todoMVC = state \st -> div [ className "container" ]
