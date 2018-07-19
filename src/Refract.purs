@@ -198,6 +198,14 @@ state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) eff
   where
     runComponent (FocusedComponent cmp) = cmp
 
+cache :: ∀ s t r. FocusedComponent s t r -> FocusedComponent s t r
+cache = \cmp -> FocusedComponent \effect l st -> 
+  let render st' = runComponent cmp effect l st'
+  in R.unsafeCreateLeafElement component' { state: st, render }
+  where
+    runComponent (FocusedComponent cmp) = cmp
+    component' = component $ genId unit
+
 -- | Reify the current `Component` state.
 stateCached :: ∀ s t r. ((forall q. Effect t q -> Effect s q) -> t -> FocusedComponent s t r) -> FocusedComponent s t r
 stateCached f = FocusedComponent \effect lens st ->
