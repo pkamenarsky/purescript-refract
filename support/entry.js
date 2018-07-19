@@ -1,7 +1,7 @@
 'use strict';
 
 var css = require('../static/style.css');
-var entry = require('../test/examples/Counters.purs');
+var entry = require('../test/examples/ToDoMVC.purs');
 
 var subscribe = function(st) {
   return function() {

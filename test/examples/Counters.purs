@@ -27,7 +27,7 @@ import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, on
 import Refract.Props (className, key, value, onChange)
 import Refract.Props (onClick)
 import React.SyntheticEvent as Event
-import Refract (Component, Effect, FocusedComponent, trace, showAny, foreach, modify, run, state, stateCached, stateCached2, stateCached3, unfiltered, zoom, liftEffect)
+import Refract (Component, Effect, FocusedComponent, trace, showAny, modify, run, state, stateCached, stateCached2, stateCached3, unfiltered, zoom, liftEffect)
 import Refract.DOM (div, input, label, span, text)
 import Refract.DOM (div, input, text)
 import Undefined (undefined)
@@ -90,9 +90,9 @@ inputOnEnter :: ∀ s. FocusedComponent s String Unit
 inputOnEnter = stateCached \embed str -> input
   [ className "todo-input"
   , value str
-  , onChange \e -> do
-      target <- liftEffect $ Event.target e
-      embed $ modify \_ -> (unsafeCoerce target).value
+  -- , onChange \e -> do
+  --     target <- liftEffect $ Event.target e
+  --     embed $ modify \_ -> (unsafeCoerce target).value
   ] []
 
 manyCounters :: Component AppState
@@ -100,7 +100,7 @@ manyCounters = div []
   [ zoom _name inputOnEnter (const $ pure unit)
   , flip (zoom _many) (const $ pure unit) $ stateCached \embed st -> div []
       [ div [ onClick \_ -> embed $ modify (cons 0) ] [ text "Add counter" ]
-      , foreach unfiltered indexedCounter
+      -- , foreach unfiltered indexedCounter
       ]
   ]
 

@@ -144,7 +144,7 @@ inputOnEnter = stateCached \embed str -> input
   , value str
   , onChange \e -> do
       target <- liftEffect $ Event.target e
-      modify \_ -> (unsafeCoerce target).value
+      embed $ modify \_ -> (unsafeCoerce target).value
       pure Nothing
   , onEnter $ if S.length str > 0
       then pure $ Just $ Entered str
@@ -179,8 +179,8 @@ todoInput = stateCached \embed st -> if st.active
 
 data Clicked = Clicked
 
-spanButton :: ∀ s t. Array (FocusedComponent s t Unit) -> FocusedComponent s t Clicked
-spanButton children = span [ onClick \_ -> pure $ Just Clicked ] (map ignore children)
+spanButton :: ∀ s q t. t -> Array (FocusedComponent s t Unit) -> FocusedComponent s t Unit
+spanButton t children = stateCached \embed _ -> span [ onClick \_ -> embed (modify $ const t) *> pure Nothing ] children
 
 todo
   :: ∀ s.
@@ -242,12 +242,12 @@ todoMVC = state \st embed -> div [ className "container" ]
           [ className "todo-count"]
           [ text $ show (length $ filter (not _.completed) $ M.values st.todos) <> " items left" ]
 
-      -- , div
-      --     [ className "todo-filters" ]
-      --     [ spanButton (embed $ modify $ set _filter All) [ text "All" ], text "/"
-      --     , spanButton (embed $ modify $ set _filter Active) [ text "Active" ], text "/"
-      --     , spanButton (embed $ modify $ set _filter Completed) [ text "Completed" ]
-      --     ]
+      , div
+          [ className "todo-filters" ]
+          [ zoom _filter (spanButton All [ text "All" ]) (const $ pure Nothing), text "/"
+          , zoom _filter (spanButton Active [ text "Active" ]) (const $ pure Nothing), text "/"
+          , zoom _filter (spanButton Completed [ text "Completed" ]) (const $ pure Nothing)
+          ]
 
       , if (length $ filter (_.completed) $ M.values st.todos) > 0
           then span
