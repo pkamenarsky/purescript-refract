@@ -22,7 +22,6 @@ module Refract
   , modify
   , modify'
   , run
-  , state
   , showAny
   , trace
   , keySort
@@ -177,13 +176,13 @@ type Props s r = (Effect s (Maybe r) -> E.Effect Unit) -> P.Props
 -- Components ------------------------------------------------------------------
 
 -- | A `Component st` is parameterized over a state type `st` over which it operates.
-newtype Component' p s r
-  = Component' ((Effect s (Maybe r) -> E.Effect Unit) -> p -> s -> ReactElement)
+newtype Component' s r
+  = Component' ((Effect s (Maybe r) -> E.Effect Unit) -> ReactElement)
 
-runComponent :: ∀ p s r. Component' p s r -> (Effect s (Maybe r) -> E.Effect Unit) -> p -> s -> ReactElement
+runComponent :: ∀ s r. Component' s r -> (Effect s (Maybe r) -> E.Effect Unit) -> ReactElement
 runComponent (Component' cmp) = cmp
 
-type Component p s = Component' p s Unit
+type Component s = Component' s Unit
 
 -- Zoom, state -----------------------------------------------------------------
 
@@ -193,28 +192,24 @@ foreign import logAny :: ∀ a. a -> E.Effect Unit
 foreign import showAny :: ∀ a. a -> String
 foreign import trace :: ∀ a. String -> a -> a
 
-cache :: ∀ p s r. Component' { key :: String | p } s r -> Component' { key :: String | p } s r
-cache cmp = Component' \effect p st -> 
-  let render st' = runComponent cmp effect p st'
+cache :: ∀ p s r. ({ key :: String | p } -> s -> Component' s r) -> { key :: String | p } -> s -> Component' s r
+cache cmp p st = Component' \effect -> 
+  let render st' = runComponent (cmp p st') effect
   in R.unsafeCreateLeafElement component' { props: p, state: st, render, key: p.key }
   where
     component' = component $ genId unit
 
--- | Reify the current `Component` state.
-state :: ∀ p s r. (p -> s -> Component' p s r) -> Component' p s r
-state f = Component' \effect p st -> runComponent (f p st) effect p st
-
 embed :: ∀ p1 p2 s t q r
-  .  Component' p1 s r
+  .  (p1 -> s -> Component' s r)
   -> p1
   -> s
   -> (s -> Effect t Unit)
   -> (r -> Effect t (Maybe q))
-  -> Component' p2 t q
-embed (Component' cmp) p s fs fr = Component' \effect _ _ -> cmp (\eff -> effect $ embedEffect s fs fr eff) p s
+  -> p2 -> t -> Component' t q
+embed cmp p1 s fs fr _ _ = Component' \effect -> runComponent (cmp p1 s) (\eff -> effect $ embedEffect s fs fr eff)
 
-zoom :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> Component' p1 t r -> p1 -> (Maybe r -> Effect s (Maybe q)) -> Component' p2 s q
-zoom l (Component' cmp) p r = Component' \effect _ st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) p (st ^. l')
+zoom :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> (p1 -> t -> Component' t r) -> (Maybe r -> Effect s (Maybe q)) -> p1 -> s -> Component' s q
+zoom l cmp r p s = Component' \effect -> runComponent (cmp p (s ^. l')) (\eff -> effect (mapEffect l' eff >>= r))
   where
     l' = recordToLens l
 
@@ -285,32 +280,32 @@ defaultSpec =
 
 -- | Create a DOM element `Component`.
 mkComponent
-  :: ∀ p s t r. String               -- | Element name
-  -> Array (Props s r)               -- | Props
-  -> Array (Component' {} s r) -- | Children
-  -> Component' p s r
-mkComponent element props children = Component' \effect _ st -> mkDOM
+  :: ∀ p s t r. String                 -- | Element name
+  -> Array (Props s r)                 -- | Props
+  -> Array ({} -> s -> Component' s r) -- | Children
+  -> p -> s -> Component' s r
+mkComponent element props children p s = Component' \effect -> mkDOM
   (IsDynamic false) element (map (_ $ effect) props)
-  (map (\(Component' cmp) -> cmp effect {} st) children)
+  (map (\cmp -> runComponent (cmp {} s) effect) children)
 
 -- Run -------------------------------------------------------------------------
 
 -- | Attach `Component` to the DOM element with the specified id and run it.
 run
-  :: ∀ s. String                      -- | Element id
-  -> Component' {} { | s } Unit -- | Component
+  :: ∀ s. String                                -- | Element id
+  -> ({} -> { | s } -> Component' { | s } Unit) -- | Component
   -> { | s }
-  -> ({ | s } -> E.Effect Unit)       -- | State callback (useful for hot reloading)
+  -> ({ | s } -> E.Effect Unit)                 -- | State callback (useful for hot reloading)
   -> E.Effect Unit
 run elemId cmp st updateState = void $ element >>= RD.render ui
   where
     ui = R.unsafeCreateLeafElement (R.component "root" $ reactClass cmp) {}
 
-    reactClass (Component' cmp) this = pure
+    reactClass cmp this = pure
       { render: do
            st' <- R.getState this
            updateState st'
-           pure $ cmp (\effect -> launchAff_ $ interpretEffect this effect) {} st'
+           pure $ runComponent (cmp {} st') (\effect -> launchAff_ $ interpretEffect this effect)
       , state: st
       }
 

@@ -3,7 +3,7 @@ module Refract.Props where
 import Prelude
 
 import Data.Int (round)
-import Data.Maybe (Maybe(Just, Nothing))
+import Data.Maybe (Maybe)
 import React.SyntheticEvent as Event
 import React.DOM.Props as P
 import Refract (Effect, Props, (○))
