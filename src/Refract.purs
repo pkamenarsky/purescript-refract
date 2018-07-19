@@ -380,9 +380,15 @@ lookupBy f k m = coerce M.lookup { compare: f } k m
 lensAtMBy :: ∀ k v. (k -> k -> Ordering) -> k -> Lens' (Map k v) v
 lensAtMBy ord_f k = lens (\m -> unsafePartial $ fromJust $ lookupBy ord_f k m) (\m v -> insertBy ord_f k v m)
 
+type Derivation i s m =
+  { state  :: s
+  , derive :: s -> m
+  , update :: i -> m -> s
+  }
+
 -- | Filtered and sorted `Map` traversal.
 foreachMap
-  :: ∀ s k v
+  :: ∀ s t k v
   .  (k -> String)
   -> (k -> k -> Ordering)
   -> (k × v -> k × v -> Ordering)
