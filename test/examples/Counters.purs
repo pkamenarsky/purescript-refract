@@ -14,6 +14,7 @@ import Data.Lens.Record (prop)
 import Data.List (filter, length)
 import Data.Map (Map)
 import Data.Map as M
+import Data.Maybe (Maybe(Nothing))
 import Data.Ordering (invert)
 import Data.String as S
 import Data.Symbol (SProxy(SProxy))
@@ -27,7 +28,7 @@ import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, on
 import Refract.Props (className, key, value, onChange)
 import Refract.Props (onClick)
 import React.SyntheticEvent as Event
-import Refract (Component, Effect, FocusedComponent, trace, showAny, modify, run, state, stateCached, stateCached2, stateCached3, unfiltered, zoom, liftEffect)
+import Refract (Component, Effect, FocusedComponent, trace, showAny, modify, run, state, zoom, liftEffect)
 import Refract.DOM (div, input, label, span, text)
 import Refract.DOM (div, input, text)
 import Undefined (undefined)
@@ -55,29 +56,17 @@ _many = prop (SProxy :: SProxy "many")
 _name :: ∀ r. Lens' { name :: String | r } String
 _name = prop (SProxy :: SProxy "name")
 
-counter :: ∀ s. Effect s Unit -> FocusedComponent s Int Unit
-counter = stateCached2 \embed st decrement -> trace ("EMBED2: " <> showAny embed) $ div []
-  [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
+counter :: FocusedComponent Int Unit
+counter = state \st -> div []
+  [ div [ onClick \_ -> modify (_ - 1) *> pure Nothing ] [ text "Decrement" ]
   , text (show st)
-  , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
-  , div [ onClick \_ -> decrement ] [ text "Parent" ]
+  , div [ onClick \_ -> modify (_ + 1) *> pure Nothing ] [ text "Increment" ]
   ]
 
-indexedCounter :: ∀ s. Int -> FocusedComponent s Int Unit
-indexedCounter = stateCached2 \embed st index -> trace ("EMBED2: " <> showAny embed) $
-  div
-    []
-    [ div [ onClick \_ -> embed $ modify (_ - 1) ] [ text "Decrement" ]
-    , text (show st)
-    , div [ onClick \_ -> embed $ modify (_ + 1) ] [ text "Increment" ]
-    ]
-
 counterA :: Component AppState
-counterA = state \_ embed -> div []
-  [
-    zoom _c (counter $ embed $ modify \st -> st { c = st.c + 10 }) (const $ pure unit)
-  , zoom _c (counter $ embed $ modify \st -> st { d = st.d + 10 }) (const $ pure unit)
-  , zoom _d (counter $ embed $ modify \st -> st { d = st.d + 10 }) (const $ pure unit)
+counterA = div []
+  [ zoom _c counter (const $ pure Nothing)
+  , zoom _d counter (const $ pure Nothing)
   ]
 
 -- twoCounters :: Component (Tuple Int Int)
@@ -86,8 +75,8 @@ counterA = state \_ embed -> div []
 --   , zoom _2 (counter "Counter: ")
 --   ]
 
-inputOnEnter :: ∀ s. FocusedComponent s String Unit
-inputOnEnter = stateCached \embed str -> input
+inputOnEnter :: FocusedComponent String Unit
+inputOnEnter = state \str -> input
   [ className "todo-input"
   , value str
   -- , onChange \e -> do
@@ -97,9 +86,9 @@ inputOnEnter = stateCached \embed str -> input
 
 manyCounters :: Component AppState
 manyCounters = div []
-  [ zoom _name inputOnEnter (const $ pure unit)
-  , flip (zoom _many) (const $ pure unit) $ stateCached \embed st -> div []
-      [ div [ onClick \_ -> embed $ modify (cons 0) ] [ text "Add counter" ]
+  [ zoom _name inputOnEnter (const $ pure Nothing)
+  , flip (zoom _many) (const $ pure Nothing) $ state \st -> div []
+      [ div [ onClick \_ -> modify (cons 0) *> pure Nothing ] [ text "Add counter" ]
       -- , foreach unfiltered indexedCounter
       ]
   ]
