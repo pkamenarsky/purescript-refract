@@ -7,667 +7,667 @@ import React.SyntheticEvent as Event
 import React.DOM.Props as P
 import Refract (Effect, Props, (○))
 
-aria :: ∀ ariaAttrs s. { | ariaAttrs } -> Props s
+aria :: ∀ ariaAttrs s r. { | ariaAttrs } -> Props s r
 aria v _ = P.aria v
 
-_data :: ∀ dataAttrs s. { | dataAttrs } -> Props s
+_data :: ∀ dataAttrs s r. { | dataAttrs } -> Props s r
 _data v _ = P._data v
 
-style :: ∀ style s. { | style } -> Props s
+style :: ∀ style s r. { | style } -> Props s r
 style v _ = P.style v
 
-dangerouslySetInnerHTML :: ∀ s. { __html :: String } -> Props s
+dangerouslySetInnerHTML :: ∀ s r. { __html :: String } -> Props s r
 dangerouslySetInnerHTML v _ = P.dangerouslySetInnerHTML v
 
-accept :: ∀ s. String -> Props s
+accept :: ∀ s r. String -> Props s r
 accept v _ = P.accept v
 
-acceptCharset :: ∀ s. String -> Props s
+acceptCharset :: ∀ s r. String -> Props s r
 acceptCharset v _ = P.acceptCharset v
 
-accessKey :: ∀ s. String -> Props s
+accessKey :: ∀ s r. String -> Props s r
 accessKey v _ = P.accessKey v
 
-action :: ∀ s. String -> Props s
+action :: ∀ s r. String -> Props s r
 action v _ = P.action v
 
-allowFullScreen :: ∀ s. Boolean -> Props s
+allowFullScreen :: ∀ s r. Boolean -> Props s r
 allowFullScreen v _ = P.allowFullScreen v
 
-allowTransparency :: ∀ s. Boolean -> Props s
+allowTransparency :: ∀ s r. Boolean -> Props s r
 allowTransparency v _ = P.allowTransparency v
 
-alt :: ∀ s. String -> Props s
+alt :: ∀ s r. String -> Props s r
 alt v _ = P.alt v
 
-async :: ∀ s. Boolean -> Props s
+async :: ∀ s r. Boolean -> Props s r
 async v _ = P.async v
 
-autoComplete :: ∀ s. String -> Props s
+autoComplete :: ∀ s r. String -> Props s r
 autoComplete v _ = P.autoComplete v
 
-autoFocus :: ∀ s. Boolean -> Props s
+autoFocus :: ∀ s r. Boolean -> Props s r
 autoFocus v _ = P.autoFocus v
 
-autoPlay :: ∀ s. Boolean -> Props s
+autoPlay :: ∀ s r. Boolean -> Props s r
 autoPlay v _ = P.autoPlay v
 
-capture :: ∀ s. Boolean -> Props s
+capture :: ∀ s r. Boolean -> Props s r
 capture v _ = P.capture v
 
-cellPadding :: ∀ s. String -> Props s
+cellPadding :: ∀ s r. String -> Props s r
 cellPadding v _ = P.cellPadding v
 
-cellSpacing :: ∀ s. String -> Props s
+cellSpacing :: ∀ s r. String -> Props s r
 cellSpacing v _ = P.cellSpacing v
 
-charSet :: ∀ s. String -> Props s
+charSet :: ∀ s r. String -> Props s r
 charSet v _ = P.charSet v
 
-challenge :: ∀ s. String -> Props s
+challenge :: ∀ s r. String -> Props s r
 challenge v _ = P.challenge v
 
-checked :: ∀ s. Boolean -> Props s
+checked :: ∀ s r. Boolean -> Props s r
 checked v _ = P.checked v
 
-cite :: ∀ s. String -> Props s
+cite :: ∀ s r. String -> Props s r
 cite v _ = P.cite v
 
-classID :: ∀ s. String -> Props s
+classID :: ∀ s r. String -> Props s r
 classID v _ = P.classID v
 
-className :: ∀ s. String -> Props s
+className :: ∀ s r. String -> Props s r
 className v _ = P.className v
 
-cols :: ∀ s. Int -> Props s
+cols :: ∀ s r. Int -> Props s r
 cols v _ = P.cols v
 
-colSpan :: ∀ s. Int -> Props s
+colSpan :: ∀ s r. Int -> Props s r
 colSpan v _ = P.colSpan v
 
-content :: ∀ s. String -> Props s
+content :: ∀ s r. String -> Props s r
 content v _ = P.content v
 
-contentEditable :: ∀ s. Boolean -> Props s
+contentEditable :: ∀ s r. Boolean -> Props s r
 contentEditable v _ = P.contentEditable v
 
-contextMenu :: ∀ s. String -> Props s
+contextMenu :: ∀ s r. String -> Props s r
 contextMenu v _ = P.contextMenu v
 
-controls :: ∀ s. Boolean -> Props s
+controls :: ∀ s r. Boolean -> Props s r
 controls v _ = P.controls v
 
-coords :: ∀ s. String -> Props s
+coords :: ∀ s r. String -> Props s r
 coords v _ = P.coords v
 
-crossOrigin :: ∀ s. String -> Props s
+crossOrigin :: ∀ s r. String -> Props s r
 crossOrigin v _ = P.crossOrigin v
 
-dateTime :: ∀ s. String -> Props s
+dateTime :: ∀ s r. String -> Props s r
 dateTime v _ = P.dateTime v
 
-default :: ∀ s. Boolean -> Props s
+default :: ∀ s r. Boolean -> Props s r
 default v _ = P.default v
 
-defaultChecked :: ∀ s. Boolean -> Props s
+defaultChecked :: ∀ s r. Boolean -> Props s r
 defaultChecked v _ = P.defaultChecked v
 
-defaultValue :: ∀ s. String -> Props s
+defaultValue :: ∀ s r. String -> Props s r
 defaultValue v _ = P.defaultValue v
 
-defer :: ∀ s. Boolean -> Props s
+defer :: ∀ s r. Boolean -> Props s r
 defer v _ = P.defer v
 
-dir :: ∀ s. String -> Props s
+dir :: ∀ s r. String -> Props s r
 dir v _ = P.dir v
 
-disabled :: ∀ s. Boolean -> Props s
+disabled :: ∀ s r. Boolean -> Props s r
 disabled v _ = P.disabled v
 
-download :: ∀ s. String -> Props s
+download :: ∀ s r. String -> Props s r
 download v _ = P.download v
 
-draggable :: ∀ s. Boolean -> Props s
+draggable :: ∀ s r. Boolean -> Props s r
 draggable v _ = P.draggable v
 
-encType :: ∀ s. String -> Props s
+encType :: ∀ s r. String -> Props s r
 encType v _ = P.encType v
 
-form :: ∀ s. String -> Props s
+form :: ∀ s r. String -> Props s r
 form v _ = P.form v
 
-formAction :: ∀ s. String -> Props s
+formAction :: ∀ s r. String -> Props s r
 formAction v _ = P.formAction v
 
-formEncType :: ∀ s. String -> Props s
+formEncType :: ∀ s r. String -> Props s r
 formEncType v _ = P.formEncType v
 
-formMethod :: ∀ s. String -> Props s
+formMethod :: ∀ s r. String -> Props s r
 formMethod v _ = P.formMethod v
 
-formNoValidate :: ∀ s. Boolean -> Props s
+formNoValidate :: ∀ s r. Boolean -> Props s r
 formNoValidate v _ = P.formNoValidate v
 
-formTarget :: ∀ s. String -> Props s
+formTarget :: ∀ s r. String -> Props s r
 formTarget v _ = P.formTarget v
 
-frameBorder :: ∀ s. String -> Props s
+frameBorder :: ∀ s r. String -> Props s r
 frameBorder v _ = P.frameBorder v
 
-headers :: ∀ s. String -> Props s
+headers :: ∀ s r. String -> Props s r
 headers v _ = P.headers v
 
-height :: ∀ s. String -> Props s
+height :: ∀ s r. String -> Props s r
 height v _ = P.height v
 
-hidden :: ∀ s. Boolean -> Props s
+hidden :: ∀ s r. Boolean -> Props s r
 hidden v _ = P.hidden v
 
-high :: ∀ s. String -> Props s
+high :: ∀ s r. String -> Props s r
 high v _ = P.high v
 
-href :: ∀ s. String -> Props s
+href :: ∀ s r. String -> Props s r
 href v _ = P.href v
 
-hrefLang :: ∀ s. String -> Props s
+hrefLang :: ∀ s r. String -> Props s r
 hrefLang v _ = P.hrefLang v
 
-htmlFor :: ∀ s. String -> Props s
+htmlFor :: ∀ s r. String -> Props s r
 htmlFor v _ = P.htmlFor v
 
-httpEquiv :: ∀ s. String -> Props s
+httpEquiv :: ∀ s r. String -> Props s r
 httpEquiv v _ = P.httpEquiv v
 
-icon :: ∀ s. String -> Props s
+icon :: ∀ s r. String -> Props s r
 icon v _ = P.icon v
 
-_id :: ∀ s. String -> Props s
+_id :: ∀ s r. String -> Props s r
 _id v _ = P._id v
 
-inputMode :: ∀ s. String -> Props s
+inputMode :: ∀ s r. String -> Props s r
 inputMode v _ = P.inputMode v
 
-integrity :: ∀ s. String -> Props s
+integrity :: ∀ s r. String -> Props s r
 integrity v _ = P.integrity v
 
-is :: ∀ s. String -> Props s
+is :: ∀ s r. String -> Props s r
 is v _ = P.is v
 
-key :: ∀ s. String -> Props s
+key :: ∀ s r. String -> Props s r
 key v _ = P.key v
 
-keyParams :: ∀ s. String -> Props s
+keyParams :: ∀ s r. String -> Props s r
 keyParams v _ = P.keyParams v
 
-keyType :: ∀ s. String -> Props s
+keyType :: ∀ s r. String -> Props s r
 keyType v _ = P.keyType v
 
-kind :: ∀ s. String -> Props s
+kind :: ∀ s r. String -> Props s r
 kind v _ = P.kind v
 
-label :: ∀ s. String -> Props s
+label :: ∀ s r. String -> Props s r
 label v _ = P.label v
 
-lang :: ∀ s. String -> Props s
+lang :: ∀ s r. String -> Props s r
 lang v _ = P.lang v
 
-list :: ∀ s. String -> Props s
+list :: ∀ s r. String -> Props s r
 list v _ = P.list v
 
-loop :: ∀ s. Boolean -> Props s
+loop :: ∀ s r. Boolean -> Props s r
 loop v _ = P.loop v
 
-low :: ∀ s. String -> Props s
+low :: ∀ s r. String -> Props s r
 low v _ = P.low v
 
-manifest :: ∀ s. String -> Props s
+manifest :: ∀ s r. String -> Props s r
 manifest v _ = P.manifest v
 
-marginHeight :: ∀ s. String -> Props s
+marginHeight :: ∀ s r. String -> Props s r
 marginHeight v _ = P.marginHeight v
 
-marginWidth :: ∀ s. String -> Props s
+marginWidth :: ∀ s r. String -> Props s r
 marginWidth v _ = P.marginWidth v
 
-max :: ∀ s. String -> Props s
+max :: ∀ s r. String -> Props s r
 max v _ = P.max v
 
-maxLength :: ∀ s. String -> Props s
+maxLength :: ∀ s r. String -> Props s r
 maxLength v _ = P.maxLength v
 
-media :: ∀ s. String -> Props s
+media :: ∀ s r. String -> Props s r
 media v _ = P.media v
 
-mediaGroup :: ∀ s. String -> Props s
+mediaGroup :: ∀ s r. String -> Props s r
 mediaGroup v _ = P.mediaGroup v
 
-method :: ∀ s. String -> Props s
+method :: ∀ s r. String -> Props s r
 method v _ = P.method v
 
-min :: ∀ s. String -> Props s
+min :: ∀ s r. String -> Props s r
 min v _ = P.min v
 
-minLength :: ∀ s. String -> Props s
+minLength :: ∀ s r. String -> Props s r
 minLength v _ = P.minLength v
 
-multiple :: ∀ s. Boolean -> Props s
+multiple :: ∀ s r. Boolean -> Props s r
 multiple v _ = P.multiple v
 
-muted :: ∀ s. Boolean -> Props s
+muted :: ∀ s r. Boolean -> Props s r
 muted v _ = P.muted v
 
-name :: ∀ s. String -> Props s
+name :: ∀ s r. String -> Props s r
 name v _ = P.name v
 
-nonce :: ∀ s. String -> Props s
+nonce :: ∀ s r. String -> Props s r
 nonce v _ = P.nonce v
 
-noValidate :: ∀ s. Boolean -> Props s
+noValidate :: ∀ s r. Boolean -> Props s r
 noValidate v _ = P.noValidate v
 
-open :: ∀ s. Boolean -> Props s
+open :: ∀ s r. Boolean -> Props s r
 open v _ = P.open v
 
-optimum :: ∀ s. String -> Props s
+optimum :: ∀ s r. String -> Props s r
 optimum v _ = P.optimum v
 
-pattern :: ∀ s. String -> Props s
+pattern :: ∀ s r. String -> Props s r
 pattern v _ = P.pattern v
 
-placeholder :: ∀ s. String -> Props s
+placeholder :: ∀ s r. String -> Props s r
 placeholder v _ = P.placeholder v
 
-poster :: ∀ s. String -> Props s
+poster :: ∀ s r. String -> Props s r
 poster v _ = P.poster v
 
-preload :: ∀ s. String -> Props s
+preload :: ∀ s r. String -> Props s r
 preload v _ = P.preload v
 
-profile :: ∀ s. String -> Props s
+profile :: ∀ s r. String -> Props s r
 profile v _ = P.profile v
 
-radioGroup :: ∀ s. String -> Props s
+radioGroup :: ∀ s r. String -> Props s r
 radioGroup v _ = P.radioGroup v
 
-readOnly :: ∀ s. Boolean -> Props s
+readOnly :: ∀ s r. Boolean -> Props s r
 readOnly v _ = P.readOnly v
 
-rel :: ∀ s. String -> Props s
+rel :: ∀ s r. String -> Props s r
 rel v _ = P.rel v
 
-required :: ∀ s. Boolean -> Props s
+required :: ∀ s r. Boolean -> Props s r
 required v _ = P.required v
 
-reversed :: ∀ s. Boolean -> Props s
+reversed :: ∀ s r. Boolean -> Props s r
 reversed v _ = P.reversed v
 
-role :: ∀ s. String -> Props s
+role :: ∀ s r. String -> Props s r
 role v _ = P.role v
 
-rows :: ∀ s. Int -> Props s
+rows :: ∀ s r. Int -> Props s r
 rows v _ = P.rows v
 
-rowSpan :: ∀ s. Int -> Props s
+rowSpan :: ∀ s r. Int -> Props s r
 rowSpan v _ = P.rowSpan v
 
-sandbox :: ∀ s. String -> Props s
+sandbox :: ∀ s r. String -> Props s r
 sandbox v _ = P.sandbox v
 
-scope :: ∀ s. String -> Props s
+scope :: ∀ s r. String -> Props s r
 scope v _ = P.scope v
 
-scoped :: ∀ s. Boolean -> Props s
+scoped :: ∀ s r. Boolean -> Props s r
 scoped v _ = P.scoped v
 
-scrolling :: ∀ s. String -> Props s
+scrolling :: ∀ s r. String -> Props s r
 scrolling v _ = P.scrolling v
 
-seamless :: ∀ s. Boolean -> Props s
+seamless :: ∀ s r. Boolean -> Props s r
 seamless v _ = P.seamless v
 
-selected :: ∀ s. Boolean -> Props s
+selected :: ∀ s r. Boolean -> Props s r
 selected v _ = P.selected v
 
-shape :: ∀ s. String -> Props s
+shape :: ∀ s r. String -> Props s r
 shape v _ = P.shape v
 
-size :: ∀ s. Int -> Props s
+size :: ∀ s r. Int -> Props s r
 size v _ = P.size v
 
-sizes :: ∀ s. String -> Props s
+sizes :: ∀ s r. String -> Props s r
 sizes v _ = P.sizes v
 
-span :: ∀ s. Int -> Props s
+span :: ∀ s r. Int -> Props s r
 span v _ = P.span v
 
-spellCheck :: ∀ s. Boolean -> Props s
+spellCheck :: ∀ s r. Boolean -> Props s r
 spellCheck v _ = P.spellCheck v
 
-src :: ∀ s. String -> Props s
+src :: ∀ s r. String -> Props s r
 src v _ = P.src v
 
-srcDoc :: ∀ s. String -> Props s
+srcDoc :: ∀ s r. String -> Props s r
 srcDoc v _ = P.srcDoc v
 
-srcLang :: ∀ s. String -> Props s
+srcLang :: ∀ s r. String -> Props s r
 srcLang v _ = P.srcLang v
 
-srcSet :: ∀ s. String -> Props s
+srcSet :: ∀ s r. String -> Props s r
 srcSet v _ = P.srcSet v
 
-start :: ∀ s. Int -> Props s
+start :: ∀ s r. Int -> Props s r
 start v _ = P.start v
 
-step :: ∀ s. String -> Props s
+step :: ∀ s r. String -> Props s r
 step v _ = P.step v
 
-summary :: ∀ s. String -> Props s
+summary :: ∀ s r. String -> Props s r
 summary v _ = P.summary v
 
-tabIndex :: ∀ s. Int -> Props s
+tabIndex :: ∀ s r. Int -> Props s r
 tabIndex v _ = P.tabIndex v
 
-target :: ∀ s. String -> Props s
+target :: ∀ s r. String -> Props s r
 target v _ = P.target v
 
-title :: ∀ s. String -> Props s
+title :: ∀ s r. String -> Props s r
 title v _ = P.title v
 
-_type :: ∀ s. String -> Props s
+_type :: ∀ s r. String -> Props s r
 _type v _ = P._type v
 
-useMap :: ∀ s. String -> Props s
+useMap :: ∀ s r. String -> Props s r
 useMap v _ = P.useMap v
 
-value :: ∀ s. String -> Props s
+value :: ∀ s r. String -> Props s r
 value v _ = P.value v
 
-width :: ∀ s. String -> Props s
+width :: ∀ s r. String -> Props s r
 width v _ = P.width v
 
-wmode :: ∀ s. String -> Props s
+wmode :: ∀ s r. String -> Props s r
 wmode v _ = P.wmode v
 
-wrap :: ∀ s. String -> Props s
+wrap :: ∀ s r. String -> Props s r
 wrap v _ = P.wrap v
 
 -- RDFa Attributes
-about :: ∀ s. String -> Props s
+about :: ∀ s r. String -> Props s r
 about v _ = P.about v
 
-datatype :: ∀ s. String -> Props s
+datatype :: ∀ s r. String -> Props s r
 datatype v _ = P.datatype v
 
-inlist :: ∀ s. String -> Props s
+inlist :: ∀ s r. String -> Props s r
 inlist v _ = P.inlist v
 
-prefix :: ∀ s. String -> Props s
+prefix :: ∀ s r. String -> Props s r
 prefix v _ = P.prefix v
 
-property :: ∀ s. String -> Props s
+property :: ∀ s r. String -> Props s r
 property v _ = P.property v
 
-resource :: ∀ s. String -> Props s
+resource :: ∀ s r. String -> Props s r
 resource v _ = P.resource v
 
-typeof :: ∀ s. String -> Props s
+typeof :: ∀ s r. String -> Props s r
 typeof v _ = P.typeof v
 
-vocab :: ∀ s. String -> Props s
+vocab :: ∀ s r. String -> Props s r
 vocab v _ = P.vocab v
 
 -- Non-standard Attributes
-autoCapitalize :: ∀ s. String -> Props s
+autoCapitalize :: ∀ s r. String -> Props s r
 autoCapitalize v _ = P.autoCapitalize v
 
-autoCorrect :: ∀ s. String -> Props s
+autoCorrect :: ∀ s r. String -> Props s r
 autoCorrect v _ = P.autoCorrect v
 
-autoSave :: ∀ s. String -> Props s
+autoSave :: ∀ s r. String -> Props s r
 autoSave v _ = P.autoSave v
 
-color :: ∀ s. String -> Props s
+color :: ∀ s r. String -> Props s r
 color v _ = P.color v
 
-itemProp :: ∀ s. String -> Props s
+itemProp :: ∀ s r. String -> Props s r
 itemProp v _ = P.itemProp v
 
-itemScope :: ∀ s. Boolean -> Props s
+itemScope :: ∀ s r. Boolean -> Props s r
 itemScope v _ = P.itemScope v
 
-itemType :: ∀ s. String -> Props s
+itemType :: ∀ s r. String -> Props s r
 itemType v _ = P.itemType v
 
-itemID :: ∀ s. String -> Props s
+itemID :: ∀ s r. String -> Props s r
 itemID v _ = P.itemID v
 
-itemRef :: ∀ s. String -> Props s
+itemRef :: ∀ s r. String -> Props s r
 itemRef v _ = P.itemRef v
 
-results :: ∀ s. Int -> Props s
+results :: ∀ s r. Int -> Props s r
 results v _ = P.results v
 
-security :: ∀ s. String -> Props s
+security :: ∀ s r. String -> Props s r
 security v _ = P.security v
 
-unselectable :: ∀ s. Boolean -> Props s
+unselectable :: ∀ s r. Boolean -> Props s r
 unselectable v _ = P.unselectable v
 
 --------------------------------------------------------------------------------
 
-onAnimationStart :: ∀ s.
-  (Event.SyntheticAnimationEvent -> Effect s Unit) -> Props s
+onAnimationStart :: ∀ s r.
+  (Event.SyntheticAnimationEvent -> Effect s r) -> Props s r
 onAnimationStart f effect = P.onAnimationStart (effect ○ f)
 
-onAnimationEnd :: ∀ s.
-  (Event.SyntheticAnimationEvent -> Effect s Unit) -> Props s
+onAnimationEnd :: ∀ s r.
+  (Event.SyntheticAnimationEvent -> Effect s r) -> Props s r
 onAnimationEnd f effect = P.onAnimationEnd (effect ○ f)
 
-onAnimationIteration :: ∀ s.
-  (Event.SyntheticAnimationEvent -> Effect s Unit) -> Props s
+onAnimationIteration :: ∀ s r.
+  (Event.SyntheticAnimationEvent -> Effect s r) -> Props s r
 onAnimationIteration f effect = P.onAnimationIteration (effect ○ f)
 
-onTransitionEnd :: ∀ s.
-  (Event.SyntheticTransitionEvent -> Effect s Unit) -> Props s
+onTransitionEnd :: ∀ s r.
+  (Event.SyntheticTransitionEvent -> Effect s r) -> Props s r
 onTransitionEnd f effect = P.onTransitionEnd (effect ○ f)
 
-onLoad :: ∀ s.
-  (Event.SyntheticEvent -> Effect s Unit) -> Props s
+onLoad :: ∀ s r.
+  (Event.SyntheticEvent -> Effect s r) -> Props s r
 onLoad f effect = P.onLoad (effect ○ f)
 
-onCopy :: ∀ s.
-  (Event.SyntheticClipboardEvent -> Effect s Unit) -> Props s
+onCopy :: ∀ s r.
+  (Event.SyntheticClipboardEvent -> Effect s r) -> Props s r
 onCopy f effect = P.onCopy (effect ○ f)
 
-onCut :: ∀ s.
-  (Event.SyntheticClipboardEvent -> Effect s Unit) -> Props s
+onCut :: ∀ s r.
+  (Event.SyntheticClipboardEvent -> Effect s r) -> Props s r
 onCut f effect = P.onCut (effect ○ f)
 
-onPaste :: ∀ s.
-  (Event.SyntheticClipboardEvent -> Effect s Unit) -> Props s
+onPaste :: ∀ s r.
+  (Event.SyntheticClipboardEvent -> Effect s r) -> Props s r
 onPaste f effect = P.onPaste (effect ○ f)
 
-onKeyDown :: ∀ s.
-  (Event.SyntheticKeyboardEvent -> Effect s Unit) -> Props s
+onKeyDown :: ∀ s r.
+  (Event.SyntheticKeyboardEvent -> Effect s r) -> Props s r
 onKeyDown f effect = P.onKeyDown (effect ○ f)
 
-onKeyPress :: ∀ s.
-  (Event.SyntheticKeyboardEvent -> Effect s Unit) -> Props s
+onKeyPress :: ∀ s r.
+  (Event.SyntheticKeyboardEvent -> Effect s r) -> Props s r
 onKeyPress f effect = P.onKeyPress (effect ○ f)
 
-onKeyUp :: ∀ s.
-  (Event.SyntheticKeyboardEvent -> Effect s Unit) -> Props s
+onKeyUp :: ∀ s r.
+  (Event.SyntheticKeyboardEvent -> Effect s r) -> Props s r
 onKeyUp f effect = P.onKeyUp (effect ○ f)
 
-onFocus :: ∀ s.
-  (Event.SyntheticFocusEvent -> Effect s Unit) -> Props s
+onFocus :: ∀ s r.
+  (Event.SyntheticFocusEvent -> Effect s r) -> Props s r
 onFocus f effect = P.onFocus (effect ○ f)
 
-onBlur :: ∀ s.
-  (Event.SyntheticFocusEvent -> Effect s Unit) -> Props s
+onBlur :: ∀ s r.
+  (Event.SyntheticFocusEvent -> Effect s r) -> Props s r
 onBlur f effect = P.onBlur (effect ○ f)
 
-onChange :: ∀ s.
-  (Event.SyntheticInputEvent -> Effect s Unit) -> Props s
+onChange :: ∀ s r.
+  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
 onChange f effect = P.onChange (effect ○ f)
 
-onInput :: ∀ s.
-  (Event.SyntheticInputEvent -> Effect s Unit) -> Props s
+onInput :: ∀ s r.
+  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
 onInput f effect = P.onInput (effect ○ f)
 
-onInvalid :: ∀ s.
-  (Event.SyntheticInputEvent -> Effect s Unit) -> Props s
+onInvalid :: ∀ s r.
+  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
 onInvalid f effect = P.onInvalid (effect ○ f)
 
-onSubmit :: ∀ s.
-  (Event.SyntheticInputEvent -> Effect s Unit) -> Props s
+onSubmit :: ∀ s r.
+  (Event.SyntheticInputEvent -> Effect s r) -> Props s r
 onSubmit f effect = P.onSubmit (effect ○ f)
 
-onClick :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onClick :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onClick f effect = P.onClick (effect ○ f)
 
-onDoubleClick :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDoubleClick :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDoubleClick f effect = P.onDoubleClick (effect ○ f)
 
-onDrag :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDrag :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDrag f effect = P.onDrag (effect ○ f)
 
-onDragEnd :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDragEnd :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDragEnd f effect = P.onDragEnd (effect ○ f)
 
-onDragEnter :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDragEnter :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDragEnter f effect = P.onDragEnter (effect ○ f)
 
-onDragExit :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDragExit :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDragExit f effect = P.onDragExit (effect ○ f)
 
-onDragLeave :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDragLeave :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDragLeave f effect = P.onDragLeave (effect ○ f)
 
-onDragOver :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDragOver :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDragOver f effect = P.onDragOver (effect ○ f)
 
-onDragStart :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDragStart :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDragStart f effect = P.onDragStart (effect ○ f)
 
-onDrop :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onDrop :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onDrop f effect = P.onDrop (effect ○ f)
 
-onMouseDown :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseDown :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseDown f effect = P.onMouseDown (effect ○ f)
 
-onMouseEnter :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseEnter :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseEnter f effect = P.onMouseEnter (effect ○ f)
 
-onMouseLeave :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseLeave :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseLeave f effect = P.onMouseLeave (effect ○ f)
 
-onMouseMove :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseMove :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseMove f effect = P.onMouseMove (effect ○ f)
 
-onMouseOut :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseOut :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseOut f effect = P.onMouseOut (effect ○ f)
 
-onMouseOver :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseOver :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseOver f effect = P.onMouseOver (effect ○ f)
 
-onMouseUp :: ∀ s.
-  (Event.SyntheticMouseEvent -> Effect s Unit) -> Props s
+onMouseUp :: ∀ s r.
+  (Event.SyntheticMouseEvent -> Effect s r) -> Props s r
 onMouseUp f effect = P.onMouseUp (effect ○ f)
 
-onTouchCancel :: ∀ s.
-  (Event.SyntheticTouchEvent -> Effect s Unit) -> Props s
+onTouchCancel :: ∀ s r.
+  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
 onTouchCancel f effect = P.onTouchCancel (effect ○ f)
 
-onTouchEnd :: ∀ s.
-  (Event.SyntheticTouchEvent -> Effect s Unit) -> Props s
+onTouchEnd :: ∀ s r.
+  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
 onTouchEnd f effect = P.onTouchEnd (effect ○ f)
 
-onTouchMove :: ∀ s.
-  (Event.SyntheticTouchEvent -> Effect s Unit) -> Props s
+onTouchMove :: ∀ s r.
+  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
 onTouchMove f effect = P.onTouchMove (effect ○ f)
 
-onTouchStart :: ∀ s.
-  (Event.SyntheticTouchEvent -> Effect s Unit) -> Props s
+onTouchStart :: ∀ s r.
+  (Event.SyntheticTouchEvent -> Effect s r) -> Props s r
 onTouchStart f effect = P.onTouchStart (effect ○ f)
 
-onScroll :: ∀ s.
-  (Event.SyntheticUIEvent -> Effect s Unit) -> Props s
+onScroll :: ∀ s r.
+  (Event.SyntheticUIEvent -> Effect s r) -> Props s r
 onScroll f effect = P.onScroll (effect ○ f)
 
-onWheel :: ∀ s.
-  (Event.SyntheticWheelEvent -> Effect s Unit) -> Props s
+onWheel :: ∀ s r.
+  (Event.SyntheticWheelEvent -> Effect s r) -> Props s r
 onWheel f effect = P.onWheel (effect ○ f)
 
 --------------------------------------------------------------------------------
 
-suppressContentEditableWarning :: ∀ s. Boolean -> Props s
+suppressContentEditableWarning :: ∀ s r. Boolean -> Props s r
 suppressContentEditableWarning v _ = P.suppressContentEditableWarning v
 
 -- SVG attributes
-x :: ∀ s. Int -> Props s
+x :: ∀ s r. Int -> Props s r
 x v _ = P.x v
 
-y :: ∀ s. Int -> Props s
+y :: ∀ s r. Int -> Props s r
 y v _ = P.y v
 
-cx :: ∀ s. Int -> Props s
+cx :: ∀ s r. Int -> Props s r
 cx v _ = P.cx v
 
-cy :: ∀ s. Int -> Props s
+cy :: ∀ s r. Int -> Props s r
 cy v _ = P.cy v
 
-r :: ∀ s. Int -> Props s
+r :: ∀ s r. Int -> Props s r
 r v _ = P.r v
 
-fill :: ∀ s. String -> Props s
+fill :: ∀ s r. String -> Props s r
 fill v _ = P.fill v
 
-opacity :: ∀ s. Int -> Props s
+opacity :: ∀ s r. Int -> Props s r
 opacity v _ = P.opacity v
 
-fillOpacity :: ∀ s. Int -> Props s
+fillOpacity :: ∀ s r. Int -> Props s r
 fillOpacity v _ = P.fillOpacity v
 
-stroke :: ∀ s. String -> Props s
+stroke :: ∀ s r. String -> Props s r
 stroke v _ = P.stroke v
 
-strokeWidth :: ∀ s. Int -> Props s
+strokeWidth :: ∀ s r. Int -> Props s r
 strokeWidth v _ = P.strokeWidth v
 
-points :: ∀ s. String -> Props s
+points :: ∀ s r. String -> Props s r
 points v _ = P.points v
 
-d :: ∀ s. String -> Props s
+d :: ∀ s r. String -> Props s r
 d v _ = P.d v
 
-viewBox :: ∀ s. String -> Props s
+viewBox :: ∀ s r. String -> Props s r
 viewBox v _ = P.viewBox v
 
 -- --------------------------------------------------------------------------------
 
-onEnter :: ∀ s. Effect s Unit -> Props s
+onEnter :: ∀ s r. Effect s r -> Props s r
 onEnter f effect = P.onKeyDown \e -> do
   keyCode <- Event.keyCode e
   if round keyCode == 13 then effect f else pure unit
 
-onEscape :: ∀ s. Effect s Unit -> Props s
+onEscape :: ∀ s r. Effect s r -> Props s r
 onEscape f effect = P.onKeyDown \e -> do
   keyCode <- Event.keyCode e
   if round keyCode == 27 then effect f else pure unit
