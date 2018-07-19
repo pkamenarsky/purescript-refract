@@ -2,7 +2,6 @@ module Refract
   ( Component
   , FocusedComponent(FocusedComponent)
   , ComponentClass
-  , DeleteAction(DeleteAction)
   , EffectEF
   , EffectF
   , Effect
@@ -29,7 +28,6 @@ module Refract
   , keySort
   , zoom
   , lensAtM
-  , zoomFor
   ) where
 
 import Prelude
@@ -210,34 +208,6 @@ zoom :: ∀ s t l r q. RecordToLens s l t => l -> FocusedComponent t r -> (Maybe
 zoom l (FocusedComponent cmp) r = FocusedComponent \effect st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) (st ^. l')
   where
     l' = recordToLens l
-
-data DeleteAction = DeleteAction
-
-zoomFor :: ∀ s t i r q
-  .  Show i
-  => (s -> Array i)
-  -> (i -> ALens' s (Maybe t))
-  -> (i -> FocusedComponent t DeleteAction)
-  -> FocusedComponent s Unit
-zoomFor keys keylens cmp = FocusedComponent \effect st ->
-  RD.div [] $ flip map (keys st) \key -> case cloneLens (keylens key) of
-    keylens' -> case st ^. keylens' of
-      Nothing  -> RD.div [] []
-      Just st' -> RD.div [ P.key $ show key ] [ runComponent
-        (cmp key)
-        undefined -- (\eff -> effect $ delete (\ps -> keylens' .~ Nothing $ ps) eff)
-        st'
-        ]
-
-  where
-    delete :: (s -> s) -> Effect s (Maybe DeleteAction) -> Effect s (Maybe Unit)
-    delete f action = do
-      r <- action
-      case r of
-        Just DeleteAction -> do
-          modify f
-          pure $ Just unit
-        Nothing -> pure $ Just unit
 
 -- React -----------------------------------------------------------------------
 
