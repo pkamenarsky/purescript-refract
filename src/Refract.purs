@@ -32,7 +32,7 @@ module Refract
 
 import Prelude
 
-import Control.Monad.Free (Free, hoistFree, liftF, runFreeM)
+import Control.Monad.Free (Free, hoistFree, substFree, liftF, resume, wrap, runFree, runFreeM)
 import Data.Array (catMaybes, filter, index, length, range, sortBy, updateAt, zip)
 import Data.Either (Either(..))
 import Data.Exists (Exists, mkExists, runExists)
@@ -40,10 +40,10 @@ import Data.Functor.Invariant (class Invariant)
 import Data.Lens (ALens', Lens', Setter', Shop, cloneLens, lens, over, set, (.~), (^.))
 import Data.Map (Map)
 import Data.Map as M
-import Data.Maybe (Maybe(..), fromJust, fromMaybe)
+import Data.Maybe (Maybe(..), fromJust, fromMaybe, maybe)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect) as E
-import Effect.Aff (Aff, makeAff, launchAff_, nonCanceler)
+import Effect.Aff (Aff, effectCanceler, launchAff_, makeAff, nonCanceler)
 import Effect.Class (liftEffect) as E
 import Partial.Unsafe (unsafePartial)
 import React (ReactClass, ReactElement)
@@ -54,13 +54,13 @@ import React.DOM.Props as P
 import ReactDOM as RD
 import Refract.Lens (class RecordToLens, recordToLens)
 import Undefined (undefined)
+import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM as WD
 import Web.DOM.Document as WD
 import Web.DOM.NonElementParentNode as WD
 import Web.HTML as W
 import Web.HTML.HTMLDocument as W
 import Web.HTML.Window as W
-import Unsafe.Coerce (unsafeCoerce)
 
 -- | A synonym for `<<<`.
 infixr 9 compose as ○
@@ -196,13 +196,28 @@ cache = \cmp -> FocusedComponent \effect st ->
 state :: ∀ s r. (s -> FocusedComponent s r) -> FocusedComponent s r
 state f = FocusedComponent \effect st -> runComponent (f st) effect st
 
-reify :: ∀ s t q r
+embed :: ∀ s t q r
   .  FocusedComponent s r
   -> s
-  -> (s -> Effect t (Maybe q))
+  -> (s -> Effect t Unit)
   -> (r -> Effect t (Maybe q))
   -> FocusedComponent t q
-reify (FocusedComponent cmp) s fs fr = FocusedComponent \effect s -> undefined
+embed (FocusedComponent cmp) s fs fr = FocusedComponent \effect _ -> cmp (\eff -> effect $ mapEffect' s fs fr eff) s
+
+mapEffect' :: ∀ s q r t. s -> (s -> Effect t Unit) -> (r -> Effect t (Maybe q)) -> Effect s (Maybe r) -> Effect t (Maybe q)
+mapEffect' s inject ret eff = case resume eff of
+  Left k -> runExists go (unEffectF k)
+  Right r -> maybe (pure Nothing) ret r
+  where
+    go :: ∀ next a. EffectEF s next a -> Effect t (Maybe q)
+    go (Modify f next) = do
+      let s' × r = f s
+      inject s'
+      _ <- pure $ next r
+      pure Nothing
+    go (Effect f next) = do
+      _ <- pure $ Effect f next
+      pure Nothing
 
 zoom :: ∀ s t l r q. RecordToLens s l t => l -> FocusedComponent t r -> (Maybe r -> Effect s (Maybe q)) -> FocusedComponent s q
 zoom l (FocusedComponent cmp) r = FocusedComponent \effect st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) (st ^. l')
