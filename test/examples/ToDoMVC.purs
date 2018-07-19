@@ -7,7 +7,7 @@ import Refract
 import Data.Array as A
 import Data.Function (on)
 import Data.Int (round)
-import Data.Lens (ALens', Lens', _Just, cloneLens, set)
+import Data.Lens (ALens', Lens', _Just, cloneLens, over, set)
 import Data.Lens.Record (prop)
 import Data.List (filter, length)
 import Data.Map (Map)
@@ -104,7 +104,7 @@ data InputResult = Cancel | Input String | Delete
 -- | * Deletes input component on enter, when the text is empty
 blurableInput
   :: FocusedComponent String InputResult
-blurableInput = cache $ state \st -> input
+blurableInput = state \st -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
@@ -137,7 +137,7 @@ checkbox = state \st -> input
 data Entered = Entered String
 
 inputOnEnter :: FocusedComponent String Entered
-inputOnEnter = cache $ state \str -> input
+inputOnEnter = state \str -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
@@ -185,7 +185,7 @@ spanButton :: ∀ s q. s -> Array (FocusedComponent s Unit) -> FocusedComponent 
 spanButton t children = state \_ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
 
 todo :: FocusedComponent ToDo DeleteAction -- | Todo Component
-todo = cache $ state \_ -> div
+todo = state \_ -> div
   [ className "todo" ]
   [ zoom _completed checkbox (const $ pure Nothing)
   , flip zoom todoInput
@@ -197,12 +197,37 @@ todo = cache $ state \_ -> div
   , div [ className "todo-delete", onClick \_ -> pure $ Just DeleteAction ] []
   ]
 
-todos :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
-todos todoFilter = cache $ state \st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
+_st :: ∀ r. Lens' { st :: Map Int ToDo | r } (Map Int ToDo)
+_st = prop (s :: S "st")
+
+_todoFilter :: ∀ r. Lens' { todoFilter :: ToDoFilter | r } ToDoFilter
+_todoFilter = prop (s :: S "todoFilter")
+
+todos' :: FocusedComponent (Map Int ToDo) Unit
+todos' = state \ st -> div [] $ flip map (todoArray All st) \(k × v) -> embed todo v (mod k) (delete k)
   where
     mod k v = modify \s -> M.insert k v s
     delete k DeleteAction = do
       modify \s -> M.delete k s
+      pure Nothing
+
+    todoArray :: ToDoFilter -> (Map Int ToDo) -> Array (Int × ToDo)
+    todoArray todoFilter st
+      = A.sortBy ((invert ○ _) ○ compare `on` fst)
+      $ A.filter (visible todoFilter ○ snd)
+      $ M.toUnfoldable st
+
+    visible :: ToDoFilter -> ToDo -> Boolean
+    visible All _ = true
+    visible Active todo' = not todo'.completed
+    visible Completed todo' = todo'.completed
+
+todos :: FocusedComponent { st :: Map Int ToDo, todoFilter :: ToDoFilter } Unit
+todos = state \ {st, todoFilter} -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
+  where
+    mod k v = modify $ over _st \s -> M.insert k v s
+    delete k DeleteAction = do
+      modify $ over _st \s -> M.delete k s
       pure Nothing
 
     todoArray :: ToDoFilter -> (Map Int ToDo) -> Array (Int × ToDo)
@@ -235,7 +260,8 @@ todoMVC = state \st -> div [ className "container" ]
       _ -> pure Nothing
 
   -- Individual todos
-  , zoom _todos (todos st.filter) pure
+  --, zoom { st: _todos, todoFilter: _filter } todos pure
+  , zoom _todos todos' pure
 
   -- Footer
   , div

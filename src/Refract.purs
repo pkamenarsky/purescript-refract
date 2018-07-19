@@ -140,15 +140,14 @@ embedEffect s inject ret eff = case resume eff of
   Left k -> runExists go (unEffectF k)
   Right r -> maybe (pure Nothing) ret r
   where
-    go :: ∀ next a. EffectEF s next a -> Effect t (Maybe q)
+    go :: ∀ a. EffectEF s (Effect s (Maybe r)) a -> Effect t (Maybe q)
     go (Modify f next) = do
       let s' × r = f s
       inject s'
-      _ <- pure $ next r
-      pure Nothing
+      embedEffect s inject ret (next r)
     go (Effect f next) = do
-      _ <- pure $ Effect f next
-      pure Nothing
+      r <- effectfully f
+      embedEffect s inject ret (next r)
 
 -- | Get the current `Component` state.
 get :: ∀ s. Effect s s
@@ -205,9 +204,16 @@ ignore :: ∀ s r. FocusedComponent s Unit -> FocusedComponent s r
 ignore (FocusedComponent cmp) = FocusedComponent \effect st -> cmp (\eff -> effect $ eff *> pure Nothing) st
 
 cache :: ∀ s r. FocusedComponent s r -> FocusedComponent s r
-cache = \cmp -> FocusedComponent \effect st -> 
+cache cmp = FocusedComponent \effect st -> 
   let render st' = runComponent cmp effect st'
   in R.unsafeCreateLeafElement component' { state: st, render }
+  where
+    component' = component $ genId unit
+
+cache2 :: ∀ a s r. (a -> FocusedComponent s r) -> a -> FocusedComponent s r
+cache2 cmp a = FocusedComponent \effect st -> 
+  let render { st, a } = runComponent (cmp a) effect st
+  in R.unsafeCreateLeafElement component' { state: { st, a }, render }
   where
     component' = component $ genId unit
 
