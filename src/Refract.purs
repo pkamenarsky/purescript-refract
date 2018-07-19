@@ -19,7 +19,6 @@ module Refract
   , defaultSpec
   , effectfully
   , embed
-  , ignore
   , liftEffect
   , mapEffect
   , mkComponent
@@ -181,10 +180,10 @@ type Props s r = (Effect s (Maybe r) -> E.Effect Unit) -> P.Props
 -- Components ------------------------------------------------------------------
 
 -- | A `Component st` is parameterized over a state type `st` over which it operates.
-newtype FocusedComponent s r
-  = FocusedComponent ((Effect s (Maybe r) -> E.Effect Unit) -> s -> ReactElement)
+newtype FocusedComponent p s r
+  = FocusedComponent ((Effect s (Maybe r) -> E.Effect Unit) -> p -> s -> ReactElement)
 
-runComponent :: ∀ s r. FocusedComponent s r -> (Effect s (Maybe r) -> E.Effect Unit) -> s -> ReactElement
+runComponent :: ∀ p s r. FocusedComponent p s r -> (Effect s (Maybe r) -> E.Effect Unit) -> p -> s -> ReactElement
 runComponent (FocusedComponent cmp) = cmp
 
 type Component s = FocusedComponent s Unit
@@ -200,37 +199,28 @@ foreign import memo :: ∀ a b. (a -> b) -> a -> b
 foreign import memo2 :: ∀ a b c. (a -> b -> c) -> a -> b -> c
 foreign import memo3 :: ∀ a b c d. (a -> b -> c -> d) -> a -> b -> c -> d
 
-ignore :: ∀ s r. FocusedComponent s Unit -> FocusedComponent s r
-ignore (FocusedComponent cmp) = FocusedComponent \effect st -> cmp (\eff -> effect $ eff *> pure Nothing) st
-
-cache :: ∀ s r. FocusedComponent s r -> FocusedComponent s r
-cache cmp = FocusedComponent \effect st -> 
-  let render st' = runComponent cmp effect st'
-  in R.unsafeCreateLeafElement component' { state: st, render }
-  where
-    component' = component $ genId unit
-
-cache2 :: ∀ a s r. (a -> FocusedComponent s r) -> a -> FocusedComponent s r
-cache2 cmp a = FocusedComponent \effect st -> 
-  let render { st, a } = runComponent (cmp a) effect st
-  in R.unsafeCreateLeafElement component' { state: { st, a }, render }
+cache :: ∀ p s r. FocusedComponent { key :: String | p } s r -> FocusedComponent { key :: String | p } s r
+cache cmp = FocusedComponent \effect p st -> 
+  let render st' = runComponent cmp effect p st'
+  in R.unsafeCreateLeafElement component' { props: p, state: st, render, key: p.key }
   where
     component' = component $ genId unit
 
 -- | Reify the current `Component` state.
-state :: ∀ s r. (s -> FocusedComponent s r) -> FocusedComponent s r
-state f = FocusedComponent \effect st -> runComponent (f st) effect st
+state :: ∀ p s r. (p -> s -> FocusedComponent p s r) -> FocusedComponent p s r
+state f = FocusedComponent \effect p st -> runComponent (f p st) effect p st
 
-embed :: ∀ s t q r
-  .  FocusedComponent s r
+embed :: ∀ p1 p2 s t q r
+  .  FocusedComponent p1 s r
+  -> p1
   -> s
   -> (s -> Effect t Unit)
   -> (r -> Effect t (Maybe q))
-  -> FocusedComponent t q
-embed (FocusedComponent cmp) s fs fr = FocusedComponent \effect _ -> cmp (\eff -> effect $ embedEffect s fs fr eff) s
+  -> FocusedComponent p2 t q
+embed (FocusedComponent cmp) p s fs fr = FocusedComponent \effect _ _ -> cmp (\eff -> effect $ embedEffect s fs fr eff) p s
 
-zoom :: ∀ s t l r q. RecordToLens s l t => l -> FocusedComponent t r -> (Maybe r -> Effect s (Maybe q)) -> FocusedComponent s q
-zoom l (FocusedComponent cmp) r = FocusedComponent \effect st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) (st ^. l')
+zoom :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> FocusedComponent p1 t r -> p1 -> (Maybe r -> Effect s (Maybe q)) -> FocusedComponent p2 s q
+zoom l (FocusedComponent cmp) p r = FocusedComponent \effect _ st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) p (st ^. l')
   where
     l' = recordToLens l
 
@@ -301,22 +291,22 @@ defaultSpec =
 
 -- | Create a DOM element `Component`.
 mkComponent
-  :: ∀ s t r. String              -- | Element name
-  -> Array (Props s r)            -- | Props
-  -> Array (FocusedComponent s r) -- | Children
-  -> FocusedComponent s r
-mkComponent element props children = FocusedComponent \effect st -> mkDOM
+  :: ∀ p s t r. String               -- | Element name
+  -> Array (Props s r)               -- | Props
+  -> Array (FocusedComponent {} s r) -- | Children
+  -> FocusedComponent p s r
+mkComponent element props children = FocusedComponent \effect _ st -> mkDOM
   (IsDynamic false) element (map (_ $ effect) props)
-  (map (\(FocusedComponent cmp) -> cmp effect st) children)
+  (map (\(FocusedComponent cmp) -> cmp effect {} st) children)
 
 -- Run -------------------------------------------------------------------------
 
 -- | Attach `Component` to the DOM element with the specified id and run it.
 run
-  :: ∀ s. String                   -- | Element id
-  -> FocusedComponent { | s } Unit -- | Component
+  :: ∀ s. String                      -- | Element id
+  -> FocusedComponent {} { | s } Unit -- | Component
   -> { | s }
-  -> ({ | s } -> E.Effect Unit)    -- | State callback (useful for hot reloading)
+  -> ({ | s } -> E.Effect Unit)       -- | State callback (useful for hot reloading)
   -> E.Effect Unit
 run elemId cmp st updateState = void $ element >>= RD.render ui
   where
@@ -326,7 +316,7 @@ run elemId cmp st updateState = void $ element >>= RD.render ui
       { render: do
            st' <- R.getState this
            updateState st'
-           pure $ cmp (\effect -> launchAff_ $ interpretEffect this effect) st'
+           pure $ cmp (\effect -> launchAff_ $ interpretEffect this effect) {} st'
       , state: st
       }
 
@@ -355,24 +345,25 @@ lensAtM k = lens (M.lookup k) \m v -> case v of
   Just v' -> M.insert k v' m
   Nothing -> M.delete k m
 
-type ThisProps s r = 
+type ThisProps p s r = 
   { state :: s
+  , props :: p
   , render :: s -> R.ReactElement
   | r
   }
 
-type ClassSpec s r =
+type ClassSpec p s r =
   { render :: E.Effect ReactElement
   , componentDidMount :: E.Effect Unit
-  , shouldComponentUpdate :: { render :: s -> R.ReactElement, state :: s | r } -> {} -> E.Effect Boolean
+  , shouldComponentUpdate :: { render :: s -> R.ReactElement, props :: p, state :: s | r } -> {} -> E.Effect Boolean
   }
 
-component :: String -> ∀ s r. R.ReactClass (ThisProps s r)
+component :: String -> ∀ p s r. R.ReactClass (ThisProps p s r)
 component className = R.component className reactClass
 
 reactClass
-  :: ∀ s r. R.ReactThis (ThisProps s r) {}
-  -> E.Effect (ClassSpec s r)
+  :: ∀ p s r. R.ReactThis (ThisProps p s r) {}
+  -> E.Effect (ClassSpec p s r)
 reactClass this = pure
   { render: do
       props <- R.getProps this
@@ -383,7 +374,7 @@ reactClass this = pure
       pure unit
   , shouldComponentUpdate: \oldProps _ -> do
       newProps <- R.getProps this
-      pure $ not $ oldProps.state `refEq` newProps.state
+      pure $ not (oldProps.state `refEq` newProps.state && oldProps.props `refEq` newProps.props)
   }
 
 keySort :: ∀ k v. Ord k => k × v -> k × v -> Ordering
