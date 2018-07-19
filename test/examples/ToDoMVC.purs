@@ -198,7 +198,7 @@ todo = cache $ state \_ -> div
   ]
 
 todos :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
-todos todoFilter = state \st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
+todos todoFilter = cache $ state \st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
   where
     mod k v = modify \s -> M.insert k v s
     delete k DeleteAction = do

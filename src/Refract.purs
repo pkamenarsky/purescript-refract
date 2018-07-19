@@ -135,6 +135,21 @@ interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
       pure (next a)
     go (Effect f next) = f >>= pure ○ next
 
+embedEffect :: ∀ s q r t. s -> (s -> Effect t Unit) -> (r -> Effect t (Maybe q)) -> Effect s (Maybe r) -> Effect t (Maybe q)
+embedEffect s inject ret eff = case resume eff of
+  Left k -> runExists go (unEffectF k)
+  Right r -> maybe (pure Nothing) ret r
+  where
+    go :: ∀ next a. EffectEF s next a -> Effect t (Maybe q)
+    go (Modify f next) = do
+      let s' × r = f s
+      inject s'
+      _ <- pure $ next r
+      pure Nothing
+    go (Effect f next) = do
+      _ <- pure $ Effect f next
+      pure Nothing
+
 -- | Get the current `Component` state.
 get :: ∀ s. Effect s s
 get = modify' \st -> st × st
@@ -206,22 +221,7 @@ embed :: ∀ s t q r
   -> (s -> Effect t Unit)
   -> (r -> Effect t (Maybe q))
   -> FocusedComponent t q
-embed (FocusedComponent cmp) s fs fr = FocusedComponent \effect _ -> cmp (\eff -> effect $ mapEffect' s fs fr eff) s
-
-mapEffect' :: ∀ s q r t. s -> (s -> Effect t Unit) -> (r -> Effect t (Maybe q)) -> Effect s (Maybe r) -> Effect t (Maybe q)
-mapEffect' s inject ret eff = case resume eff of
-  Left k -> runExists go (unEffectF k)
-  Right r -> maybe (pure Nothing) ret r
-  where
-    go :: ∀ next a. EffectEF s next a -> Effect t (Maybe q)
-    go (Modify f next) = do
-      let s' × r = f s
-      inject s'
-      _ <- pure $ next r
-      pure Nothing
-    go (Effect f next) = do
-      _ <- pure $ Effect f next
-      pure Nothing
+embed (FocusedComponent cmp) s fs fr = FocusedComponent \effect _ -> cmp (\eff -> effect $ embedEffect s fs fr eff) s
 
 zoom :: ∀ s t l r q. RecordToLens s l t => l -> FocusedComponent t r -> (Maybe r -> Effect s (Maybe q)) -> FocusedComponent s q
 zoom l (FocusedComponent cmp) r = FocusedComponent \effect st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) (st ^. l')
