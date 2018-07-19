@@ -198,7 +198,10 @@ todo index = state \_ -> div
   ]
 
 todos :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
-todos todoFilter = undefined -- state \embed st -> zoomFor
+todos todoFilter = state \st -> undefined
+
+todos' :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
+todos' todoFilter = undefined -- state \embed st -> zoomFor
   -- (map fst ○ todoArray todoFilter)
   -- lensAtM'
   -- todo

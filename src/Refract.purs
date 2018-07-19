@@ -168,6 +168,9 @@ type Props s r = (Effect s (Maybe r) -> E.Effect Unit) -> P.Props
 newtype FocusedComponent s r
   = FocusedComponent ((Effect s (Maybe r) -> E.Effect Unit) -> s -> ReactElement)
 
+runComponent :: ∀ s r. FocusedComponent s r -> (Effect s (Maybe r) -> E.Effect Unit) -> s -> ReactElement
+runComponent (FocusedComponent cmp) = cmp
+
 type Component s = FocusedComponent s Unit
 
 -- Zoom, state -----------------------------------------------------------------
@@ -184,19 +187,24 @@ foreign import memo3 :: ∀ a b c d. (a -> b -> c -> d) -> a -> b -> c -> d
 ignore :: ∀ s r. FocusedComponent s Unit -> FocusedComponent s r
 ignore (FocusedComponent cmp) = FocusedComponent \effect st -> cmp (\eff -> effect $ eff *> pure Nothing) st
 
--- | Reify the current `Component` state.
-state :: ∀ s r. (s -> FocusedComponent s r) -> FocusedComponent s r
-state f = FocusedComponent \effect st -> runComponent (f st) effect st
-  where
-    runComponent (FocusedComponent cmp) = cmp
-
 cache :: ∀ s r. FocusedComponent s r -> FocusedComponent s r
 cache = \cmp -> FocusedComponent \effect st -> 
   let render st' = runComponent cmp effect st'
   in R.unsafeCreateLeafElement component' { state: st, render }
   where
-    runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
+
+-- | Reify the current `Component` state.
+state :: ∀ s r. (s -> FocusedComponent s r) -> FocusedComponent s r
+state f = FocusedComponent \effect st -> runComponent (f st) effect st
+
+reify :: ∀ s t q r
+  .  FocusedComponent s r
+  -> s
+  -> (s -> Effect t (Maybe q))
+  -> (r -> Effect t (Maybe q))
+  -> FocusedComponent t q
+reify (FocusedComponent cmp) s fs fr = FocusedComponent \effect s -> undefined
 
 zoom :: ∀ s t l r q. RecordToLens s l t => l -> FocusedComponent t r -> (Maybe r -> Effect s (Maybe q)) -> FocusedComponent s q
 zoom l (FocusedComponent cmp) r = FocusedComponent \effect st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) (st ^. l')
@@ -230,8 +238,6 @@ zoomFor keys keylens cmp = FocusedComponent \effect st ->
           modify f
           pure $ Just unit
         Nothing -> pure $ Just unit
-
-    runComponent (FocusedComponent cmp) = cmp
 
 -- React -----------------------------------------------------------------------
 
