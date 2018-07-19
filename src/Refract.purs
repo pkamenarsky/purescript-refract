@@ -14,8 +14,8 @@ module Refract
   -- , createElement
   , defaultSpec
   , effectfully
-  , foreach
-  , foreachMap
+  -- , foreach
+  -- , foreachMap
   , liftEffect
   , mapEffect
   , mkComponent
@@ -165,10 +165,10 @@ type Props s = (Effect s Unit -> E.Effect Unit) -> P.Props
 
 -- Components ------------------------------------------------------------------
 
-newtype FocusedComponent s t
-  = FocusedComponent ((Effect s Unit -> E.Effect Unit) -> Lens' s t -> t -> ReactElement)
+newtype FocusedComponent s t r
+  = FocusedComponent ((Effect s r -> E.Effect Unit) -> Lens' s t -> t -> ReactElement)
 
-type Component s = forall t. FocusedComponent t s
+type Component s = forall t. FocusedComponent t s Unit
 
 -- Zoom, state -----------------------------------------------------------------
 
@@ -179,13 +179,13 @@ foreign import showAny :: ∀ a. a -> String
 foreign import trace :: ∀ a. String -> a -> a
 
 -- | Reify the current `Component` state.
-state :: ∀ s t. (t -> (Effect t Unit -> Effect s Unit) -> FocusedComponent s t) -> FocusedComponent s t
+state :: ∀ s t r. (t -> (Effect t r -> Effect s r) -> FocusedComponent s t r) -> FocusedComponent s t r
 state f = FocusedComponent \effect l st -> runComponent (f st (mapEffect l)) effect l st
   where
     runComponent (FocusedComponent cmp) = cmp
 
 -- | Reify the current `Component` state.
-stateCached :: ∀ s t. ((Effect t Unit -> Effect s Unit) -> t -> FocusedComponent s t) -> FocusedComponent s t
+stateCached :: ∀ s t r. ((Effect t r -> Effect s r) -> t -> FocusedComponent s t r) -> FocusedComponent s t r
 stateCached f = FocusedComponent \effect lens st ->
   let render st' = runComponent (f (mapEffect lens) st') effect lens st'
   in R.unsafeCreateLeafElement component' { state: st, render }
@@ -193,7 +193,7 @@ stateCached f = FocusedComponent \effect lens st ->
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
-stateCached2 :: ∀ a s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> FocusedComponent s t) -> a -> FocusedComponent s t
+stateCached2 :: ∀ a s t r. ((Effect t r -> Effect s r) -> t -> a -> FocusedComponent s t r) -> a -> FocusedComponent s t r
 stateCached2 f = \a -> FocusedComponent \effect lens st ->
   let render st' = runComponent (f (mapEffect lens) st' a) effect lens st'
   in R.unsafeCreateLeafElement component' { state: st, render }
@@ -201,7 +201,7 @@ stateCached2 f = \a -> FocusedComponent \effect lens st ->
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
-stateCached3 :: ∀ a b s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> FocusedComponent s t) -> a -> b -> FocusedComponent s t
+stateCached3 :: ∀ a b s t r. ((Effect t r -> Effect s r) -> t -> a -> b -> FocusedComponent s t r) -> a -> b -> FocusedComponent s t r
 stateCached3 f = \a b -> FocusedComponent \effect lens st ->
   let render st' = runComponent (f (mapEffect lens) st' a b) effect lens st'
   in R.unsafeCreateLeafElement component' { state: st, render }
@@ -209,7 +209,7 @@ stateCached3 f = \a b -> FocusedComponent \effect lens st ->
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
-stateCached4 :: ∀ a b c s t. ((Effect t Unit -> Effect s Unit) -> t -> a -> b -> c -> FocusedComponent s t) -> a -> b -> c -> FocusedComponent s t
+stateCached4 :: ∀ a b c s t r. ((Effect t r -> Effect s r) -> t -> a -> b -> c -> FocusedComponent s t r) -> a -> b -> c -> FocusedComponent s t r
 stateCached4 f = \a b c -> FocusedComponent \effect lens st ->
   let render st' = runComponent (f (mapEffect lens) st' a b c) effect lens st'
   in R.unsafeCreateLeafElement component' { state: st, render }
@@ -217,8 +217,8 @@ stateCached4 f = \a b c -> FocusedComponent \effect lens st ->
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
-zoom :: ∀ ps s t l. RecordToLens s l t => l -> FocusedComponent ps t -> FocusedComponent ps s
-zoom l (FocusedComponent cmp) = FocusedComponent \effect l'' st -> cmp (effect $ _) (l'' ○ l') (st ^. l')
+zoom :: ∀ ps s t l r. RecordToLens s l t => l -> FocusedComponent ps t r -> (r -> Effect ps Unit) -> FocusedComponent ps s Unit
+zoom l (FocusedComponent cmp) r = FocusedComponent \effect l'' st -> cmp (\eff -> effect $ eff >>= r) (l'' ○ l') (st ^. l')
   where
     l' = recordToLens l
 
@@ -291,10 +291,10 @@ defaultSpec =
 
 -- | Create a DOM element `Component`.
 mkComponent
-  :: ∀ s t. String                  -- | Element name
-  -> Array (Props s)                -- | Props
-  -> Array (FocusedComponent s t)   -- | Children
-  -> FocusedComponent s t
+  :: ∀ s t. String                     -- | Element name
+  -> Array (Props s)                   -- | Props
+  -> Array (FocusedComponent s t Unit) -- | Children
+  -> FocusedComponent s t Unit
 mkComponent element props children = FocusedComponent \effect l st -> mkDOM
   (IsDynamic false) element (map (_ $ effect) props)
   (map (\(FocusedComponent cmp) -> cmp effect l st) children)
@@ -303,10 +303,10 @@ mkComponent element props children = FocusedComponent \effect l st -> mkDOM
 
 -- | Attach `Component` to the DOM element with the specified id and run it.
 run
-  :: ∀ s. String                       -- | Element id
-  -> FocusedComponent { | s } { | s }  -- | Component
+  :: ∀ s. String                           -- | Element id
+  -> FocusedComponent { | s } { | s } Unit -- | Component
   -> { | s }
-  -> ({ | s } -> E.Effect Unit)        -- | State callback (useful for hot reloading)
+  -> ({ | s } -> E.Effect Unit)            -- | State callback (useful for hot reloading)
   -> E.Effect Unit
 run elemId cmp st updateState = void $ element >>= RD.render ui
   where
@@ -344,68 +344,68 @@ lensAtM :: ∀ k v. Ord k => k -> Lens' (Map k v) v
 lensAtM k = lens (\m -> unsafePartial $ fromJust $ M.lookup k m) (\m v -> M.insert k v m)
 
 -- | Filtered `Array` traversal.
-foreach
-  :: ∀ s a
-  .  (a -> Boolean)
-  -> (Int -> FocusedComponent s a)
-  -> FocusedComponent s (Array a)
-foreach f cmp = FocusedComponent \effect l st ->
-  let filtered = filter f st
-      mkElement (i × a) = runComponent (cmp i) effect (cloneLens l ○ lensAtA i) a
-      runComponent (FocusedComponent cmp') = cmp'
-
-  in  RD.div [] $ map mkElement $ zip (range 0 (length filtered - 1)) filtered
+-- foreach
+--   :: ∀ s a
+--   .  (a -> Boolean)
+--   -> (Int -> FocusedComponent s a)
+--   -> FocusedComponent s (Array a)
+-- foreach f cmp = FocusedComponent \effect l st ->
+--   let filtered = filter f st
+--       mkElement (i × a) = runComponent (cmp i) effect (cloneLens l ○ lensAtA i) a
+--       runComponent (FocusedComponent cmp') = cmp'
+-- 
+--   in  RD.div [] $ map mkElement $ zip (range 0 (length filtered - 1)) filtered
 
 unfiltered :: ∀ a. a -> Boolean
 unfiltered _ = true
 
-deleteBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Map k v
-deleteBy f k m = coerce M.delete { compare: f } k m
-  where
-    coerce :: (forall k v. Ord k => k -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Map k v
-    coerce = unsafeCoerce
-
-insertBy :: ∀ k v. (k -> k -> Ordering) -> k -> v -> Map k v -> Map k v
-insertBy f k m = coerce M.insert { compare: f } k m
-  where
-    coerce :: (forall k v. Ord k => k -> v -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> v -> Map k v -> Map k v
-    coerce = unsafeCoerce
-
-lookupBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Maybe v
-lookupBy f k m = coerce M.lookup { compare: f } k m
-  where
-    coerce :: (forall k v. Ord k => k -> Map k v -> Maybe v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Maybe v
-    coerce = unsafeCoerce
-
-lensAtMBy :: ∀ k v. (k -> k -> Ordering) -> k -> Lens' (Map k v) v
-lensAtMBy ord_f k = lens (\m -> unsafePartial $ fromJust $ lookupBy ord_f k m) (\m v -> insertBy ord_f k v m)
-
-type Derivation i s m =
-  { state  :: s
-  , derive :: s -> m
-  , update :: i -> m -> s
-  }
-
--- | Filtered and sorted `Map` traversal.
-foreachMap
-  :: ∀ s t k v
-  .  (k -> String)
-  -> (k -> k -> Ordering)
-  -> (k × v -> k × v -> Ordering)
-  -> (k × v -> Boolean)
-  -> (Effect s Unit -> k -> FocusedComponent s v)
-  -> FocusedComponent s (Map k v)
-foreachMap = \show_f keyord_f ord_f filter_f cmp -> FocusedComponent \effect l' st ->
-  let l = cloneLens l'
-      elems = sortBy ord_f ○ filter filter_f
-      mkElement (k × v) = R.fragmentWithKey (show_f k) [ runComponent (cmp (modify $ over l $ deleteBy keyord_f k ) k) effect (l ○ lensAtMBy keyord_f k) v ]
-      runComponent (FocusedComponent cmp') = cmp'
-      render st = RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
-
-  -- in  RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
-  in R.unsafeCreateLeafElement component' { state: st, render: render }
-  where
-    component' = component $ genId unit
+-- deleteBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Map k v
+-- deleteBy f k m = coerce M.delete { compare: f } k m
+--   where
+--     coerce :: (forall k v. Ord k => k -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Map k v
+--     coerce = unsafeCoerce
+-- 
+-- insertBy :: ∀ k v. (k -> k -> Ordering) -> k -> v -> Map k v -> Map k v
+-- insertBy f k m = coerce M.insert { compare: f } k m
+--   where
+--     coerce :: (forall k v. Ord k => k -> v -> Map k v -> Map k v) -> { compare :: k -> k -> Ordering } -> k -> v -> Map k v -> Map k v
+--     coerce = unsafeCoerce
+-- 
+-- lookupBy :: ∀ k v. (k -> k -> Ordering) -> k -> Map k v -> Maybe v
+-- lookupBy f k m = coerce M.lookup { compare: f } k m
+--   where
+--     coerce :: (forall k v. Ord k => k -> Map k v -> Maybe v) -> { compare :: k -> k -> Ordering } -> k -> Map k v -> Maybe v
+--     coerce = unsafeCoerce
+-- 
+-- lensAtMBy :: ∀ k v. (k -> k -> Ordering) -> k -> Lens' (Map k v) v
+-- lensAtMBy ord_f k = lens (\m -> unsafePartial $ fromJust $ lookupBy ord_f k m) (\m v -> insertBy ord_f k v m)
+-- 
+-- type Derivation i s m =
+--   { state  :: s
+--   , derive :: s -> m
+--   , update :: i -> m -> s
+--   }
+-- 
+-- -- | Filtered and sorted `Map` traversal.
+-- foreachMap
+--   :: ∀ s t k v
+--   .  (k -> String)
+--   -> (k -> k -> Ordering)
+--   -> (k × v -> k × v -> Ordering)
+--   -> (k × v -> Boolean)
+--   -> (Effect s Unit -> k -> FocusedComponent s v)
+--   -> FocusedComponent s (Map k v)
+-- foreachMap = \show_f keyord_f ord_f filter_f cmp -> FocusedComponent \effect l' st ->
+--   let l = cloneLens l'
+--       elems = sortBy ord_f ○ filter filter_f
+--       mkElement (k × v) = R.fragmentWithKey (show_f k) [ runComponent (cmp (modify $ over l $ deleteBy keyord_f k ) k) effect (l ○ lensAtMBy keyord_f k) v ]
+--       runComponent (FocusedComponent cmp') = cmp'
+--       render st = RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
+-- 
+--   -- in  RD.div [] $ map mkElement (elems $ M.toUnfoldable st) 
+--   in R.unsafeCreateLeafElement component' { state: st, render: render }
+--   where
+--     component' = component $ genId unit
 
 type ThisProps s r = 
   { state :: s
