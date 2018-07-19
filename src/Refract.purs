@@ -185,6 +185,9 @@ foreign import refEq :: ∀ a. a -> a -> Boolean
 foreign import logAny :: ∀ a. a -> E.Effect Unit
 foreign import showAny :: ∀ a. a -> String
 foreign import trace :: ∀ a. String -> a -> a
+foreign import memo :: ∀ a b. (a -> b) -> a -> b
+foreign import memo2 :: ∀ a b c. (a -> b -> c) -> a -> b -> c
+foreign import memo3 :: ∀ a b c d. (a -> b -> c -> d) -> a -> b -> c -> d
 
 ignore :: ∀ s t r. FocusedComponent s t Unit -> FocusedComponent s t r
 ignore (FocusedComponent cmp) = FocusedComponent \effect l st -> cmp (\eff -> effect $ eff *> pure Nothing) l st
@@ -204,13 +207,12 @@ stateCached f = FocusedComponent \effect lens st ->
     runComponent (FocusedComponent cmp) = cmp
     component' = component $ genId unit
 
-stateCached2 :: ∀ a s t r. ((forall q. Effect t q -> Effect s q) -> t -> a -> FocusedComponent s t r) -> a -> FocusedComponent s t r
-stateCached2 f = \a -> FocusedComponent \effect lens st ->
+stateCached2 :: ∀ a s t r. (forall q. (Effect t q -> Effect s q) -> t -> a -> FocusedComponent s t r) -> a -> FocusedComponent s t r
+stateCached2 f = memo \a -> FocusedComponent \effect lens st ->
   let render st' = runComponent (f (mapEffect lens) st' a) effect lens st'
+      runComponent (FocusedComponent cmp) = cmp
+      component' = component $ genId unit
   in R.unsafeCreateLeafElement component' { state: st, render }
-  where
-    runComponent (FocusedComponent cmp) = cmp
-    component' = component $ genId unit
 
 stateCached3 :: ∀ a b s t r. ((forall q. Effect t q -> Effect s q) -> t -> a -> b -> FocusedComponent s t r) -> a -> b -> FocusedComponent s t r
 stateCached3 f = \a b -> FocusedComponent \effect lens st ->
@@ -236,7 +238,8 @@ zoom l (FocusedComponent cmp) r = FocusedComponent \effect l'' st -> cmp (\eff -
 data DeleteAction = DeleteAction
 
 zoomFor :: ∀ ps s t i r q
-  .  (s -> Array i)
+  .  Show i
+  => (s -> Array i)
   -> (i -> ALens' s (Maybe t))
   -> (i -> FocusedComponent ps t DeleteAction)
   -> FocusedComponent ps s Unit
@@ -244,11 +247,12 @@ zoomFor keys keylens cmp = FocusedComponent \effect l st ->
   RD.div [] $ flip map (keys st) \key -> case cloneLens (keylens key) of
     keylens' -> case st ^. keylens' of
       Nothing  -> RD.div [] []
-      Just st' -> runComponent
+      Just st' -> RD.div [ P.key $ show key ] [ runComponent
         (cmp key)
         (\eff -> effect $ delete (over l (\ps -> keylens' .~ Nothing $ ps)) eff)
         (l ○ lens (const st') (\s t -> keylens' .~ Just t $ s))
         st'
+        ]
 
   where
     delete :: (ps -> ps) -> Effect ps (Maybe DeleteAction) -> Effect ps (Maybe Unit)
