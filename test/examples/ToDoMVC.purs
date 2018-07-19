@@ -104,7 +104,7 @@ data InputResult = Cancel | Input String | Delete
 -- | * Deletes input component on enter, when the text is empty
 blurableInput
   :: FocusedComponent String InputResult
-blurableInput = state \st -> input
+blurableInput = cache $ state \st -> input
     [ className "todo-edit"
     , autoFocus true
     , value st
@@ -137,7 +137,7 @@ checkbox = state \st -> input
 data Entered = Entered String
 
 inputOnEnter :: FocusedComponent String Entered
-inputOnEnter = state \str -> input
+inputOnEnter = cache $ state \str -> input
   [ className "todo-input"
   , placeholder "What needs to be done?"
   , autoFocus true
@@ -185,7 +185,7 @@ spanButton :: ∀ s q. s -> Array (FocusedComponent s Unit) -> FocusedComponent 
 spanButton t children = state \_ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
 
 todo :: FocusedComponent ToDo DeleteAction -- | Todo Component
-todo = state \_ -> div
+todo = cache $ state \_ -> div
   [ className "todo" ]
   [ zoom _completed checkbox (const $ pure Nothing)
   , flip zoom todoInput
@@ -198,10 +198,7 @@ todo = state \_ -> div
   ]
 
 todos :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
-todos todoFilter = state \st -> undefined
-
-todos' :: ToDoFilter -> FocusedComponent (Map Int ToDo) Unit
-todos' todoFilter = state \st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
+todos todoFilter = state \st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo v (mod k) (delete k)
   where
     mod k v = modify \s -> M.insert k v s
     delete k DeleteAction = do

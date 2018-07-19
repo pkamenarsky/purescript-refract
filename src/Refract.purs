@@ -12,6 +12,10 @@ module Refract
   , (×)
   -- , componentClass
   -- , createElement
+  , cache
+  , memo
+  , memo2
+  , memo3
   , defaultSpec
   , effectfully
   , embed
