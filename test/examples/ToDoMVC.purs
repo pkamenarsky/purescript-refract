@@ -111,7 +111,6 @@ blurableInput = state \_ st -> input
     , onChange \e -> do
         target <- liftEffect $ Event.target e
         modify \_ -> (unsafeCoerce target).value
-        pure Nothing
     , onKeyDown \e -> do
         keyCode <- liftEffect $ Event.keyCode e
         if round keyCode == 13
@@ -129,9 +128,7 @@ checkbox = state \_ st -> input
   [ _type "checkbox"
   , className "todo-checkbox"
   , checked st
-  , onChange \_ -> do
-      modify not
-      pure Nothing
+  , onChange \_ -> modify not
   ] []
 
 data Entered = Entered String
@@ -145,7 +142,6 @@ inputOnEnter = cache $ state \_ str -> input
   , onChange \e -> do
       target <- liftEffect $ Event.target e
       modify \_ -> (unsafeCoerce target).value
-      pure Nothing
   , onEnter $ if S.length str > 0
       then pure $ Just $ Entered str
       else pure Nothing
@@ -164,25 +160,19 @@ todoInput ::
 todoInput = state \_ st -> if st.active
   then zoom _temp blurableInput {} \result -> do
     case result of
-      Just Cancel -> do
-        modify \st' -> st' { temp = "", active = false }
-        pure Nothing
-      Just (Input str) -> do
-        modify \st' -> st' { temp = "", active = false, current = st.temp }
-        pure Nothing
+      Just Cancel -> modify \st' -> st' { temp = "", active = false }
+      Just (Input str) -> modify \st' -> st' { temp = "", active = false, current = st.temp }
       Just Delete -> pure $ Just DeleteAction
       _ -> pure Nothing
   else label
     [ className "todo-description"
-    , onDoubleClick \_ -> do
-        modify \st' -> st' { temp = st.current, active = true }
-        pure Nothing
+    , onDoubleClick \_ -> modify \st' -> st' { temp = st.current, active = true }
     ]
     [ text st.current ]
 
 data Clicked = Clicked
 
-spanButton :: ∀ s q. s -> Array (Component {} s) -> Component {} s
+spanButton :: ∀ s. s -> Array (Component {} s) -> Component {} s
 spanButton t children = state \_ _ -> span [ onClick \_ -> (modify $ const t) *> pure Nothing ] children
 
 todo :: Component' { key :: String } ToDo DeleteAction
@@ -204,9 +194,7 @@ todos :: Component { key :: String, todoFilter :: ToDoFilter } (Map Int ToDo)
 todos = cache $ state \{ todoFilter } st -> div [] $ flip map (todoArray todoFilter st) \(k × v) -> embed todo { key: show k } v (mod k) (delete k)
   where
     mod k v = modify \s -> M.insert k v s
-    delete k DeleteAction = do
-      modify \s -> M.delete k s
-      pure Nothing
+    delete k DeleteAction = modify \s -> M.delete k s
 
     todoArray :: ToDoFilter -> (Map Int ToDo) -> Array (Int × ToDo)
     todoArray todoFilter st
@@ -223,8 +211,7 @@ todoMVC :: Component {} AppState
 todoMVC = state \_ st -> div [ className "container" ]
   -- Input field
   [ zoom _todo inputOnEnter { key: "input" } \str -> case str of
-      Just (Entered str') -> do
-        modify \st' -> st'
+      Just (Entered str') -> modify \st' -> st'
           { todo = ""
           , nextId = st'.nextId + 1
           , todos = M.insert st'.nextId
@@ -234,7 +221,6 @@ todoMVC = state \_ st -> div [ className "container" ]
               , input: ""
               } st.todos
           }
-        pure Nothing
       _ -> pure Nothing
 
   -- Individual todos
@@ -257,9 +243,7 @@ todoMVC = state \_ st -> div [ className "container" ]
       , if (length $ filter (_.completed) $ M.values st.todos) > 0
           then span
             [ className "todo-clear"
-            , onClick \_ -> do
-                modify \st' -> st' { todos = filterMap (not (\todo -> todo.completed)) st.todos }
-                pure Nothing
+            , onClick \_ -> modify \st' -> st' { todos = filterMap (not (\todo' -> todo'.completed)) st.todos }
             ]
             [ text "Clear completed"]
           else span [] []

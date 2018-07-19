@@ -28,7 +28,7 @@ import Refract.Props (_type, autoFocus, checked, className, onBlur, onChange, on
 import Refract.Props (className, key, value, onChange)
 import Refract.Props (onClick)
 import React.SyntheticEvent as Event
-import Refract (Component, Effect, Component', trace, showAny, modify, run, state, zoom, liftEffect)
+import Refract (Component, Effect, Component', embed, trace, showAny, modify, run, cache, state, zoom, zoom', liftEffect)
 import Refract.DOM (div, input, label, span, text)
 import Refract.DOM (div, input, text)
 import Undefined (undefined)
@@ -40,8 +40,7 @@ import Unsafe.Coerce (unsafeCoerce)
 type AppState =
   { c :: Int
   , d :: Int
-  , many :: Array Int
-  , name :: String
+  , many :: Map Int Int
   }
 
 _c :: ∀ r. Lens' { c :: Int | r } Int
@@ -50,48 +49,34 @@ _c = prop (SProxy :: SProxy "c")
 _d :: ∀ r. Lens' { d :: Int | r } Int
 _d = prop (SProxy :: SProxy "d")
 
-_many :: ∀ r. Lens' { many :: Array Int | r } (Array Int)
+_many :: ∀ r. Lens' { many :: Map Int Int | r } (Map Int Int)
 _many = prop (SProxy :: SProxy "many")
 
-_name :: ∀ r. Lens' { name :: String | r } String
-_name = prop (SProxy :: SProxy "name")
-
-counter :: Component {} Int
-counter = state \_ st -> div []
-  [ div [ onClick \_ -> modify (_ - 1) *> pure Nothing ] [ text "Decrement" ]
+counter :: Component { key :: String } Int
+counter = cache $ state \_ st -> div []
+  [ div [ onClick \_ -> modify (_ - 1) ] [ text "Decrement" ]
   , text (show st)
-  , div [ onClick \_ -> modify (_ + 1) *> pure Nothing ] [ text "Increment" ]
+  , div [ onClick \_ -> modify (_ + 1) ] [ text "Increment" ]
   ]
 
-counterA :: Component {} AppState
-counterA = div []
-  [ zoom _c counter {} (const $ pure Nothing)
-  , zoom _d counter {} (const $ pure Nothing)
+twoCounters :: Component {} AppState
+twoCounters = div []
+  [ zoom' _c counter { key: "counter1" }
+  , zoom' _d counter { key: "counter2" }
   ]
 
--- twoCounters :: Component (Tuple Int Int)
--- twoCounters = div []
---   [ zoom _1 (counter "Counter: ")
---   , zoom _2 (counter "Counter: ")
---   ]
-
-inputOnEnter :: Component {} String
-inputOnEnter = state \_ str -> input
-  [ className "todo-input"
-  , value str
-  -- , onChange \e -> do
-  --     target <- liftEffect $ Event.target e
-  --     embed $ modify \_ -> (unsafeCoerce target).value
-  ] []
-
-manyCounters :: Component {} AppState
-manyCounters = div []
-  [ zoom _name inputOnEnter {} (const $ pure Nothing)
-  -- , zoom _many) (const $ pure Nothing) $ state \st -> div []
-  --     [ div [ onClick \_ -> modify (cons 0) *> pure Nothing ] [ text "Add counter" ]
-  --     -- , foreach unfiltered indexedCounter
-  --     ]
+manyCounters :: Component {} (Map Int Int)
+manyCounters = state \_ st -> div []
+  [ div [ onClick \_ -> modify \m -> M.insert (M.size m) 0 m ] [ text "Add counter" ]
+  , counters st
   ]
+  where
+    counters st = div [] $ flip map (M.toUnfoldable st) \(Tuple k v) -> embed
+      counter
+      { key: show k }
+      v
+      (modify <<< M.insert k)
+      (const $ pure Nothing)
 
 -- Main ------------------------------------------------------------------------
 
@@ -99,4 +84,4 @@ manyCounters = div []
 -- main = run "main" (manyCounters identity)
 
 main :: E.Effect Unit
-main = run "main" manyCounters { c: 0, d: 0, many: [], name: "" } (\_ -> pure unit)
+main = run "main" (zoom' _many manyCounters {}) ({ c: 0, d: 0, many: M.empty } :: AppState) (\_ -> pure unit)

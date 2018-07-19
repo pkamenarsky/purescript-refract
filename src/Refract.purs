@@ -27,6 +27,7 @@ module Refract
   , trace
   , keySort
   , zoom
+  , zoom'
   , lensAtM
   ) where
 
@@ -131,7 +132,7 @@ interpretEffect this m = runFreeM (runExists go ○ unEffectF) m
       pure (next a)
     go (Effect f next) = f >>= pure ○ next
 
-embedEffect :: ∀ s q r t. s -> (s -> Effect t Unit) -> (r -> Effect t (Maybe q)) -> Effect s (Maybe r) -> Effect t (Maybe q)
+embedEffect :: ∀ s o q r t. s -> (s -> Effect t (Maybe o)) -> (r -> Effect t (Maybe q)) -> Effect s (Maybe r) -> Effect t (Maybe q)
 embedEffect s inject ret eff = case resume eff of
   Left k -> runExists go (unEffectF k)
   Right r -> maybe (pure Nothing) ret r
@@ -139,7 +140,7 @@ embedEffect s inject ret eff = case resume eff of
     go :: ∀ a. EffectEF s (Effect s (Maybe r)) a -> Effect t (Maybe q)
     go (Modify f next) = do
       let s' × r = f s
-      inject s'
+      _ <- inject s'
       embedEffect s inject ret (next r)
     go (Effect f next) = do
       r <- effectfully f
@@ -150,8 +151,8 @@ get :: ∀ s. Effect s s
 get = modify' \st -> st × st
 
 -- | Modify the current `Component` state.
-modify :: ∀ s. (s -> s) -> Effect s Unit
-modify f = modify' \st -> f st × unit
+modify :: ∀ r s. (s -> s) -> Effect s (Maybe r)
+modify f = modify' \st -> f st × Nothing
 
 -- | Modify the current `Component` state and return a result.
 modify' :: ∀ s a. (s -> s × a) -> Effect s a
@@ -204,17 +205,22 @@ cache cmp = Component' \effect p st ->
 state :: ∀ p s r. (p -> s -> Component' p s r) -> Component' p s r
 state f = Component' \effect p st -> runComponent (f p st) effect p st
 
-embed :: ∀ p1 p2 s t q r
+embed :: ∀ p1 p2 s t o q r
   .  Component' p1 s r
   -> p1
   -> s
-  -> (s -> Effect t Unit)
+  -> (s -> Effect t (Maybe o))
   -> (r -> Effect t (Maybe q))
   -> Component' p2 t q
 embed (Component' cmp) p s fs fr = Component' \effect _ _ -> cmp (\eff -> effect $ embedEffect s fs fr eff) p s
 
 zoom :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> Component' p1 t r -> p1 -> (Maybe r -> Effect s (Maybe q)) -> Component' p2 s q
 zoom l (Component' cmp) p r = Component' \effect _ st -> cmp (\eff -> effect (mapEffect l' eff >>= r)) p (st ^. l')
+  where
+    l' = recordToLens l
+
+zoom' :: ∀ p1 p2 s t l r q. RecordToLens s l t => l -> Component' p1 t Unit -> p1 -> Component' p2 s q
+zoom' l (Component' cmp) p = Component' \effect _ st -> cmp (\eff -> effect (mapEffect l' eff *> pure Nothing)) p (st ^. l')
   where
     l' = recordToLens l
 
